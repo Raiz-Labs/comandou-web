@@ -285,7 +285,7 @@ ngOnInit() {
 - [x] TASK-FE-012 — Detalhe da comanda e adição de itens (garçom)
 - [x] TASK-FE-013 — Cancelamento e edição de itens (garçom)
 - [x] TASK-FE-014 — Notificação de item pronto (garçom)
-- [ ] TASK-FE-015 — Fila da cozinha em tempo real
+- [x] TASK-FE-015 — Fila da cozinha em tempo real
 - [ ] TASK-FE-016 — Listagem de comandas abertas (caixa)
 - [ ] TASK-FE-017 — Detalhe, fechamento e divisão (caixa)
 - [ ] TASK-FE-018 — Dashboard do admin
