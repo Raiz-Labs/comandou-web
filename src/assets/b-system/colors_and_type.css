@@ -1,0 +1,143 @@
+/* b-system Design System — Tokens
+ * Comandou · v1.0
+ * Paleta: Terracotta/Cream · Tipografia: Nunito · Ícones: Lucide
+ */
+
+:root {
+  /* === TIPOGRAFIA === */
+  --b-font-sans: 'Nunito', system-ui, sans-serif;
+  --b-font-size-xs: 0.75rem;    /* 12px */
+  --b-font-size-sm: 0.875rem;   /* 14px */
+  --b-font-size-md: 1rem;       /* 16px */
+  --b-font-size-lg: 1.125rem;   /* 18px */
+  --b-font-size-xl: 1.25rem;    /* 20px */
+  --b-font-size-2xl: 1.5rem;    /* 24px */
+  --b-font-size-3xl: 1.875rem;  /* 30px */
+
+  --b-font-weight-regular: 400;
+  --b-font-weight-medium: 500;
+  --b-font-weight-semibold: 600;
+  --b-font-weight-bold: 700;
+  --b-font-weight-extrabold: 800;
+
+  --b-line-height-tight: 1.25;
+  --b-line-height-normal: 1.5;
+  --b-line-height-relaxed: 1.75;
+
+  /* === CORES PRIMÁRIAS (Terracotta) === */
+  --b-primary-50: #FDF0EA;
+  --b-primary-100: #FAD9C8;
+  --b-primary-200: #F5B49A;
+  --b-primary-300: #EF8F6B;
+  --b-primary-400: #E87043;
+  --b-primary-500: #D95C25;   /* CTA principal */
+  --b-primary-600: #BE4F1E;
+  --b-primary-700: #A04118;
+  --b-primary-800: #7E3312;
+  --b-primary-900: #5C250D;
+
+  /* === BACKGROUND / SUPERFÍCIE === */
+  --b-bg: #FBF8F3;             /* cream geral */
+  --b-bg-elevated: #FFFFFF;    /* cards, modais */
+  --b-bg-sunken: #F3EDE3;      /* inputs, áreas deprimidas */
+
+  /* === FOREGROUND / TEXTO === */
+  --b-fg: #2C1A0E;             /* texto principal */
+  --b-fg-muted: #6B4F38;       /* texto secundário */
+  --b-fg-subtle: #9C7A62;      /* placeholders, labels suaves */
+  --b-fg-inverted: #FBF8F3;    /* texto sobre fundo escuro/primário */
+
+  /* === NEUTROS === */
+  --b-neutral-50: #F9F6F1;
+  --b-neutral-100: #EDE7DC;
+  --b-neutral-200: #D9CFC2;
+  --b-neutral-300: #C2B5A3;
+  --b-neutral-400: #A89280;
+  --b-neutral-500: #8C7260;
+  --b-neutral-600: #70584A;
+  --b-neutral-700: #564235;
+  --b-neutral-800: #3C2E24;
+  --b-neutral-900: #2C1A0E;
+
+  /* === SEMÂNTICAS === */
+  /* Success (verde) */
+  --b-success-50: #ECFDF5;
+  --b-success-100: #D1FAE5;
+  --b-success-500: #10B981;
+  --b-success-600: #059669;
+  --b-success-700: #047857;
+
+  /* Warning (âmbar) */
+  --b-warning-50: #FFFBEB;
+  --b-warning-100: #FEF3C7;
+  --b-warning-500: #F59E0B;
+  --b-warning-600: #D97706;
+  --b-warning-700: #B45309;
+
+  /* Danger (vermelho) */
+  --b-danger-50: #FEF2F2;
+  --b-danger-100: #FEE2E2;
+  --b-danger-500: #EF4444;
+  --b-danger-600: #DC2626;
+  --b-danger-700: #B91C1C;
+
+  /* Info (azul aço) */
+  --b-info-50: #EFF6FF;
+  --b-info-100: #DBEAFE;
+  --b-info-500: #3B82F6;
+  --b-info-600: #2563EB;
+  --b-info-700: #1D4ED8;
+
+  /* Accent (âmbar vivo — mesas com item pronto) */
+  --b-accent-50: #FFFBEB;
+  --b-accent-100: #FEF3C7;
+  --b-accent-500: #F59E0B;
+
+  /* === BORDER === */
+  --b-border: #D9CFC2;
+  --b-border-strong: #A89280;
+  --b-border-focus: #D95C25;
+
+  /* === RADIUS === */
+  --b-radius-xs: 4px;
+  --b-radius-sm: 8px;    /* botões, inputs */
+  --b-radius-md: 12px;   /* cards */
+  --b-radius-lg: 16px;   /* modais */
+  --b-radius-xl: 24px;   /* drawers */
+  --b-radius-full: 9999px;
+
+  /* === SOMBRAS === */
+  --b-shadow-1: 0 1px 3px 0 rgba(44, 26, 14, 0.08), 0 1px 2px -1px rgba(44, 26, 14, 0.06);
+  --b-shadow-2: 0 4px 6px -1px rgba(44, 26, 14, 0.10), 0 2px 4px -2px rgba(44, 26, 14, 0.08);
+  --b-shadow-3: 0 10px 15px -3px rgba(44, 26, 14, 0.12), 0 4px 6px -4px rgba(44, 26, 14, 0.10);
+  --b-shadow-4: 0 25px 50px -12px rgba(44, 26, 14, 0.20);
+
+  /* === ESPAÇAMENTOS === */
+  --b-space-1: 0.25rem;   /* 4px */
+  --b-space-2: 0.5rem;    /* 8px */
+  --b-space-3: 0.75rem;   /* 12px */
+  --b-space-4: 1rem;      /* 16px */
+  --b-space-5: 1.25rem;   /* 20px */
+  --b-space-6: 1.5rem;    /* 24px */
+  --b-space-8: 2rem;      /* 32px */
+  --b-space-10: 2.5rem;   /* 40px */
+  --b-space-12: 3rem;     /* 48px */
+  --b-space-16: 4rem;     /* 64px */
+
+  /* === BREAKPOINTS (referência — usar via media queries no SCSS) === */
+  /* mobile: < 768px | tablet: 768–1023px | web: >= 1024px | admin: >= 1280px */
+
+  /* === TRANSIÇÕES === */
+  --b-transition-fast: 150ms ease;
+  --b-transition-normal: 250ms ease;
+  --b-transition-slow: 400ms ease;
+
+  /* === Z-INDEX === */
+  --b-z-base: 0;
+  --b-z-raised: 10;
+  --b-z-dropdown: 100;
+  --b-z-sticky: 200;
+  --b-z-overlay: 300;
+  --b-z-modal: 400;
+  --b-z-toast: 500;
+}

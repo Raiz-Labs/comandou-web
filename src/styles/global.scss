@@ -1,0 +1,59 @@
+// Comandou — Global Styles
+// Ordem: reset → b-system tokens → utilitários
+
+// 1. b-system tokens
+@import '../assets/b-system/colors_and_type.css';
+
+// 2. Reset minimalista
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--b-font-sans);
+  font-size: var(--b-font-size-md);
+  line-height: var(--b-line-height-normal);
+  color: var(--b-fg);
+  background-color: var(--b-bg);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  color: var(--b-primary-500);
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: underline;
+  }
+}
+
+img, svg {
+  display: block;
+  max-width: 100%;
+}
+
+button {
+  cursor: pointer;
+  font-family: var(--b-font-sans);
+}
+
+input, select, textarea {
+  font-family: var(--b-font-sans);
+}
+
+ul, ol {
+  list-style: none;
+}
+
+// 3. Utilitários b-system
+@use './b-utils' as *;
