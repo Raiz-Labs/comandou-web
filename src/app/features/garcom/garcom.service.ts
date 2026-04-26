@@ -1,7 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
-import { Comanda, Mesa, AdicionarItemPayload, ItemComanda } from '../../shared/types';
+import { Categoria, Comanda, Mesa, AdicionarItemPayload, ItemComanda, Produto } from '../../shared/types';
 
 @Injectable({ providedIn: 'root' })
 export class GarcomService {
@@ -25,6 +25,14 @@ export class GarcomService {
 
   buscarComanda(id: string): Promise<Comanda> {
     return firstValueFrom(this.api.get<Comanda>(`/comandas/${id}`));
+  }
+
+  listarCategorias(): Promise<Categoria[]> {
+    return firstValueFrom(this.api.get<Categoria[]>('/categorias'));
+  }
+
+  listarProdutosDisponiveis(): Promise<Produto[]> {
+    return firstValueFrom(this.api.get<Produto[]>('/produtos?disponivel=true'));
   }
 
   adicionarItem(comandaId: string, payload: AdicionarItemPayload): Promise<ItemComanda> {
