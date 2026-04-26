@@ -1,13 +1,510 @@
-import { Component } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  computed,
+  OnInit,
+  OnDestroy,
+  resource,
+} from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
+import { Subscription } from 'rxjs';
+import { Comanda } from '../../../shared/types';
+import { GarcomService } from '../garcom.service';
+import { SocketService } from '../../../core/socket/socket.service';
+import { ToastService } from '../../../shared/components/toast/toast.service';
+import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
+import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
 @Component({
   selector: 'app-mesa-comandas',
   standalone: true,
+  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe],
   template: `
-    <div style="padding: 2rem; font-family: var(--b-font-sans);">
-      <h1 style="color: var(--b-primary-500);">Comandas da Mesa</h1>
-      <p style="color: var(--b-fg-muted); margin-top: 0.5rem;">Em desenvolvimento — TASK pendente</p>
+    <div class="layout">
+      <app-connection-banner />
+
+      <header class="header">
+        <button class="btn-back" (click)="voltar()" aria-label="Voltar para mesas">
+          <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
+        </button>
+
+        @if (dados.isLoading()) {
+          <div class="header__info">
+            <app-skeleton height="1.25rem" width="120px" />
+            <app-skeleton height="1rem" width="80px" />
+          </div>
+        } @else if (dados.value()) {
+          <div class="header__info">
+            <h1 class="header__title">Mesa {{ dados.value()!.mesa.numero }}</h1>
+            @if (dados.value()!.mesa.descricao) {
+              <span class="header__sub">{{ dados.value()!.mesa.descricao }}</span>
+            }
+          </div>
+          <div
+            class="status-badge"
+            [class.status-badge--ocupada]="dados.value()!.mesa.status === 'ocupada'"
+            [class.status-badge--item-pronto]="dados.value()!.mesa.status === 'item_pronto'"
+          >
+            {{ statusMesaLabel(dados.value()!.mesa.status) }}
+          </div>
+        }
+      </header>
+
+      <main class="content">
+        @if (dados.isLoading()) {
+          <div class="section">
+            <div class="section__header">
+              <app-skeleton height="1rem" width="140px" />
+            </div>
+            @for (i of skeletonItems; track i) {
+              <div class="comanda-card comanda-card--skeleton">
+                <app-skeleton height="1.125rem" width="50%" />
+                <app-skeleton height="0.875rem" width="70%" />
+                <app-skeleton height="1.25rem" width="35%" />
+              </div>
+            }
+          </div>
+        } @else if (dados.error()) {
+          <div class="empty-state">
+            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <p class="empty-state__title">Erro ao carregar comandas</p>
+            <button class="b-btn-secondary" (click)="dados.reload()">
+              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i>
+              Tentar novamente
+            </button>
+          </div>
+        } @else {
+          <!-- Comandas abertas -->
+          @if (comandasAbertas().length > 0) {
+            <section class="section">
+              <h2 class="section__title">
+                <i data-lucide="file-text" style="width:16px;height:16px"></i>
+                Comandas abertas
+              </h2>
+              @for (comanda of comandasAbertas(); track comanda.id) {
+                <button class="comanda-card" (click)="abrirDetalhe(comanda)">
+                  <div class="comanda-card__top">
+                    <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
+                    <span class="comanda-card__total">{{ comanda.total | currencyBr }}</span>
+                  </div>
+                  <div class="comanda-card__bottom">
+                    <span class="comanda-card__itens">
+                      <i data-lucide="package" style="width:13px;height:13px"></i>
+                      {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
+                    </span>
+                    <span class="comanda-card__aberta">
+                      <i data-lucide="circle-dot" style="width:13px;height:13px"></i>
+                      aberta
+                    </span>
+                  </div>
+                </button>
+              }
+            </section>
+          } @else {
+            <div class="empty-comandas">
+              <i data-lucide="clipboard-list" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+              <p class="empty-comandas__text">Nenhuma comanda aberta nesta mesa</p>
+            </div>
+          }
+
+          <!-- Comandas fechadas (histórico) -->
+          @if (comandasFechadas().length > 0) {
+            <section class="section section--muted">
+              <h2 class="section__title section__title--muted">
+                <i data-lucide="check-circle-2" style="width:16px;height:16px"></i>
+                Fechadas hoje
+              </h2>
+              @for (comanda of comandasFechadas(); track comanda.id) {
+                <div class="comanda-card comanda-card--fechada">
+                  <div class="comanda-card__top">
+                    <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
+                    <span class="comanda-card__total">{{ comanda.total | currencyBr }}</span>
+                  </div>
+                  <div class="comanda-card__bottom">
+                    <span class="comanda-card__itens">
+                      <i data-lucide="package" style="width:13px;height:13px"></i>
+                      {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
+                    </span>
+                    <span class="comanda-card__fechada">
+                      <i data-lucide="check-circle-2" style="width:13px;height:13px"></i>
+                      fechada
+                    </span>
+                  </div>
+                </div>
+              }
+            </section>
+          }
+        }
+      </main>
+
+      <!-- FAB: abrir nova comanda -->
+      <div class="fab-area">
+        <button
+          class="b-btn-primary fab"
+          [disabled]="abrindo()"
+          (click)="abrirNovaComanda()"
+          aria-label="Abrir nova comanda"
+        >
+          @if (abrindo()) {
+            <i data-lucide="loader-2" style="width:20px;height:20px" class="spin"></i>
+            Abrindo...
+          } @else {
+            <i data-lucide="plus" style="width:20px;height:20px"></i>
+            Nova comanda
+          }
+        </button>
+      </div>
     </div>
   `,
+  styles: [`
+    .layout {
+      display: flex;
+      flex-direction: column;
+      min-height: 100dvh;
+      background-color: var(--b-bg);
+      font-family: var(--b-font-sans);
+      padding-bottom: 88px; /* espaço para o FAB */
+    }
+
+    /* Header */
+    .header {
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-3);
+      padding: var(--b-space-3) var(--b-space-4);
+      background-color: var(--b-bg-elevated);
+      border-bottom: 1px solid var(--b-neutral-100);
+      box-shadow: var(--b-shadow-1);
+      min-height: 64px;
+    }
+
+    .btn-back {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      border-radius: var(--b-radius-sm);
+      border: 1px solid var(--b-neutral-200);
+      background-color: transparent;
+      color: var(--b-fg);
+      flex-shrink: 0;
+
+      &:hover {
+        background-color: var(--b-bg-sunken);
+      }
+    }
+
+    .header__info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .header__title {
+      font-size: var(--b-font-size-xl);
+      font-weight: var(--b-font-weight-bold);
+      color: var(--b-fg);
+      margin: 0;
+      line-height: var(--b-line-height-tight);
+    }
+
+    .header__sub {
+      font-size: var(--b-font-size-xs);
+      color: var(--b-fg-muted);
+    }
+
+    .status-badge {
+      flex-shrink: 0;
+      padding: var(--b-space-1) var(--b-space-3);
+      border-radius: var(--b-radius-sm);
+      font-size: var(--b-font-size-xs);
+      font-weight: var(--b-font-weight-semibold);
+      background-color: var(--b-neutral-100);
+      color: var(--b-neutral-700);
+
+      &--ocupada {
+        background-color: var(--b-primary-100);
+        color: var(--b-primary-700);
+      }
+
+      &--item-pronto {
+        background-color: var(--b-success-100);
+        color: var(--b-success-700);
+      }
+    }
+
+    /* Content */
+    .content {
+      flex: 1;
+      padding: var(--b-space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--b-space-5);
+    }
+
+    /* Section */
+    .section {
+      display: flex;
+      flex-direction: column;
+      gap: var(--b-space-3);
+    }
+
+    .section__title {
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-2);
+      font-size: var(--b-font-size-sm);
+      font-weight: var(--b-font-weight-semibold);
+      color: var(--b-fg);
+      margin: 0;
+
+      &--muted {
+        color: var(--b-fg-muted);
+      }
+    }
+
+    /* Comanda card */
+    .comanda-card {
+      display: flex;
+      flex-direction: column;
+      gap: var(--b-space-2);
+      padding: var(--b-space-4);
+      background-color: var(--b-bg-elevated);
+      border-radius: var(--b-radius-md);
+      border: 2px solid var(--b-primary-200);
+      box-shadow: var(--b-shadow-1);
+      cursor: pointer;
+      text-align: left;
+      font-family: var(--b-font-sans);
+      width: 100%;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+
+      &:hover {
+        transform: translateY(-1px);
+        box-shadow: var(--b-shadow-2);
+      }
+
+      &:active {
+        transform: translateY(0);
+      }
+
+      &--fechada {
+        cursor: default;
+        border-color: var(--b-neutral-200);
+        background-color: var(--b-bg-sunken);
+        opacity: 0.75;
+
+        &:hover {
+          transform: none;
+          box-shadow: var(--b-shadow-1);
+        }
+      }
+
+      &--skeleton {
+        cursor: default;
+        gap: var(--b-space-3);
+        border-color: var(--b-neutral-200);
+
+        &:hover {
+          transform: none;
+          box-shadow: var(--b-shadow-1);
+        }
+      }
+    }
+
+    .comanda-card__top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .comanda-card__id {
+      font-size: var(--b-font-size-lg);
+      font-weight: var(--b-font-weight-bold);
+      color: var(--b-fg);
+      font-family: monospace;
+    }
+
+    .comanda-card--fechada .comanda-card__id {
+      color: var(--b-fg-muted);
+    }
+
+    .comanda-card__total {
+      font-size: var(--b-font-size-lg);
+      font-weight: var(--b-font-weight-extrabold);
+      color: var(--b-primary-600);
+    }
+
+    .comanda-card--fechada .comanda-card__total {
+      color: var(--b-fg-muted);
+    }
+
+    .comanda-card__bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .comanda-card__itens,
+    .comanda-card__aberta,
+    .comanda-card__fechada {
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-1);
+      font-size: var(--b-font-size-xs);
+      font-weight: var(--b-font-weight-medium);
+      color: var(--b-fg-muted);
+    }
+
+    .comanda-card__aberta {
+      color: var(--b-success-600);
+    }
+
+    /* Empty states */
+    .empty-state,
+    .empty-comandas {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--b-space-3);
+      padding: var(--b-space-10) var(--b-space-4);
+      text-align: center;
+    }
+
+    .empty-comandas__text {
+      font-size: var(--b-font-size-sm);
+      color: var(--b-fg-muted);
+      margin: 0;
+    }
+
+    .empty-state__title {
+      font-size: var(--b-font-size-md);
+      font-weight: var(--b-font-weight-semibold);
+      color: var(--b-fg);
+      margin: 0;
+    }
+
+    /* FAB */
+    .fab-area {
+      position: fixed;
+      bottom: var(--b-space-5);
+      left: var(--b-space-4);
+      right: var(--b-space-4);
+      display: flex;
+      justify-content: center;
+    }
+
+    .fab {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--b-space-2);
+      width: 100%;
+      max-width: 400px;
+      min-height: 52px;
+      font-size: var(--b-font-size-md);
+      font-weight: var(--b-font-weight-bold);
+      box-shadow: var(--b-shadow-3);
+
+      &:disabled {
+        opacity: 0.6;
+        cursor: not-allowed;
+      }
+    }
+
+    /* Spinner */
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  `],
 })
-export class MesaComandasComponent {}
+export class MesaComandasComponent implements OnInit, OnDestroy {
+  private readonly garcomService = inject(GarcomService);
+  private readonly socketService = inject(SocketService);
+  private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly toast = inject(ToastService);
+
+  private readonly mesaId = this.route.snapshot.params['mesaId'] as string;
+  private subs: Subscription[] = [];
+
+  protected readonly skeletonItems = Array.from({ length: 2 }, (_, i) => i);
+  protected readonly abrindo = signal(false);
+
+  protected readonly dados = resource({
+    loader: () =>
+      Promise.all([
+        this.garcomService.buscarMesa(this.mesaId),
+        this.garcomService.listarComandasDaMesa(this.mesaId),
+      ]).then(([mesa, comandas]) => ({ mesa, comandas })),
+  });
+
+  protected readonly comandasAbertas = computed(
+    () => (this.dados.value()?.comandas ?? []).filter(c => c.aberta)
+  );
+
+  protected readonly comandasFechadas = computed(
+    () => (this.dados.value()?.comandas ?? []).filter(c => !c.aberta)
+  );
+
+  ngOnInit(): void {
+    this.subs.push(
+      this.socketService.on<unknown>('comanda:aberta').subscribe(() => {
+        this.dados.reload();
+      }),
+      this.socketService.on<unknown>('comanda:fechada').subscribe(() => {
+        this.dados.reload();
+      }),
+    );
+
+    setTimeout(() => this.initLucide(), 100);
+  }
+
+  ngOnDestroy(): void {
+    this.subs.forEach(s => s.unsubscribe());
+  }
+
+  protected voltar(): void {
+    this.router.navigate(['/garcom/mesas']);
+  }
+
+  protected abrirDetalhe(comanda: Comanda): void {
+    this.router.navigate(['/garcom/comanda', comanda.id]);
+  }
+
+  protected async abrirNovaComanda(): Promise<void> {
+    if (this.abrindo()) return;
+    this.abrindo.set(true);
+    try {
+      const novaComanda = await this.garcomService.abrirComanda(this.mesaId);
+      this.toast.success('Comanda aberta!');
+      this.router.navigate(['/garcom/comanda', novaComanda.id]);
+    } catch {
+      this.toast.danger('Não foi possível abrir a comanda. Tente novamente.');
+      this.abrindo.set(false);
+    }
+  }
+
+  protected statusMesaLabel(status: string): string {
+    const labels: Record<string, string> = {
+      livre: 'livre',
+      ocupada: 'ocupada',
+      item_pronto: 'item pronto',
+    };
+    return labels[status] ?? status;
+  }
+
+  private initLucide(): void {
+    const win = window as unknown as { lucide?: { createIcons: () => void } };
+    win.lucide?.createIcons();
+  }
+}
