@@ -280,7 +280,7 @@ ngOnInit() {
 - [x] TASK-FE-009 — Tela de login
 
 ### Pendentes (stubs criados, aguardando implementação)
-- [ ] TASK-FE-010 — Grid de mesas (garçom)
+- [x] TASK-FE-010 — Grid de mesas (garçom)
 - [ ] TASK-FE-011 — Comandas da mesa e abertura (garçom)
 - [ ] TASK-FE-012 — Detalhe da comanda e adição de itens (garçom)
 - [ ] TASK-FE-013 — Cancelamento e edição de itens (garçom)

@@ -1,7 +1,10 @@
 // Comandou — Global Styles
 // Ordem: reset → b-system tokens → utilitários
 
-// 1. b-system tokens
+// 1. Utilitários b-system (deve vir antes de qualquer regra CSS)
+@use './b-utils' as *;
+
+// 2. b-system tokens
 @import '../assets/b-system/colors_and_type.css';
 
 // 2. Reset minimalista
@@ -55,5 +58,3 @@ ul, ol {
   list-style: none;
 }
 
-// 3. Utilitários b-system
-@use './b-utils' as *;
