@@ -293,7 +293,7 @@ ngOnInit() {
 - [x] TASK-FE-020 — CRUD de Categorias e Mesas
 - [x] TASK-FE-021 — CRUD de Usuários
 - [x] TASK-FE-022 — Relatório de vendas
-- [ ] TASK-FE-023 — Cardápio público
+- [x] TASK-FE-023 — Cardápio público
 
 ---
 
