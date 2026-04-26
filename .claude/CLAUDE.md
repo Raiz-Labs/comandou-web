@@ -288,7 +288,7 @@ ngOnInit() {
 - [x] TASK-FE-015 — Fila da cozinha em tempo real
 - [x] TASK-FE-016 — Listagem de comandas abertas (caixa)
 - [x] TASK-FE-017 — Detalhe, fechamento e divisão (caixa)
-- [ ] TASK-FE-018 — Dashboard do admin
+- [x] TASK-FE-018 — Dashboard do admin
 - [ ] TASK-FE-019 — CRUD de Produtos com Signal Forms
 - [ ] TASK-FE-020 — CRUD de Categorias e Mesas
 - [ ] TASK-FE-021 — CRUD de Usuários
