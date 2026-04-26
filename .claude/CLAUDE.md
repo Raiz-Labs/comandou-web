@@ -290,7 +290,7 @@ ngOnInit() {
 - [x] TASK-FE-017 — Detalhe, fechamento e divisão (caixa)
 - [x] TASK-FE-018 — Dashboard do admin
 - [x] TASK-FE-019 — CRUD de Produtos com Signal Forms
-- [ ] TASK-FE-020 — CRUD de Categorias e Mesas
+- [x] TASK-FE-020 — CRUD de Categorias e Mesas
 - [ ] TASK-FE-021 — CRUD de Usuários
 - [ ] TASK-FE-022 — Relatório de vendas
 - [ ] TASK-FE-023 — Cardápio público
