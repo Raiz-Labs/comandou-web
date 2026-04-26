@@ -283,7 +283,7 @@ ngOnInit() {
 - [x] TASK-FE-010 — Grid de mesas (garçom)
 - [x] TASK-FE-011 — Comandas da mesa e abertura (garçom)
 - [x] TASK-FE-012 — Detalhe da comanda e adição de itens (garçom)
-- [ ] TASK-FE-013 — Cancelamento e edição de itens (garçom)
+- [x] TASK-FE-013 — Cancelamento e edição de itens (garçom)
 - [ ] TASK-FE-014 — Notificação de item pronto (garçom)
 - [ ] TASK-FE-015 — Fila da cozinha em tempo real
 - [ ] TASK-FE-016 — Listagem de comandas abertas (caixa)

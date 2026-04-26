@@ -9,16 +9,20 @@ import {
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Categoria, ItemComanda, Produto } from '../../../shared/types';
+import { Categoria, ItemComanda, Produto, StatusItem } from '../../../shared/types';
 import { GarcomService } from '../garcom.service';
 import { SocketService } from '../../../core/socket/socket.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
+import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
-type UiStep = 'lista' | 'picker' | 'form';
+type UiStep = 'lista' | 'picker' | 'form' | 'edicao';
+
+const EDITAVEL: StatusItem[] = ['pendente'];
+const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
 
 interface CategoriaComProdutos extends Categoria {
   produtos: Produto[];
@@ -27,7 +31,7 @@ interface CategoriaComProdutos extends Categoria {
 @Component({
   selector: 'app-comanda-detalhe',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, CurrencyBrPipe],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -90,7 +94,27 @@ interface CategoriaComProdutos extends Categoria {
                 <span class="item-card__nome">
                   {{ item.produto?.nome ?? 'Produto' }}
                 </span>
-                <app-status-badge [status]="item.status" />
+                <div class="item-card__actions">
+                  @if (podeEditar(item.status)) {
+                    <button
+                      class="item-action item-action--edit"
+                      (click)="abrirEdicao(item)"
+                      aria-label="Editar item"
+                    >
+                      <i data-lucide="pencil" style="width:15px;height:15px"></i>
+                    </button>
+                  }
+                  @if (podeCancelar(item.status)) {
+                    <button
+                      class="item-action item-action--cancel"
+                      (click)="pedirCancelamento(item)"
+                      aria-label="Cancelar item"
+                    >
+                      <i data-lucide="x" style="width:15px;height:15px"></i>
+                    </button>
+                  }
+                  <app-status-badge [status]="item.status" />
+                </div>
               </div>
               @if (item.observacao) {
                 <p class="item-card__obs">
@@ -139,6 +163,90 @@ interface CategoriaComProdutos extends Categoria {
         </div>
       }
     </div>
+
+    <!-- ===== CONFIRM DIALOG: CANCELAR ITEM ===== -->
+    @if (itemParaCancelar()) {
+      <app-confirm-dialog
+        title="Cancelar item?"
+        [message]="'Deseja cancelar ' + (itemParaCancelar()!.produto?.nome ?? 'este item') + '? Esta ação não pode ser desfeita.'"
+        confirmLabel="Sim, cancelar"
+        cancelLabel="Voltar"
+        [confirmDanger]="true"
+        (confirmed)="confirmarCancelamento()"
+        (cancelled)="recusarCancelamento()"
+      />
+    }
+
+    <!-- ===== BOTTOM SHEET: EDITAR ITEM ===== -->
+    @if (uiStep() === 'edicao') {
+      <div class="sheet-backdrop" (click)="fecharEdicao()"></div>
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="Editar item">
+        <div class="sheet__header">
+          <h2 class="sheet__title">{{ itemEmEdicao()?.produto?.nome ?? 'Editar item' }}</h2>
+          <button class="sheet__close" (click)="fecharEdicao()" aria-label="Fechar">
+            <i data-lucide="x" style="width:20px;height:20px"></i>
+          </button>
+        </div>
+        <div class="form-body">
+          <div class="preco-produto">
+            {{ (itemEmEdicao()?.produto?.preco ?? 0) | currencyBr }}
+          </div>
+
+          <!-- Quantidade -->
+          <div class="qty-control">
+            <button
+              class="qty-btn"
+              (click)="decrementarQtd()"
+              [disabled]="quantidade() <= 1"
+              aria-label="Diminuir quantidade"
+            >
+              <i data-lucide="minus" style="width:18px;height:18px"></i>
+            </button>
+            <span class="qty-value">{{ quantidade() }}</span>
+            <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
+              <i data-lucide="plus" style="width:18px;height:18px"></i>
+            </button>
+          </div>
+
+          <!-- Observação -->
+          <div class="obs-field">
+            <label class="b-label" for="obs-edit">Observação (opcional)</label>
+            <textarea
+              id="obs-edit"
+              class="b-input obs-input"
+              placeholder="Ex: sem cebola, bem passado..."
+              [value]="observacao()"
+              (input)="setObservacao($event)"
+              rows="3"
+              maxlength="200"
+            ></textarea>
+          </div>
+
+          <!-- Subtotal -->
+          <div class="subtotal">
+            <span class="subtotal__label">Subtotal</span>
+            <span class="subtotal__valor">
+              {{ (itemEmEdicao()?.produto?.preco ?? 0) * quantidade() | currencyBr }}
+            </span>
+          </div>
+
+          <!-- Salvar -->
+          <button
+            class="b-btn-primary confirm-btn"
+            [disabled]="salvando()"
+            (click)="confirmarEdicao()"
+          >
+            @if (salvando()) {
+              <i data-lucide="loader-2" style="width:18px;height:18px" class="spin"></i>
+              Salvando...
+            } @else {
+              <i data-lucide="check" style="width:18px;height:18px"></i>
+              Salvar alterações
+            }
+          </button>
+        </div>
+      </div>
+    }
 
     <!-- ===== BOTTOM SHEET: PICKER DE PRODUTOS ===== -->
     @if (uiStep() === 'picker' || uiStep() === 'form') {
@@ -417,6 +525,44 @@ interface CategoriaComProdutos extends Categoria {
       color: var(--b-fg-muted);
       font-style: italic;
       margin: 0;
+    }
+
+    .item-card__actions {
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-1);
+      flex-shrink: 0;
+    }
+
+    .item-action {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 32px;
+      min-height: 32px;
+      border-radius: var(--b-radius-sm);
+      border: 1px solid transparent;
+      background-color: transparent;
+
+      &--edit {
+        color: var(--b-fg-muted);
+        border-color: var(--b-neutral-200);
+
+        &:hover {
+          background-color: var(--b-bg-sunken);
+          color: var(--b-fg);
+        }
+      }
+
+      &--cancel {
+        color: var(--b-danger-500);
+        border-color: var(--b-danger-100);
+
+        &:hover {
+          background-color: var(--b-danger-50);
+          border-color: var(--b-danger-300);
+        }
+      }
     }
 
     .item-card__bottom {
@@ -801,7 +947,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   protected readonly skeletonItems = Array.from({ length: 3 }, (_, i) => i);
 
-  // UI state
+  // UI state — add flow
   protected readonly uiStep = signal<UiStep>('lista');
   protected readonly produtoSelecionado = signal<Produto | null>(null);
   protected readonly quantidade = signal(1);
@@ -809,6 +955,12 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   protected readonly busca = signal('');
   protected readonly categoriaSelecionada = signal<Categoria | null>(null);
   protected readonly adicionando = signal(false);
+
+  // UI state — edit/cancel flow
+  protected readonly itemEmEdicao = signal<ItemComanda | null>(null);
+  protected readonly itemParaCancelar = signal<ItemComanda | null>(null);
+  protected readonly salvando = signal(false);
+  protected readonly cancelando = signal(false);
 
   // Data
   protected readonly comanda = resource({
@@ -929,6 +1081,80 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   protected setObservacao(event: Event): void {
     this.observacao.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  // ===== Helpers de permissão =====
+
+  protected podeEditar(status: StatusItem): boolean {
+    return EDITAVEL.includes(status);
+  }
+
+  protected podeCancelar(status: StatusItem): boolean {
+    return CANCELAVEL.includes(status);
+  }
+
+  // ===== Edição =====
+
+  protected abrirEdicao(item: ItemComanda): void {
+    this.itemEmEdicao.set(item);
+    this.quantidade.set(item.quantidade);
+    this.observacao.set(item.observacao ?? '');
+    this.uiStep.set('edicao');
+    setTimeout(() => this.initLucide(), 50);
+  }
+
+  protected fecharEdicao(): void {
+    this.uiStep.set('lista');
+    this.itemEmEdicao.set(null);
+    this.quantidade.set(1);
+    this.observacao.set('');
+  }
+
+  protected async confirmarEdicao(): Promise<void> {
+    const item = this.itemEmEdicao();
+    if (!item || this.salvando()) return;
+
+    this.salvando.set(true);
+    try {
+      await this.garcomService.editarItem(this.comandaId, item.id, {
+        quantidade: this.quantidade(),
+        observacao: this.observacao() || undefined,
+      });
+      this.toast.success('Item atualizado!');
+      this.fecharEdicao();
+      this.comanda.reload();
+    } catch {
+      this.toast.danger('Não foi possível editar o item. Tente novamente.');
+    } finally {
+      this.salvando.set(false);
+    }
+  }
+
+  // ===== Cancelamento =====
+
+  protected pedirCancelamento(item: ItemComanda): void {
+    this.itemParaCancelar.set(item);
+  }
+
+  protected recusarCancelamento(): void {
+    this.itemParaCancelar.set(null);
+  }
+
+  protected async confirmarCancelamento(): Promise<void> {
+    const item = this.itemParaCancelar();
+    if (!item || this.cancelando()) return;
+
+    this.cancelando.set(true);
+    this.itemParaCancelar.set(null);
+    try {
+      await this.garcomService.cancelarItem(this.comandaId, item.id);
+      this.toast.success(`${item.produto?.nome ?? 'Item'} cancelado.`);
+      this.comanda.reload();
+    } catch {
+      this.toast.danger('Não foi possível cancelar o item. Tente novamente.');
+    } finally {
+      this.cancelando.set(false);
+    }
   }
 
   protected async confirmarAdicao(): Promise<void> {
