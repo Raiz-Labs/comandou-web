@@ -15,15 +15,17 @@ import { SocketService } from '../../../core/socket/socket.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
+import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
 @Component({
   selector: 'app-mesa-comandas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe],
   template: `
     <div class="layout">
       <app-connection-banner />
+      <app-notificacao-banner />
 
       <header class="header">
         <button class="btn-back" (click)="voltar()" aria-label="Voltar para mesas">

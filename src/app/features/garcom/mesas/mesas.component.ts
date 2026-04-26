@@ -7,15 +7,17 @@ import { SocketService } from '../../../core/socket/socket.service';
 import { currentUser } from '../../../core/auth/auth.signal';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
+import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent],
   template: `
     <div class="layout">
       <app-connection-banner />
+      <app-notificacao-banner />
 
       <header class="header">
         <div class="header__info">

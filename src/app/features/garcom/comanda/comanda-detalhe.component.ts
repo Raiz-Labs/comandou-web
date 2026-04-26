@@ -17,6 +17,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
+import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
 type UiStep = 'lista' | 'picker' | 'form' | 'edicao';
@@ -31,10 +32,11 @@ interface CategoriaComProdutos extends Categoria {
 @Component({
   selector: 'app-comanda-detalhe',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, NotificacaoBannerComponent, CurrencyBrPipe],
   template: `
     <div class="layout">
       <app-connection-banner />
+      <app-notificacao-banner />
 
       <!-- Header -->
       <header class="header">
