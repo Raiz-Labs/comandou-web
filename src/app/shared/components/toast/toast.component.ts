@@ -1,18 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { NgFor } from '@angular/common';
 import { ToastService, ToastVariant } from './toast.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [NgFor],
+  imports: [NgFor, LucideAngularModule],
   template: `
     <div class="toast-container">
       @for (toast of toastService.toasts(); track toast.id) {
         <div class="toast toast--{{ toast.variant }}" role="alert">
           <span class="toast__message">{{ toast.message }}</span>
           <button class="toast__close" (click)="toastService.dismiss(toast.id)" aria-label="Fechar">
-            <i data-lucide="x" style="width:16px;height:16px"></i>
+            <lucide-icon name="x" [size]="16" />
           </button>
         </div>
       }

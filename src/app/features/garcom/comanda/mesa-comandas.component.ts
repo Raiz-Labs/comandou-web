@@ -17,11 +17,12 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-mesa-comandas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -29,7 +30,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
       <header class="header">
         <button class="btn-back" (click)="voltar()" aria-label="Voltar para mesas">
-          <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
+          <lucide-icon name="arrow-left" [size]="20" />
         </button>
 
         @if (dados.isLoading()) {
@@ -70,10 +71,10 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
           </div>
         } @else if (dados.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar comandas</p>
             <button class="b-btn-secondary" (click)="dados.reload()">
-              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i>
+              <lucide-icon name="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
@@ -82,7 +83,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
           @if (comandasAbertas().length > 0) {
             <section class="section">
               <h2 class="section__title">
-                <i data-lucide="file-text" style="width:16px;height:16px"></i>
+                <lucide-icon name="file-text" [size]="16" />
                 Comandas abertas
               </h2>
               @for (comanda of comandasAbertas(); track comanda.id) {
@@ -93,11 +94,11 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   </div>
                   <div class="comanda-card__bottom">
                     <span class="comanda-card__itens">
-                      <i data-lucide="package" style="width:13px;height:13px"></i>
+                      <lucide-icon name="package" [size]="13" />
                       {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
                     </span>
                     <span class="comanda-card__aberta">
-                      <i data-lucide="circle-dot" style="width:13px;height:13px"></i>
+                      <lucide-icon name="circle-dot" [size]="13" />
                       aberta
                     </span>
                   </div>
@@ -106,7 +107,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
             </section>
           } @else {
             <div class="empty-comandas">
-              <i data-lucide="clipboard-list" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+              <lucide-icon name="clipboard-list" [size]="40" color="var(--b-fg-subtle)" />
               <p class="empty-comandas__text">Nenhuma comanda aberta nesta mesa</p>
             </div>
           }
@@ -115,7 +116,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
           @if (comandasFechadas().length > 0) {
             <section class="section section--muted">
               <h2 class="section__title section__title--muted">
-                <i data-lucide="check-circle-2" style="width:16px;height:16px"></i>
+                <lucide-icon name="check-circle-2" [size]="16" />
                 Fechadas hoje
               </h2>
               @for (comanda of comandasFechadas(); track comanda.id) {
@@ -126,11 +127,11 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   </div>
                   <div class="comanda-card__bottom">
                     <span class="comanda-card__itens">
-                      <i data-lucide="package" style="width:13px;height:13px"></i>
+                      <lucide-icon name="package" [size]="13" />
                       {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
                     </span>
                     <span class="comanda-card__fechada">
-                      <i data-lucide="check-circle-2" style="width:13px;height:13px"></i>
+                      <lucide-icon name="check-circle-2" [size]="13" />
                       fechada
                     </span>
                   </div>
@@ -150,10 +151,10 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
           aria-label="Abrir nova comanda"
         >
           @if (abrindo()) {
-            <i data-lucide="loader-2" style="width:20px;height:20px" class="spin"></i>
+            <lucide-icon name="loader-2" [size]="20" class="spin" />
             Abrindo...
           } @else {
-            <i data-lucide="plus" style="width:20px;height:20px"></i>
+            <lucide-icon name="plus" [size]="20" />
             Nova comanda
           }
         </button>
@@ -467,8 +468,6 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
         this.dados.reload();
       }),
     );
-
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -505,8 +504,4 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
     return labels[status] ?? status;
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

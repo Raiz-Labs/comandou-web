@@ -4,7 +4,6 @@ import {
   signal,
   computed,
   resource,
-  OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService, CriarUsuarioPayload } from '../admin.service';
@@ -12,6 +11,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Usuario, Perfil } from '../../../shared/types';
+import { LucideAngularModule } from 'lucide-angular';
 
 interface UsuarioModel {
   nome: string;
@@ -38,17 +38,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent],
+  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:18px;height:18px"></i>
+          <lucide-icon name="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Usuários</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <i data-lucide="user-plus" style="width:16px;height:16px"></i>
+          <lucide-icon name="user-plus" [size]="16" />
           Novo usuário
         </button>
       </header>
@@ -56,12 +56,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <i data-lucide="search" style="width:15px;height:15px;color:var(--b-fg-subtle)"></i>
+          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome ou e-mail..."
             [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <i data-lucide="x" style="width:13px;height:13px"></i>
+              <lucide-icon name="x" [size]="13" />
             </button>
           }
         </div>
@@ -99,17 +99,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           </div>
         } @else if (usuarios.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar usuários</p>
             <button class="b-btn-secondary" (click)="usuarios.reload()">Tentar novamente</button>
           </div>
         } @else if (usuariosFiltrados().length === 0) {
           <div class="empty-state">
-            <i data-lucide="users" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="users" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhum usuário encontrado</p>
             @if (!busca() && filtroPerfil() === null) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <i data-lucide="user-plus" style="width:16px;height:16px"></i>
+                <lucide-icon name="user-plus" [size]="16" />
                 Criar primeiro usuário
               </button>
             }
@@ -137,16 +137,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       <button class="status-toggle" [class.status-toggle--ativo]="u.ativo" [class.status-toggle--inativo]="!u.ativo"
                         (click)="toggleAtivo(u)" [disabled]="toggling() === u.id" aria-label="Alternar status">
                         @if (toggling() === u.id) {
-                          <i data-lucide="loader-2" style="width:12px;height:12px" class="spin"></i>
+                          <lucide-icon name="loader-2" [size]="12" class="spin" />
                         } @else {
-                          <i [attr.data-lucide]="u.ativo ? 'check-circle-2' : 'x-circle'" style="width:13px;height:13px"></i>
+                          <lucide-icon [name]="u.ativo ? 'check-circle-2' : 'x-circle'" [size]="13" />
                         }
                         {{ u.ativo ? 'ativo' : 'inativo' }}
                       </button>
                     </td>
                     <td class="tabela__acoes">
                       <button class="acao-btn acao-btn--edit" (click)="abrirEditar(u)" aria-label="Editar">
-                        <i data-lucide="pencil" style="width:15px;height:15px"></i>
+                        <lucide-icon name="pencil" [size]="15" />
                       </button>
                     </td>
                   </tr>
@@ -165,7 +165,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar usuário' : 'Novo usuário' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <i data-lucide="x" style="width:20px;height:20px"></i>
+            <lucide-icon name="x" [size]="20" />
           </button>
         </div>
 
@@ -208,7 +208,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 (blur)="tocou('senha')"
                 placeholder="{{ editandoId() ? '••••••••' : 'Mín. 6 caracteres' }}" />
               <button type="button" class="btn-olho" (click)="mostrarSenha.set(!mostrarSenha())" aria-label="Mostrar/ocultar senha">
-                <i [attr.data-lucide]="mostrarSenha() ? 'eye-off' : 'eye'" style="width:16px;height:16px"></i>
+                <lucide-icon [name]="mostrarSenha() ? 'eye-off' : 'eye'" [size]="16" />
               </button>
             </div>
             @if (erroVisivel('senha')) { <span class="b-error-message">{{ erroVisivel('senha') }}</span> }
@@ -234,10 +234,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <i data-lucide="loader-2" style="width:16px;height:16px" class="spin"></i>
+                <lucide-icon name="loader-2" [size]="16" class="spin" />
                 Salvando...
               } @else {
-                <i data-lucide="check" style="width:16px;height:16px"></i>
+                <lucide-icon name="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar usuário' }}
               }
             </button>
@@ -331,7 +331,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
-export class UsuariosComponent implements OnInit {
+export class UsuariosComponent {
   protected readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly toast = inject(ToastService);
@@ -392,10 +392,6 @@ export class UsuariosComponent implements OnInit {
 
   protected readonly formValido = computed(() => Object.keys(this.erros()).length === 0);
 
-  ngOnInit(): void {
-    setTimeout(() => this.initLucide(), 100);
-  }
-
   protected setField(campo: Campo, value: unknown): void {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
@@ -419,7 +415,6 @@ export class UsuariosComponent implements OnInit {
     this._tocados.set(new Set());
     this.mostrarSenha.set(false);
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected abrirEditar(u: Usuario): void {
@@ -428,7 +423,6 @@ export class UsuariosComponent implements OnInit {
     this._tocados.set(new Set());
     this.mostrarSenha.set(false);
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected fecharPainel(): void {
@@ -500,8 +494,4 @@ export class UsuariosComponent implements OnInit {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

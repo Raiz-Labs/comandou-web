@@ -4,7 +4,6 @@ import {
   signal,
   computed,
   resource,
-  OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService, CriarCategoriaPayload } from '../admin.service';
@@ -12,6 +11,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Categoria } from '../../../shared/types';
+import { LucideAngularModule } from 'lucide-angular';
 
 interface CategoriaModel {
   nome: string;
@@ -25,17 +25,17 @@ type Campo = keyof CategoriaModel;
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent],
+  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:18px;height:18px"></i>
+          <lucide-icon name="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Categorias</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <i data-lucide="plus" style="width:16px;height:16px"></i>
+          <lucide-icon name="plus" [size]="16" />
           Nova categoria
         </button>
       </header>
@@ -43,12 +43,12 @@ type Campo = keyof CategoriaModel;
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <i data-lucide="search" style="width:15px;height:15px;color:var(--b-fg-subtle)"></i>
+          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome..."
             [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <i data-lucide="x" style="width:13px;height:13px"></i>
+              <lucide-icon name="x" [size]="13" />
             </button>
           }
         </div>
@@ -78,17 +78,17 @@ type Campo = keyof CategoriaModel;
           </div>
         } @else if (categorias.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar categorias</p>
             <button class="b-btn-secondary" (click)="categorias.reload()">Tentar novamente</button>
           </div>
         } @else if (categoriasFiltradas().length === 0) {
           <div class="empty-state">
-            <i data-lucide="tag" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="tag" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma categoria encontrada</p>
             @if (!busca()) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <i data-lucide="plus" style="width:16px;height:16px"></i>
+                <lucide-icon name="plus" [size]="16" />
                 Criar primeira categoria
               </button>
             }
@@ -108,10 +108,10 @@ type Campo = keyof CategoriaModel;
                     <td class="tabela__nome">{{ cat.nome }}</td>
                     <td class="tabela__acoes">
                       <button class="acao-btn acao-btn--edit" (click)="abrirEditar(cat)" aria-label="Editar">
-                        <i data-lucide="pencil" style="width:15px;height:15px"></i>
+                        <lucide-icon name="pencil" [size]="15" />
                       </button>
                       <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(cat)" aria-label="Excluir">
-                        <i data-lucide="trash-2" style="width:15px;height:15px"></i>
+                        <lucide-icon name="trash-2" [size]="15" />
                       </button>
                     </td>
                   </tr>
@@ -130,7 +130,7 @@ type Campo = keyof CategoriaModel;
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar categoria' : 'Nova categoria' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <i data-lucide="x" style="width:20px;height:20px"></i>
+            <lucide-icon name="x" [size]="20" />
           </button>
         </div>
 
@@ -167,10 +167,10 @@ type Campo = keyof CategoriaModel;
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <i data-lucide="loader-2" style="width:16px;height:16px" class="spin"></i>
+                <lucide-icon name="loader-2" [size]="16" class="spin" />
                 Salvando...
               } @else {
-                <i data-lucide="check" style="width:16px;height:16px"></i>
+                <lucide-icon name="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar categoria' }}
               }
             </button>
@@ -238,7 +238,7 @@ type Campo = keyof CategoriaModel;
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
-export class CategoriasComponent implements OnInit {
+export class CategoriasComponent {
   protected readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly toast = inject(ToastService);
@@ -276,10 +276,6 @@ export class CategoriasComponent implements OnInit {
 
   protected readonly formValido = computed(() => Object.keys(this.erros()).length === 0);
 
-  ngOnInit(): void {
-    setTimeout(() => this.initLucide(), 100);
-  }
-
   protected setField(campo: Campo, value: unknown): void {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
@@ -302,7 +298,6 @@ export class CategoriasComponent implements OnInit {
     this.model.set({ ...MODELO_VAZIO });
     this._tocados.set(new Set());
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected abrirEditar(cat: Categoria): void {
@@ -310,7 +305,6 @@ export class CategoriasComponent implements OnInit {
     this.model.set({ nome: cat.nome, ordem: String(cat.ordem) });
     this._tocados.set(new Set());
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected fecharPainel(): void {
@@ -369,8 +363,4 @@ export class CategoriasComponent implements OnInit {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

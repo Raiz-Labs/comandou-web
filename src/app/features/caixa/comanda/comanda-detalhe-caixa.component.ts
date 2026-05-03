@@ -17,6 +17,7 @@ import { ConnectionBannerComponent } from '../../../shared/components/connection
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-comanda-detalhe-caixa',
@@ -27,6 +28,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
     StatusBadgeComponent,
     ConfirmDialogComponent,
     CurrencyBrPipe,
+    LucideAngularModule,
   ],
   template: `
     <div class="layout">
@@ -34,7 +36,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 
       <header class="header">
         <button class="btn-back" (click)="voltar()" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
+          <lucide-icon name="arrow-left" [size]="20" />
         </button>
 
         <div class="header__info">
@@ -64,7 +66,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         <!-- Coluna esquerda: itens -->
         <section class="itens-section">
           <h2 class="section-title">
-            <i data-lucide="package" style="width:16px;height:16px"></i>
+            <lucide-icon name="package" [size]="16" />
             Itens do pedido
           </h2>
 
@@ -78,7 +80,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
             }
           } @else if (comanda.error()) {
             <div class="empty-state">
-              <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+              <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
               <p>Erro ao carregar comanda</p>
               <button class="b-btn-secondary" (click)="comanda.reload()">Tentar novamente</button>
             </div>
@@ -143,14 +145,14 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         @if (!comanda.isLoading() && comanda.value()?.aberta) {
           <aside class="fechamento-section">
             <h2 class="section-title">
-              <i data-lucide="calculator" style="width:16px;height:16px"></i>
+              <lucide-icon name="calculator" [size]="16" />
               Fechamento
             </h2>
 
             <!-- Divisão de conta -->
             <div class="divisao-card">
               <div class="divisao-card__header">
-                <i data-lucide="users" style="width:16px;height:16px;color:var(--b-primary-500)"></i>
+                <lucide-icon name="users" [size]="16" color="var(--b-primary-500)" />
                 <span class="divisao-card__titulo">Dividir conta</span>
               </div>
 
@@ -161,7 +163,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   [disabled]="divisoes() <= 1"
                   aria-label="Diminuir"
                 >
-                  <i data-lucide="minus" style="width:16px;height:16px"></i>
+                  <lucide-icon name="minus" [size]="16" />
                 </button>
                 <div class="divisao-display">
                   <span class="divisao-num">{{ divisoes() }}</span>
@@ -172,7 +174,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   (click)="incrementarDivisoes()"
                   aria-label="Aumentar"
                 >
-                  <i data-lucide="plus" style="width:16px;height:16px"></i>
+                  <lucide-icon name="plus" [size]="16" />
                 </button>
               </div>
 
@@ -207,10 +209,10 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
               (click)="pedirFechamento()"
             >
               @if (fechando()) {
-                <i data-lucide="loader-2" style="width:18px;height:18px" class="spin"></i>
+                <lucide-icon name="loader-2" [size]="18" class="spin" />
                 Fechando...
               } @else {
-                <i data-lucide="check-circle-2" style="width:18px;height:18px"></i>
+                <lucide-icon name="check-circle-2" [size]="18" />
                 Fechar comanda
               }
             </button>
@@ -220,7 +222,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         @if (!comanda.isLoading() && comanda.value() && !comanda.value()!.aberta) {
           <aside class="fechamento-section">
             <div class="comanda-fechada">
-              <i data-lucide="check-circle-2" style="width:48px;height:48px;color:var(--b-success-500)"></i>
+              <lucide-icon name="check-circle-2" [size]="48" color="var(--b-success-500)" />
               <p class="comanda-fechada__titulo">Comanda fechada</p>
               @if (comanda.value()!.fechadoEm) {
                 <p class="comanda-fechada__sub">
@@ -740,7 +742,6 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
       }),
     );
 
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -795,8 +796,4 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

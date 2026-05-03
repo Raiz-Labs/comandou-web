@@ -14,18 +14,19 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-fila',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />
 
       <header class="header">
         <div class="header__left">
-          <i data-lucide="chef-hat" style="width:24px;height:24px;color:var(--b-primary-500)"></i>
+          <lucide-icon name="chef-hat" [size]="24" color="var(--b-primary-500)" />
           <h1 class="header__title">Fila da cozinha</h1>
         </div>
         <div class="header__right">
@@ -36,11 +37,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
             [disabled]="fila.isLoading()"
             aria-label="Recarregar"
           >
-            <i
-              data-lucide="refresh-cw"
-              style="width:16px;height:16px"
-              [class.spin]="fila.isLoading()"
-            ></i>
+            <lucide-icon name="refresh-cw" [size]="16" [class.spin]="fila.isLoading()" />
           </button>
         </div>
       </header>
@@ -49,14 +46,14 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         <div class="counter counter--pendente">
           <span class="counter__num">{{ pendentes().length }}</span>
           <span class="counter__label">
-            <i data-lucide="clock" style="width:13px;height:13px"></i>
+            <lucide-icon name="clock" [size]="13" />
             pendente{{ pendentes().length !== 1 ? 's' : '' }}
           </span>
         </div>
         <div class="counter counter--preparo">
           <span class="counter__num">{{ emPreparo().length }}</span>
           <span class="counter__label">
-            <i data-lucide="flame" style="width:13px;height:13px"></i>
+            <lucide-icon name="flame" [size]="13" />
             em preparo
           </span>
         </div>
@@ -66,7 +63,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         <!-- Coluna: Pendentes -->
         <section class="coluna">
           <h2 class="coluna__titulo coluna__titulo--pendente">
-            <i data-lucide="clock" style="width:16px;height:16px"></i>
+            <lucide-icon name="clock" [size]="16" />
             Pendentes
           </h2>
 
@@ -80,14 +77,14 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
             }
           } @else if (pendentes().length === 0) {
             <div class="coluna__vazia">
-              <i data-lucide="check-circle-2" style="width:32px;height:32px;color:var(--b-success-500)"></i>
+              <lucide-icon name="check-circle-2" [size]="32" color="var(--b-success-500)" />
               <span>Tudo em dia!</span>
             </div>
           } @else {
             @for (item of pendentes(); track item.id) {
               <div class="item-card item-card--pendente">
                 <div class="item-card__mesa">
-                  <i data-lucide="table-2" style="width:13px;height:13px"></i>
+                  <lucide-icon name="table-2" [size]="13" />
                   Mesa {{ item.comanda.mesa?.numero ?? '—' }}
                   <span class="item-card__comanda">#{{ item.comandaId.slice(-4).toUpperCase() }}</span>
                 </div>
@@ -96,13 +93,13 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   <span class="item-card__qtd">{{ item.quantidade }}x</span>
                   @if (item.observacao) {
                     <span class="item-card__obs">
-                      <i data-lucide="message-square" style="width:12px;height:12px"></i>
+                      <lucide-icon name="message-square" [size]="12" />
                       {{ item.observacao }}
                     </span>
                   }
                 </div>
                 <div class="item-card__tempo">
-                  <i data-lucide="timer" style="width:12px;height:12px"></i>
+                  <lucide-icon name="timer" [size]="12" />
                   {{ tempoEspera(item.criadoEm) }}
                 </div>
                 <button
@@ -111,9 +108,9 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   (click)="iniciarPreparo(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <i data-lucide="loader-2" style="width:16px;height:16px" class="spin"></i>
+                    <lucide-icon name="loader-2" [size]="16" class="spin" />
                   } @else {
-                    <i data-lucide="play" style="width:16px;height:16px"></i>
+                    <lucide-icon name="play" [size]="16" />
                     Iniciar preparo
                   }
                 </button>
@@ -125,7 +122,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
         <!-- Coluna: Em preparo -->
         <section class="coluna">
           <h2 class="coluna__titulo coluna__titulo--preparo">
-            <i data-lucide="flame" style="width:16px;height:16px"></i>
+            <lucide-icon name="flame" [size]="16" />
             Em preparo
           </h2>
 
@@ -145,7 +142,7 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
             @for (item of emPreparo(); track item.id) {
               <div class="item-card item-card--preparo">
                 <div class="item-card__mesa">
-                  <i data-lucide="table-2" style="width:13px;height:13px"></i>
+                  <lucide-icon name="table-2" [size]="13" />
                   Mesa {{ item.comanda.mesa?.numero ?? '—' }}
                   <span class="item-card__comanda">#{{ item.comandaId.slice(-4).toUpperCase() }}</span>
                 </div>
@@ -154,13 +151,13 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   <span class="item-card__qtd">{{ item.quantidade }}x</span>
                   @if (item.observacao) {
                     <span class="item-card__obs">
-                      <i data-lucide="message-square" style="width:12px;height:12px"></i>
+                      <lucide-icon name="message-square" [size]="12" />
                       {{ item.observacao }}
                     </span>
                   }
                 </div>
                 <div class="item-card__tempo item-card__tempo--preparo">
-                  <i data-lucide="timer" style="width:12px;height:12px"></i>
+                  <lucide-icon name="timer" [size]="12" />
                   {{ tempoEspera(item.criadoEm) }}
                 </div>
                 <button
@@ -169,9 +166,9 @@ import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
                   (click)="marcarPronto(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <i data-lucide="loader-2" style="width:16px;height:16px" class="spin"></i>
+                    <lucide-icon name="loader-2" [size]="16" class="spin" />
                   } @else {
-                    <i data-lucide="check" style="width:16px;height:16px"></i>
+                    <lucide-icon name="check" [size]="16" />
                     Marcar pronto
                   }
                 </button>
@@ -520,8 +517,6 @@ export class FilaComponent implements OnInit, OnDestroy {
         this.fila.reload();
       }),
     );
-
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -580,8 +575,4 @@ export class FilaComponent implements OnInit, OnDestroy {
     });
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

@@ -19,6 +19,7 @@ import { StatusBadgeComponent } from '../../../shared/components/status-badge/st
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 type UiStep = 'lista' | 'picker' | 'form' | 'edicao';
 
@@ -32,7 +33,7 @@ interface CategoriaComProdutos extends Categoria {
 @Component({
   selector: 'app-comanda-detalhe',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, NotificacaoBannerComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -41,7 +42,7 @@ interface CategoriaComProdutos extends Categoria {
       <!-- Header -->
       <header class="header">
         <button class="btn-back" (click)="voltar()" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:20px;height:20px"></i>
+          <lucide-icon name="arrow-left" [size]="20" />
         </button>
         <div class="header__info">
           @if (comanda.isLoading()) {
@@ -75,16 +76,16 @@ interface CategoriaComProdutos extends Categoria {
           }
         } @else if (comanda.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar comanda</p>
             <button class="b-btn-secondary" (click)="comanda.reload()">
-              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i>
+              <lucide-icon name="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (itensAtivos().length === 0 && itensCancelados().length === 0) {
           <div class="empty-state">
-            <i data-lucide="shopping-bag" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="shopping-bag" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Comanda vazia</p>
             <p class="empty-state__sub">Toque em "Adicionar item" para começar o pedido</p>
           </div>
@@ -103,7 +104,7 @@ interface CategoriaComProdutos extends Categoria {
                       (click)="abrirEdicao(item)"
                       aria-label="Editar item"
                     >
-                      <i data-lucide="pencil" style="width:15px;height:15px"></i>
+                      <lucide-icon name="pencil" [size]="15" />
                     </button>
                   }
                   @if (podeCancelar(item.status)) {
@@ -112,7 +113,7 @@ interface CategoriaComProdutos extends Categoria {
                       (click)="pedirCancelamento(item)"
                       aria-label="Cancelar item"
                     >
-                      <i data-lucide="x" style="width:15px;height:15px"></i>
+                      <lucide-icon name="x" [size]="15" />
                     </button>
                   }
                   <app-status-badge [status]="item.status" />
@@ -120,7 +121,7 @@ interface CategoriaComProdutos extends Categoria {
               </div>
               @if (item.observacao) {
                 <p class="item-card__obs">
-                  <i data-lucide="message-square" style="width:12px;height:12px"></i>
+                  <lucide-icon name="message-square" [size]="12" />
                   {{ item.observacao }}
                 </p>
               }
@@ -134,7 +135,7 @@ interface CategoriaComProdutos extends Categoria {
           <!-- Itens cancelados -->
           @if (itensCancelados().length > 0) {
             <div class="cancelados-label">
-              <i data-lucide="x-circle" style="width:13px;height:13px"></i>
+              <lucide-icon name="x-circle" [size]="13" />
               Cancelados
             </div>
             @for (item of itensCancelados(); track item.id) {
@@ -159,7 +160,7 @@ interface CategoriaComProdutos extends Categoria {
       @if (!comanda.isLoading() && comanda.value()?.aberta) {
         <div class="fab-area">
           <button class="b-btn-primary fab" (click)="abrirPicker()">
-            <i data-lucide="plus" style="width:20px;height:20px"></i>
+            <lucide-icon name="plus" [size]="20" />
             Adicionar item
           </button>
         </div>
@@ -186,7 +187,7 @@ interface CategoriaComProdutos extends Categoria {
         <div class="sheet__header">
           <h2 class="sheet__title">{{ itemEmEdicao()?.produto?.nome ?? 'Editar item' }}</h2>
           <button class="sheet__close" (click)="fecharEdicao()" aria-label="Fechar">
-            <i data-lucide="x" style="width:20px;height:20px"></i>
+            <lucide-icon name="x" [size]="20" />
           </button>
         </div>
         <div class="form-body">
@@ -202,11 +203,11 @@ interface CategoriaComProdutos extends Categoria {
               [disabled]="quantidade() <= 1"
               aria-label="Diminuir quantidade"
             >
-              <i data-lucide="minus" style="width:18px;height:18px"></i>
+              <lucide-icon name="minus" [size]="18" />
             </button>
             <span class="qty-value">{{ quantidade() }}</span>
             <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
-              <i data-lucide="plus" style="width:18px;height:18px"></i>
+              <lucide-icon name="plus" [size]="18" />
             </button>
           </div>
 
@@ -239,10 +240,10 @@ interface CategoriaComProdutos extends Categoria {
             (click)="confirmarEdicao()"
           >
             @if (salvando()) {
-              <i data-lucide="loader-2" style="width:18px;height:18px" class="spin"></i>
+              <lucide-icon name="loader-2" [size]="18" class="spin" />
               Salvando...
             } @else {
-              <i data-lucide="check" style="width:18px;height:18px"></i>
+              <lucide-icon name="check" [size]="18" />
               Salvar alterações
             }
           </button>
@@ -259,13 +260,13 @@ interface CategoriaComProdutos extends Categoria {
           <div class="sheet__header">
             <h2 class="sheet__title">Selecionar produto</h2>
             <button class="sheet__close" (click)="fecharPicker()" aria-label="Fechar">
-              <i data-lucide="x" style="width:20px;height:20px"></i>
+              <lucide-icon name="x" [size]="20" />
             </button>
           </div>
 
           <!-- Busca -->
           <div class="sheet__search">
-            <i data-lucide="search" style="width:16px;height:16px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
             <input
               class="b-input search-input"
               type="search"
@@ -341,11 +342,11 @@ interface CategoriaComProdutos extends Categoria {
         @if (uiStep() === 'form') {
           <div class="sheet__header">
             <button class="btn-back" (click)="voltarParaPicker()" aria-label="Voltar">
-              <i data-lucide="arrow-left" style="width:18px;height:18px"></i>
+              <lucide-icon name="arrow-left" [size]="18" />
             </button>
             <h2 class="sheet__title">{{ produtoSelecionado()?.nome }}</h2>
             <button class="sheet__close" (click)="fecharPicker()" aria-label="Fechar">
-              <i data-lucide="x" style="width:20px;height:20px"></i>
+              <lucide-icon name="x" [size]="20" />
             </button>
           </div>
 
@@ -360,11 +361,11 @@ interface CategoriaComProdutos extends Categoria {
                 [disabled]="quantidade() <= 1"
                 aria-label="Diminuir quantidade"
               >
-                <i data-lucide="minus" style="width:18px;height:18px"></i>
+                <lucide-icon name="minus" [size]="18" />
               </button>
               <span class="qty-value">{{ quantidade() }}</span>
               <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
-                <i data-lucide="plus" style="width:18px;height:18px"></i>
+                <lucide-icon name="plus" [size]="18" />
               </button>
             </div>
 
@@ -397,10 +398,10 @@ interface CategoriaComProdutos extends Categoria {
               (click)="confirmarAdicao()"
             >
               @if (adicionando()) {
-                <i data-lucide="loader-2" style="width:18px;height:18px" class="spin"></i>
+                <lucide-icon name="loader-2" [size]="18" class="spin" />
                 Adicionando...
               } @else {
-                <i data-lucide="check" style="width:18px;height:18px"></i>
+                <lucide-icon name="check" [size]="18" />
                 Confirmar pedido
               }
             </button>
@@ -1022,8 +1023,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
         this.comanda.reload();
       }),
     );
-
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -1046,7 +1045,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.categoriaSelecionada.set(null);
     this.uiStep.set('picker');
     if (!this.cardapio.value()) this.cardapio.reload();
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected fecharPicker(): void {
@@ -1058,7 +1056,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   protected voltarParaPicker(): void {
     this.uiStep.set('picker');
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected selecionarProduto(produto: Produto): void {
@@ -1066,7 +1063,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.quantidade.set(1);
     this.observacao.set('');
     this.uiStep.set('form');
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected incrementarQtd(): void {
@@ -1102,7 +1098,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.quantidade.set(item.quantidade);
     this.observacao.set(item.observacao ?? '');
     this.uiStep.set('edicao');
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected fecharEdicao(): void {
@@ -1180,8 +1175,4 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

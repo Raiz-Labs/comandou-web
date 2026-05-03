@@ -4,7 +4,6 @@ import {
   signal,
   computed,
   resource,
-  OnInit,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService, CriarMesaPayload } from '../admin.service';
@@ -12,6 +11,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Mesa } from '../../../shared/types';
+import { LucideAngularModule } from 'lucide-angular';
 
 interface MesaModel {
   numero: string;
@@ -31,17 +31,17 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
 @Component({
   selector: 'app-admin-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent],
+  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:18px;height:18px"></i>
+          <lucide-icon name="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Mesas</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <i data-lucide="plus" style="width:16px;height:16px"></i>
+          <lucide-icon name="plus" [size]="16" />
           Nova mesa
         </button>
       </header>
@@ -49,12 +49,12 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <i data-lucide="search" style="width:15px;height:15px;color:var(--b-fg-subtle)"></i>
+          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por número ou descrição..."
             [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <i data-lucide="x" style="width:13px;height:13px"></i>
+              <lucide-icon name="x" [size]="13" />
             </button>
           }
         </div>
@@ -82,17 +82,17 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           </div>
         } @else if (mesas.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar mesas</p>
             <button class="b-btn-secondary" (click)="mesas.reload()">Tentar novamente</button>
           </div>
         } @else if (mesasFiltradas().length === 0) {
           <div class="empty-state">
-            <i data-lucide="layout-grid" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma mesa encontrada</p>
             @if (!busca() && filtroStatus() === null) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <i data-lucide="plus" style="width:16px;height:16px"></i>
+                <lucide-icon name="plus" [size]="16" />
                 Criar primeira mesa
               </button>
             }
@@ -108,11 +108,11 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
                 <span class="status-pill status-pill--{{ mesa.status }}">{{ statusLabel(mesa.status) }}</span>
                 <div class="mesa-card__acoes">
                   <button class="acao-btn acao-btn--edit" (click)="abrirEditar(mesa)" aria-label="Editar">
-                    <i data-lucide="pencil" style="width:14px;height:14px"></i>
+                    <lucide-icon name="pencil" [size]="14" />
                   </button>
                   <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(mesa)" aria-label="Excluir"
                     [disabled]="mesa.status !== 'livre'">
-                    <i data-lucide="trash-2" style="width:14px;height:14px"></i>
+                    <lucide-icon name="trash-2" [size]="14" />
                   </button>
                 </div>
               </div>
@@ -129,7 +129,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar mesa' : 'Nova mesa' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <i data-lucide="x" style="width:20px;height:20px"></i>
+            <lucide-icon name="x" [size]="20" />
           </button>
         </div>
 
@@ -161,10 +161,10 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <i data-lucide="loader-2" style="width:16px;height:16px" class="spin"></i>
+                <lucide-icon name="loader-2" [size]="16" class="spin" />
                 Salvando...
               } @else {
-                <i data-lucide="check" style="width:16px;height:16px"></i>
+                <lucide-icon name="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar mesa' }}
               }
             </button>
@@ -242,7 +242,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
-export class AdminMesasComponent implements OnInit {
+export class AdminMesasComponent {
   protected readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
   private readonly toast = inject(ToastService);
@@ -288,10 +288,6 @@ export class AdminMesasComponent implements OnInit {
 
   protected readonly formValido = computed(() => Object.keys(this.erros()).length === 0);
 
-  ngOnInit(): void {
-    setTimeout(() => this.initLucide(), 100);
-  }
-
   protected setField(campo: Campo, value: unknown): void {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
@@ -314,7 +310,6 @@ export class AdminMesasComponent implements OnInit {
     this.model.set({ ...MODELO_VAZIO });
     this._tocados.set(new Set());
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected abrirEditar(mesa: Mesa): void {
@@ -322,7 +317,6 @@ export class AdminMesasComponent implements OnInit {
     this.model.set({ numero: String(mesa.numero), descricao: mesa.descricao ?? '' });
     this._tocados.set(new Set());
     this.painelAberto.set(true);
-    setTimeout(() => this.initLucide(), 50);
   }
 
   protected fecharPainel(): void {
@@ -381,8 +375,4 @@ export class AdminMesasComponent implements OnInit {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

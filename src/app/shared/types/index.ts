@@ -89,7 +89,7 @@ export interface LoginPayload {
 }
 
 export interface LoginResponse {
-  token: string;
+  accessToken: string;
   user: Usuario;
 }
 

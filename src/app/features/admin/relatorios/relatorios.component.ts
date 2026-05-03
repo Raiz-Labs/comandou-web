@@ -4,13 +4,13 @@ import {
   signal,
   computed,
   resource,
-  OnInit,
   effect,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 type Periodo = 'hoje' | '7dias' | '30dias';
 
@@ -25,13 +25,13 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
 @Component({
   selector: 'app-relatorios',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <i data-lucide="arrow-left" style="width:18px;height:18px"></i>
+          <lucide-icon name="arrow-left" [size]="18" />
         </button>
         <div class="topbar__info">
           <h1 class="topbar__title">Relatório de vendas</h1>
@@ -40,7 +40,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           }
         </div>
         <button class="btn-refresh" (click)="relatorio.reload()" [disabled]="relatorio.isLoading()" aria-label="Atualizar">
-          <i data-lucide="refresh-cw" style="width:16px;height:16px" [class.spin]="relatorio.isLoading()"></i>
+          <lucide-icon name="refresh-cw" [size]="16" [class.spin]="relatorio.isLoading()" />
         </button>
       </header>
 
@@ -85,7 +85,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           </div>
         } @else if (relatorio.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:40px;height:40px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar o relatório</p>
             <button class="b-btn-secondary" (click)="relatorio.reload()">Tentar novamente</button>
           </div>
@@ -94,7 +94,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <i data-lucide="trending-up" style="width:14px;height:14px"></i>
+                <lucide-icon name="trending-up" [size]="14" />
                 Total em vendas
               </div>
               <div class="kpi-card__valor kpi-card__valor--primary">{{ relatorio.value()!.totalVendas | currencyBr }}</div>
@@ -102,7 +102,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             </div>
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <i data-lucide="receipt" style="width:14px;height:14px"></i>
+                <lucide-icon name="receipt" [size]="14" />
                 Comandas fechadas
               </div>
               <div class="kpi-card__valor">{{ relatorio.value()!.totalComandas }}</div>
@@ -110,7 +110,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             </div>
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <i data-lucide="divide-circle" style="width:14px;height:14px"></i>
+                <lucide-icon name="divide-circle" [size]="14" />
                 Ticket médio
               </div>
               <div class="kpi-card__valor">{{ relatorio.value()!.ticketMedio | currencyBr }}</div>
@@ -172,7 +172,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           <!-- Sem dados -->
           @if (relatorio.value()!.totalComandas === 0) {
             <div class="sem-dados">
-              <i data-lucide="bar-chart-2" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+              <lucide-icon name="bar-chart-2" [size]="48" color="var(--b-fg-subtle)" />
               <p class="sem-dados__title">Sem dados para este período</p>
               <p class="sem-dados__sub">Nenhuma comanda foi fechada em "{{ periodoLabel(periodo()) }}".</p>
             </div>
@@ -244,7 +244,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
     @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
-export class RelatoriosComponent implements OnInit {
+export class RelatoriosComponent {
   protected readonly router = inject(Router);
   private readonly adminService = inject(AdminService);
 
@@ -261,10 +261,6 @@ export class RelatoriosComponent implements OnInit {
       this.periodo(); // rastreia
       this.relatorio.reload();
     });
-  }
-
-  ngOnInit(): void {
-    setTimeout(() => this.initLucide(), 100);
   }
 
   protected periodoLabel(p: Periodo): string {
@@ -295,8 +291,4 @@ export class RelatoriosComponent implements OnInit {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

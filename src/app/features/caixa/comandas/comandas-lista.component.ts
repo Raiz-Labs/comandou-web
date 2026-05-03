@@ -15,13 +15,14 @@ import { SocketService } from '../../../core/socket/socket.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 type Ordenacao = 'mesa' | 'tempo' | 'total';
 
 @Component({
   selector: 'app-comandas-lista',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -30,7 +31,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
         <div class="header__top">
           <div class="header__info">
             <h1 class="header__title">
-              <i data-lucide="receipt" style="width:22px;height:22px;color:var(--b-primary-500)"></i>
+              <lucide-icon name="receipt" [size]="22" color="var(--b-primary-500)" />
               Caixa
             </h1>
             @if (!comandas.isLoading() && comandas.value()) {
@@ -42,7 +43,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
 
           <!-- Busca por mesa -->
           <div class="search-box">
-            <i data-lucide="search" style="width:16px;height:16px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
             <input
               class="search-input"
               type="search"
@@ -53,7 +54,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             />
             @if (busca()) {
               <button class="search-clear" (click)="busca.set('')" aria-label="Limpar busca">
-                <i data-lucide="x" style="width:14px;height:14px"></i>
+                <lucide-icon name="x" [size]="14" />
               </button>
             }
           </div>
@@ -66,7 +67,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'mesa'"
             (click)="ordenacao.set('mesa')"
           >
-            <i data-lucide="layout-grid" style="width:13px;height:13px"></i>
+            <lucide-icon name="layout-grid" [size]="13" />
             Mesa
           </button>
           <button
@@ -74,7 +75,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'tempo'"
             (click)="ordenacao.set('tempo')"
           >
-            <i data-lucide="clock" style="width:13px;height:13px"></i>
+            <lucide-icon name="clock" [size]="13" />
             Mais antiga
           </button>
           <button
@@ -82,7 +83,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'total'"
             (click)="ordenacao.set('total')"
           >
-            <i data-lucide="trending-up" style="width:13px;height:13px"></i>
+            <lucide-icon name="trending-up" [size]="13" />
             Maior total
           </button>
         </div>
@@ -102,21 +103,21 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
           </div>
         } @else if (comandas.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar comandas</p>
             <button class="b-btn-secondary" (click)="comandas.reload()">
-              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i>
+              <lucide-icon name="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (comandasFiltradas().length === 0) {
           <div class="empty-state">
             @if (busca()) {
-              <i data-lucide="search-x" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+              <lucide-icon name="search-x" [size]="48" color="var(--b-fg-subtle)" />
               <p class="empty-state__title">Nenhuma comanda encontrada</p>
               <p class="empty-state__sub">Tente buscar por outro número de mesa</p>
             } @else {
-              <i data-lucide="check-circle-2" style="width:48px;height:48px;color:var(--b-success-500)"></i>
+              <lucide-icon name="check-circle-2" [size]="48" color="var(--b-success-500)" />
               <p class="empty-state__title">Nenhuma comanda aberta</p>
               <p class="empty-state__sub">Todas as mesas estão livres</p>
             }
@@ -131,18 +132,18 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
                 <div class="comanda-card__meta">
                   <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
                   <span class="comanda-card__tempo">
-                    <i data-lucide="clock" style="width:12px;height:12px"></i>
+                    <lucide-icon name="clock" [size]="12" />
                     {{ tempoAberta(comanda.criadoEm) }}
                   </span>
                 </div>
                 <div class="comanda-card__itens">
                   <span class="comanda-card__count">
-                    <i data-lucide="package" style="width:13px;height:13px"></i>
+                    <lucide-icon name="package" [size]="13" />
                     {{ itensAtivos(comanda) }} iten{{ itensAtivos(comanda) !== 1 ? 's' : '' }}
                   </span>
                   @if (temItemPronto(comanda)) {
                     <span class="comanda-card__pronto">
-                      <i data-lucide="bell" style="width:12px;height:12px"></i>
+                      <lucide-icon name="bell" [size]="12" />
                       item pronto
                     </span>
                   }
@@ -151,7 +152,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
                   {{ comanda.total | currencyBr }}
                 </div>
                 <div class="comanda-card__action">
-                  <i data-lucide="chevron-right" style="width:18px;height:18px;color:var(--b-fg-subtle)"></i>
+                  <lucide-icon name="chevron-right" [size]="18" color="var(--b-fg-subtle)" />
                 </div>
               </button>
             }
@@ -495,7 +496,6 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
       }),
     );
 
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -526,8 +526,4 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
     return m > 0 ? `${h}h ${m}min` : `${h}h`;
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

@@ -9,11 +9,12 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -24,7 +25,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
           <h1 class="header__title">Mesas</h1>
           @if (currentUser()) {
             <span class="header__user">
-              <i data-lucide="user" style="width:14px;height:14px"></i>
+              <lucide-icon name="user" [size]="14" />
               {{ currentUser()!.nome }}
             </span>
           }
@@ -54,17 +55,17 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
           </div>
         } @else if (mesas.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar mesas</p>
             <p class="empty-state__sub">Verifique a conexão e tente novamente</p>
             <button class="b-btn-secondary" (click)="recarregar()">
-              <i data-lucide="refresh-cw" style="width:16px;height:16px"></i>
+              <lucide-icon name="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (!mesas.value()?.length) {
           <div class="empty-state">
-            <i data-lucide="layout-grid" style="width:48px;height:48px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma mesa cadastrada</p>
             <p class="empty-state__sub">Peça ao administrador para cadastrar as mesas</p>
           </div>
@@ -84,10 +85,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
                   <div class="card__desc">{{ mesa.descricao }}</div>
                 }
                 <div class="card__status">
-                  <i
-                    [attr.data-lucide]="statusIcon(mesa.status)"
-                    style="width:16px;height:16px"
-                  ></i>
+                  <lucide-icon [name]="statusIcon(mesa.status)" [size]="16" />
                   <span>{{ statusLabel(mesa.status) }}</span>
                 </div>
               </button>
@@ -372,9 +370,6 @@ export class MesasComponent implements OnInit, OnDestroy {
         this.mesas.reload();
       }),
     );
-
-    // Inicializar ícones Lucide após renderização
-    setTimeout(() => this.initLucide(), 100);
   }
 
   ngOnDestroy(): void {
@@ -407,8 +402,4 @@ export class MesasComponent implements OnInit, OnDestroy {
     return icons[status];
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

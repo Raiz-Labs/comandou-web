@@ -1,17 +1,19 @@
 import { Component, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { GarcomNotificacaoService } from './garcom-notificacao.service';
+import { LucideAngularModule } from 'lucide-angular';
 
 @Component({
   selector: 'app-notificacao-banner',
   standalone: true,
+  imports: [LucideAngularModule],
   template: `
     @if (svc.notificacoes().length > 0) {
       <div class="banner-list" role="region" aria-label="Itens prontos para entrega">
         @for (notif of svc.notificacoes(); track notif.notifId) {
           <div class="notif">
             <div class="notif__icon">
-              <i data-lucide="bell-ring" style="width:18px;height:18px"></i>
+              <lucide-icon name="bell-ring" [size]="18" />
             </div>
             <div class="notif__body">
               <span class="notif__titulo">{{ notif.produtoNome }}</span>
@@ -36,7 +38,7 @@ import { GarcomNotificacaoService } from './garcom-notificacao.service';
                 (click)="svc.dispensar(notif.notifId)"
                 aria-label="Dispensar notificação"
               >
-                <i data-lucide="x" style="width:14px;height:14px"></i>
+                <lucide-icon name="x" [size]="14" />
               </button>
             </div>
           </div>

@@ -4,12 +4,12 @@ import {
   signal,
   computed,
   resource,
-  OnInit,
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 import { Categoria, Produto } from '../../shared/types';
 
 interface CategoriaComProdutos extends Categoria {
@@ -19,13 +19,13 @@ interface CategoriaComProdutos extends Categoria {
 @Component({
   selector: 'app-cardapio',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Header -->
       <header class="header">
         <div class="header__brand">
-          <i data-lucide="utensils-crossed" style="width:28px;height:28px;color:var(--b-primary-500)"></i>
+          <lucide-icon name="utensils-crossed" [size]="28" color="var(--b-primary-500)" />
           <div>
             <h1 class="header__title">Cardápio</h1>
             <p class="header__sub">Veja nossos pratos e bebidas</p>
@@ -34,13 +34,13 @@ interface CategoriaComProdutos extends Categoria {
 
         <!-- Busca -->
         <div class="search-box">
-          <i data-lucide="search" style="width:16px;height:16px;color:var(--b-fg-subtle)"></i>
+          <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar no cardápio..."
             [value]="busca()" (input)="busca.set($any($event.target).value)"
             autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <i data-lucide="x" style="width:14px;height:14px"></i>
+              <lucide-icon name="x" [size]="14" />
             </button>
           }
         </div>
@@ -85,7 +85,7 @@ interface CategoriaComProdutos extends Categoria {
           }
         } @else if (dados.error()) {
           <div class="empty-state">
-            <i data-lucide="wifi-off" style="width:44px;height:44px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="wifi-off" [size]="44" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Cardápio indisponível</p>
             <p class="empty-state__sub">Não foi possível carregar o cardápio. Tente novamente.</p>
             <button class="b-btn-secondary" (click)="dados.reload()">Tentar novamente</button>
@@ -94,7 +94,7 @@ interface CategoriaComProdutos extends Categoria {
           <!-- Resultado de busca -->
           @if (resultadoBusca().length === 0) {
             <div class="empty-state">
-              <i data-lucide="search-x" style="width:44px;height:44px;color:var(--b-fg-subtle)"></i>
+              <lucide-icon name="search-x" [size]="44" color="var(--b-fg-subtle)" />
               <p class="empty-state__title">Nenhum resultado</p>
               <p class="empty-state__sub">Nenhum item corresponde a "{{ busca() }}".</p>
               <button class="b-btn-ghost" (click)="busca.set('')">Limpar busca</button>
@@ -102,7 +102,7 @@ interface CategoriaComProdutos extends Categoria {
           } @else {
             <div class="secao">
               <h2 class="secao__titulo">
-                <i data-lucide="search" style="width:16px;height:16px"></i>
+                <lucide-icon name="search" [size]="16" />
                 {{ resultadoBusca().length }} resultado{{ resultadoBusca().length !== 1 ? 's' : '' }} para "{{ busca() }}"
               </h2>
               <div class="produtos-grid">
@@ -113,7 +113,7 @@ interface CategoriaComProdutos extends Categoria {
                         <img class="produto-card__img" [src]="p.imagemUrl" [alt]="p.nome" loading="lazy" />
                       } @else {
                         <div class="produto-card__img-placeholder">
-                          <i data-lucide="utensils" style="width:28px;height:28px;color:var(--b-fg-subtle)"></i>
+                          <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
                         </div>
                       }
                     </div>
@@ -129,7 +129,7 @@ interface CategoriaComProdutos extends Categoria {
           }
         } @else if (categoriasComItens().length === 0) {
           <div class="empty-state">
-            <i data-lucide="package-x" style="width:44px;height:44px;color:var(--b-fg-subtle)"></i>
+            <lucide-icon name="package-x" [size]="44" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Cardápio vazio</p>
             <p class="empty-state__sub">Nenhum item disponível no momento.</p>
           </div>
@@ -146,7 +146,7 @@ interface CategoriaComProdutos extends Categoria {
                         <img class="produto-card__img" [src]="p.imagemUrl" [alt]="p.nome" loading="lazy" />
                       } @else {
                         <div class="produto-card__img-placeholder">
-                          <i data-lucide="utensils" style="width:28px;height:28px;color:var(--b-fg-subtle)"></i>
+                          <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
                         </div>
                       }
                       @if (!p.disponivel) {
@@ -231,7 +231,7 @@ interface CategoriaComProdutos extends Categoria {
     .footer { padding: var(--b-space-6) var(--b-space-4); text-align: center; font-size: var(--b-font-size-xs); color: var(--b-fg-subtle); border-top: 1px solid var(--b-neutral-100); }
   `],
 })
-export class CardapioComponent implements OnInit {
+export class CardapioComponent {
   private readonly api = inject(ApiService);
 
   protected readonly busca = signal('');
@@ -268,10 +268,6 @@ export class CardapioComponent implements OnInit {
     );
   });
 
-  ngOnInit(): void {
-    setTimeout(() => this.initLucide(), 100);
-  }
-
   protected scrollParaCategoria(catId: string): void {
     this.catAtiva.set(catId);
     const el = document.getElementById('cat-' + catId);
@@ -280,8 +276,4 @@ export class CardapioComponent implements OnInit {
     }
   }
 
-  private initLucide(): void {
-    const win = window as unknown as { lucide?: { createIcons: () => void } };
-    win.lucide?.createIcons();
-  }
 }

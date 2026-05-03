@@ -1,9 +1,9 @@
 import { Component, inject, computed, resource } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
-import { currentUser } from '../../../core/auth/auth.signal';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
+import { LucideAngularModule } from 'lucide-angular';
 
 interface NavLink {
   label: string;
@@ -12,60 +12,19 @@ interface NavLink {
 }
 
 const NAV_LINKS: NavLink[] = [
-  { label: 'Produtos',    icon: 'package',    rota: '/admin/produtos'   },
-  { label: 'Categorias',  icon: 'tag',        rota: '/admin/categorias' },
-  { label: 'Mesas',       icon: 'layout-grid', rota: '/admin/mesas'    },
-  { label: 'Usuários',    icon: 'users',      rota: '/admin/usuarios'   },
-  { label: 'Relatórios',  icon: 'bar-chart-2', rota: '/admin/relatorios'},
+  { label: 'Produtos',    icon: 'package',     rota: '/admin/produtos'   },
+  { label: 'Categorias',  icon: 'tag',         rota: '/admin/categorias' },
+  { label: 'Mesas',       icon: 'layout-grid', rota: '/admin/mesas'      },
+  { label: 'Usuários',    icon: 'users',       rota: '/admin/usuarios'   },
+  { label: 'Relatórios',  icon: 'bar-chart-2', rota: '/admin/relatorios' },
 ];
 
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
-    <div class="layout">
-      <!-- Sidebar -->
-      <nav class="sidebar">
-        <div class="sidebar__brand">
-          <i data-lucide="utensils" style="width:28px;height:28px;color:var(--b-primary-500)"></i>
-          <span class="sidebar__nome">Comandou</span>
-        </div>
-
-        <ul class="sidebar__links">
-          <li>
-            <button class="sidebar__link sidebar__link--active" aria-current="page">
-              <i data-lucide="layout-dashboard" style="width:18px;height:18px"></i>
-              Dashboard
-            </button>
-          </li>
-          @for (link of navLinks; track link.rota) {
-            <li>
-              <button class="sidebar__link" (click)="navegar(link.rota)">
-                <i [attr.data-lucide]="link.icon" style="width:18px;height:18px"></i>
-                {{ link.label }}
-              </button>
-            </li>
-          }
-        </ul>
-
-        <div class="sidebar__footer">
-          @if (currentUser()) {
-            <div class="sidebar__user">
-              <div class="sidebar__avatar">
-                {{ currentUser()!.nome.charAt(0).toUpperCase() }}
-              </div>
-              <div class="sidebar__user-info">
-                <span class="sidebar__user-nome">{{ currentUser()!.nome }}</span>
-                <span class="sidebar__user-perfil">{{ currentUser()!.perfil }}</span>
-              </div>
-            </div>
-          }
-        </div>
-      </nav>
-
-      <!-- Main -->
-      <main class="main">
+    <main class="main">
         <div class="main__header">
           <div>
             <h1 class="main__title">Dashboard</h1>
@@ -77,11 +36,7 @@ const NAV_LINKS: NavLink[] = [
             [disabled]="dados.isLoading()"
             aria-label="Atualizar"
           >
-            <i
-              data-lucide="refresh-cw"
-              style="width:16px;height:16px"
-              [class.spin]="dados.isLoading()"
-            ></i>
+            <lucide-icon name="refresh-cw" [size]="16" [class.spin]="dados.isLoading()" />
             Atualizar
           </button>
         </div>
@@ -99,7 +54,7 @@ const NAV_LINKS: NavLink[] = [
           } @else if (dados.value()) {
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--primary">
-                <i data-lucide="trending-up" style="width:20px;height:20px"></i>
+                <lucide-icon name="trending-up" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Receita hoje</span>
@@ -109,7 +64,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--success">
-                <i data-lucide="receipt" style="width:20px;height:20px"></i>
+                <lucide-icon name="receipt" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Comandas fechadas</span>
@@ -119,7 +74,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--warning">
-                <i data-lucide="calculator" style="width:20px;height:20px"></i>
+                <lucide-icon name="calculator" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Ticket médio</span>
@@ -129,7 +84,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--info">
-                <i data-lucide="table-2" style="width:20px;height:20px"></i>
+                <lucide-icon name="table-2" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Mesas ocupadas</span>
@@ -147,7 +102,7 @@ const NAV_LINKS: NavLink[] = [
           <!-- Top produtos -->
           <section class="card">
             <h2 class="card__title">
-              <i data-lucide="star" style="width:16px;height:16px;color:var(--b-warning-500)"></i>
+              <lucide-icon name="star" [size]="16" color="var(--b-warning-500)" />
               Top produtos hoje
             </h2>
             @if (dados.isLoading()) {
@@ -183,7 +138,7 @@ const NAV_LINKS: NavLink[] = [
           <!-- Comandas abertas -->
           <section class="card">
             <h2 class="card__title">
-              <i data-lucide="file-text" style="width:16px;height:16px;color:var(--b-primary-500)"></i>
+              <lucide-icon name="file-text" [size]="16" color="var(--b-primary-500)" />
               Comandas abertas agora
               @if (!dados.isLoading() && dados.value()) {
                 <span class="card__badge">{{ dados.value()!.comandasAbertas.length }}</span>
@@ -198,7 +153,7 @@ const NAV_LINKS: NavLink[] = [
               }
             } @else if (!(dados.value()?.comandasAbertas?.length)) {
               <div class="vazio">
-                <i data-lucide="check-circle-2" style="width:24px;height:24px;color:var(--b-success-500)"></i>
+                <lucide-icon name="check-circle-2" [size]="24" color="var(--b-success-500)" />
                 Nenhuma comanda aberta
               </div>
             } @else {
@@ -224,156 +179,36 @@ const NAV_LINKS: NavLink[] = [
           <!-- Atalhos -->
           <section class="card atalhos-card">
             <h2 class="card__title">
-              <i data-lucide="zap" style="width:16px;height:16px;color:var(--b-warning-500)"></i>
+              <lucide-icon name="zap" [size]="16" color="var(--b-warning-500)" />
               Acesso rápido
             </h2>
             <div class="atalhos-grid">
               @for (link of navLinks; track link.rota) {
                 <button class="atalho" (click)="navegar(link.rota)">
-                  <i [attr.data-lucide]="link.icon" style="width:22px;height:22px"></i>
+                  <lucide-icon [name]="link.icon" [size]="22" />
                   <span>{{ link.label }}</span>
                 </button>
               }
             </div>
           </section>
         </div>
-      </main>
-    </div>
+    </main>
   `,
   styles: [`
-    .layout {
-      display: flex;
-      min-height: 100dvh;
-      background-color: var(--b-bg);
-      font-family: var(--b-font-sans);
-    }
-
-    /* ===== SIDEBAR ===== */
-    .sidebar {
-      width: 220px;
-      flex-shrink: 0;
-      background-color: var(--b-bg-elevated);
-      border-right: 1px solid var(--b-neutral-100);
-      display: flex;
-      flex-direction: column;
-      padding: var(--b-space-5) 0;
-      position: sticky;
-      top: 0;
-      height: 100dvh;
-
-      @media (max-width: 767px) {
-        display: none;
-      }
-    }
-
-    .sidebar__brand {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      padding: 0 var(--b-space-4) var(--b-space-5);
-      border-bottom: 1px solid var(--b-neutral-100);
-      margin-bottom: var(--b-space-3);
-    }
-
-    .sidebar__nome {
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-    }
-
-    .sidebar__links {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      padding: 0 var(--b-space-3);
-    }
-
-    .sidebar__link {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-      width: 100%;
-      padding: var(--b-space-2) var(--b-space-3);
-      border-radius: var(--b-radius-sm);
-      border: none;
-      background-color: transparent;
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      font-family: var(--b-font-sans);
-      text-align: left;
-      min-height: 44px;
-      transition: background-color 0.1s, color 0.1s;
-
-      &:hover { background-color: var(--b-bg-sunken); color: var(--b-fg); }
-
-      &--active {
-        background-color: var(--b-primary-50);
-        color: var(--b-primary-600);
-        font-weight: var(--b-font-weight-semibold);
-      }
-    }
-
-    .sidebar__footer {
-      padding: var(--b-space-4) var(--b-space-4) 0;
-      border-top: 1px solid var(--b-neutral-100);
-      margin-top: var(--b-space-3);
-    }
-
-    .sidebar__user {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-    }
-
-    .sidebar__avatar {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      background-color: var(--b-primary-100);
-      color: var(--b-primary-700);
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-extrabold);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .sidebar__user-info {
-      display: flex;
-      flex-direction: column;
-      min-width: 0;
-    }
-
-    .sidebar__user-nome {
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .sidebar__user-perfil {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-      text-transform: capitalize;
-    }
+    :host { display: block; }
 
     /* ===== MAIN ===== */
     .main {
-      flex: 1;
       display: flex;
       flex-direction: column;
       gap: var(--b-space-5);
-      padding: var(--b-space-6);
-      min-width: 0;
+      padding: var(--b-space-4);
+      background-color: var(--b-bg);
+      font-family: var(--b-font-sans);
+      min-height: 100%;
 
-      @media (max-width: 767px) {
-        padding: var(--b-space-4);
+      @media (min-width: 768px) {
+        padding: var(--b-space-6);
       }
     }
 
@@ -714,7 +549,6 @@ export class DashboardComponent {
   private readonly adminService = inject(AdminService);
   private readonly router = inject(Router);
 
-  protected readonly currentUser = currentUser;
   protected readonly navLinks = NAV_LINKS;
   protected readonly skeletons4 = Array.from({ length: 4 }, (_, i) => i);
   protected readonly skeletons5 = Array.from({ length: 5 }, (_, i) => i);
