@@ -60,7 +60,7 @@ import { MasterAuthService } from '../../../core/master/master-auth.service';
 
           <button type="submit" class="btn-submit" [disabled]="loading()">
             @if (loading()) {
-              <lucide-icon name="loader-2" [size]="16" class="spin" />
+              <lucide-icon name="loader-2" [size]="16" class="b-spin" />
               Entrando...
             } @else {
               Entrar
@@ -213,8 +213,6 @@ import { MasterAuthService } from '../../../core/master/master-auth.service';
       &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class MasterLoginComponent {

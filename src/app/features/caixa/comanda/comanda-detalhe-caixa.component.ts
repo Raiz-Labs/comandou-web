@@ -35,7 +35,7 @@ import { LucideAngularModule } from 'lucide-angular';
       <app-connection-banner />
 
       <header class="header">
-        <button class="btn-back" (click)="voltar()" aria-label="Voltar">
+        <button class="b-btn-back" (click)="voltar()" aria-label="Voltar">
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
 
@@ -209,7 +209,7 @@ import { LucideAngularModule } from 'lucide-angular';
               (click)="pedirFechamento()"
             >
               @if (fechando()) {
-                <lucide-icon name="loader-2" [size]="18" class="spin" />
+                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
                 Fechando...
               } @else {
                 <lucide-icon name="check-circle-2" [size]="18" />
@@ -269,22 +269,6 @@ import { LucideAngularModule } from 'lucide-angular';
       border-bottom: 1px solid var(--b-neutral-100);
       box-shadow: var(--b-shadow-1);
       min-height: 72px;
-    }
-
-    .btn-back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px;
-      min-height: 44px;
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-      background-color: transparent;
-      color: var(--b-fg);
-      flex-shrink: 0;
-      cursor: pointer;
-
-      &:hover { background-color: var(--b-bg-sunken); }
     }
 
     .header__info {
@@ -675,9 +659,6 @@ import { LucideAngularModule } from 'lucide-angular';
       font-size: var(--b-font-size-sm);
     }
 
-    /* Spinner */
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {

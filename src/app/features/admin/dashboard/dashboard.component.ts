@@ -36,7 +36,7 @@ const NAV_LINKS: NavLink[] = [
             [disabled]="dados.isLoading()"
             aria-label="Atualizar"
           >
-            <lucide-icon name="refresh-cw" [size]="16" [class.spin]="dados.isLoading()" />
+            <lucide-icon name="refresh-cw" [size]="16" [class.b-spin]="dados.isLoading()" />
             Atualizar
           </button>
         </div>
@@ -540,9 +540,6 @@ const NAV_LINKS: NavLink[] = [
       }
     }
 
-    /* Spinner */
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class DashboardComponent {

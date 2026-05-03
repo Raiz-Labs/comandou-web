@@ -36,7 +36,7 @@ import { LucideAngularModule } from 'lucide-angular';
             [disabled]="fila.isLoading()"
             aria-label="Recarregar"
           >
-            <lucide-icon name="refresh-cw" [size]="16" [class.spin]="fila.isLoading()" />
+            <lucide-icon name="refresh-cw" [size]="16" [class.b-spin]="fila.isLoading()" />
           </button>
         </div>
       </header>
@@ -107,7 +107,7 @@ import { LucideAngularModule } from 'lucide-angular';
                   (click)="iniciarPreparo(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <lucide-icon name="loader-2" [size]="16" class="spin" />
+                    <lucide-icon name="loader-2" [size]="16" class="b-spin" />
                   } @else {
                     <lucide-icon name="play" [size]="16" />
                     Iniciar preparo
@@ -165,7 +165,7 @@ import { LucideAngularModule } from 'lucide-angular';
                   (click)="marcarPronto(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <lucide-icon name="loader-2" [size]="16" class="spin" />
+                    <lucide-icon name="loader-2" [size]="16" class="b-spin" />
                   } @else {
                     <lucide-icon name="check" [size]="16" />
                     Marcar pronto
@@ -466,10 +466,6 @@ import { LucideAngularModule } from 'lucide-angular';
       &:hover:not(:disabled) { background-color: var(--b-success-600); }
     }
 
-    /* ===== ANIMAÇÕES ===== */
-    .spin { animation: spin 1s linear infinite; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class FilaComponent implements OnInit, OnDestroy {

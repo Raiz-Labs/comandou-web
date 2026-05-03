@@ -37,7 +37,7 @@ type Campo = keyof ProdutoModel;
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
-        <button class="btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
+        <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
           <lucide-icon name="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Produtos</h1>
@@ -223,7 +223,7 @@ type Campo = keyof ProdutoModel;
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <lucide-icon name="loader-2" [size]="16" class="spin" />
+                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
                 Salvando...
               } @else {
                 <lucide-icon name="check" [size]="16" />
@@ -247,7 +247,6 @@ type Campo = keyof ProdutoModel;
     .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
 
     .topbar { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-4) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); }
-    .btn-back { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); background: transparent; color: var(--b-fg); cursor: pointer; flex-shrink: 0; &:hover { background-color: var(--b-bg-sunken); } }
     .topbar__title { flex: 1; font-size: var(--b-font-size-2xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
     .btn-novo { display: flex; align-items: center; gap: var(--b-space-2); min-height: 44px; white-space: nowrap; }
 
@@ -292,8 +291,6 @@ type Campo = keyof ProdutoModel;
     .painel__acoes { display: flex; justify-content: flex-end; gap: var(--b-space-3); padding-top: var(--b-space-4); border-top: 1px solid var(--b-neutral-100); margin-top: auto; }
     .painel__acoes button { min-height: 44px; display: flex; align-items: center; gap: var(--b-space-2); &:disabled { opacity: 0.6; cursor: not-allowed; } }
 
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class ProdutosComponent {

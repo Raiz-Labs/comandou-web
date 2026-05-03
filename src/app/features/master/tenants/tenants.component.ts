@@ -27,7 +27,7 @@ interface TenantInfo {
           <h1 class="page__title">Tenants</h1>
           <p class="page__sub">{{ tenants.value()?.length ?? 0 }} restaurante(s) cadastrado(s)</p>
         </div>
-        <button class="btn-primary" (click)="abrirModalCriar()">
+        <button class="b-btn-primary" (click)="abrirModalCriar()">
           <lucide-icon name="plus" [size]="16" />
           Novo tenant
         </button>
@@ -36,19 +36,19 @@ interface TenantInfo {
       <!-- Lista -->
       @if (tenants.isLoading()) {
         <div class="loading">
-          <lucide-icon name="loader-2" [size]="24" class="spin" />
+          <lucide-icon name="loader-2" [size]="24" class="b-spin" />
         </div>
       } @else if (tenants.error()) {
         <div class="estado-vazio">
           <lucide-icon name="x-circle" [size]="32" color="var(--b-danger-400)" />
           <p>Erro ao carregar tenants</p>
-          <button class="btn-ghost" (click)="tenants.reload()">Tentar novamente</button>
+          <button class="b-btn-ghost" (click)="tenants.reload()">Tentar novamente</button>
         </div>
       } @else if (!tenants.value()?.length) {
         <div class="estado-vazio">
           <lucide-icon name="users" [size]="32" color="var(--b-fg-subtle)" />
           <p>Nenhum tenant cadastrado ainda</p>
-          <button class="btn-primary" (click)="abrirModalCriar()">Criar primeiro tenant</button>
+          <button class="b-btn-primary" (click)="abrirModalCriar()">Criar primeiro tenant</button>
         </div>
       } @else {
         <div class="grid">
@@ -86,19 +86,19 @@ interface TenantInfo {
 
               <div class="tenant-card__actions">
                 <button
-                  class="btn-acessar"
+                  class="b-btn-primary btn-acessar"
                   (click)="acessar(tenant)"
                   [disabled]="!tenant.ativo || acessandoId() === tenant.id"
                 >
                   @if (acessandoId() === tenant.id) {
-                    <lucide-icon name="loader-2" [size]="14" class="spin" />
+                    <lucide-icon name="loader-2" [size]="14" class="b-spin" />
                     Acessando...
                   } @else {
                     <lucide-icon name="log-in" [size]="14" />
                     Acessar
                   }
                 </button>
-                <button class="btn-editar" (click)="abrirModalEditar(tenant)">
+                <button class="b-btn-ghost btn-editar" (click)="abrirModalEditar(tenant)">
                   <lucide-icon name="pencil" [size]="14" />
                   Editar
                 </button>
@@ -123,20 +123,20 @@ interface TenantInfo {
           <form class="modal__form" (submit)="criarTenant($event)" novalidate>
             <div class="field-row">
               <div class="field">
-                <label class="label">Nome do restaurante</label>
-                <input class="input" type="text" placeholder="Burguer House"
+                <label class="b-label">Nome do restaurante</label>
+                <input class="b-input" type="text" placeholder="Burguer House"
                   [value]="criar.nome()" (input)="onNomeInput($any($event.target).value)" />
               </div>
               <div class="field">
-                <label class="label">Slug (subdomínio)</label>
-                <input class="input" type="text" placeholder="burguer-house"
+                <label class="b-label">Slug (subdomínio)</label>
+                <input class="b-input" type="text" placeholder="burguer-house"
                   [value]="criar.slug()" (input)="criar.slug.set($any($event.target).value)" />
               </div>
             </div>
 
             <div class="field">
-              <label class="label">Plano</label>
-              <select class="input" [value]="criar.plano()"
+              <label class="b-label">Plano</label>
+              <select class="b-input" [value]="criar.plano()"
                 (change)="criar.plano.set($any($event.target).value)">
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
@@ -147,20 +147,20 @@ interface TenantInfo {
 
             <div class="field-row">
               <div class="field">
-                <label class="label">Nome</label>
-                <input class="input" type="text" placeholder="João Silva"
+                <label class="b-label">Nome</label>
+                <input class="b-input" type="text" placeholder="João Silva"
                   [value]="criar.adminNome()" (input)="criar.adminNome.set($any($event.target).value)" />
               </div>
               <div class="field">
-                <label class="label">E-mail</label>
-                <input class="input" type="email" placeholder="admin@burguer.com"
+                <label class="b-label">E-mail</label>
+                <input class="b-input" type="email" placeholder="admin@burguer.com"
                   [value]="criar.adminEmail()" (input)="criar.adminEmail.set($any($event.target).value)" />
               </div>
             </div>
 
             <div class="field">
-              <label class="label">Senha</label>
-              <input class="input" type="password" placeholder="mínimo 6 caracteres"
+              <label class="b-label">Senha</label>
+              <input class="b-input" type="password" placeholder="mínimo 6 caracteres"
                 [value]="criar.adminSenha()" (input)="criar.adminSenha.set($any($event.target).value)" />
             </div>
 
@@ -169,10 +169,10 @@ interface TenantInfo {
             }
 
             <div class="modal__footer">
-              <button type="button" class="btn-ghost" (click)="fecharModalCriar()">Cancelar</button>
-              <button type="submit" class="btn-primary" [disabled]="salvando()">
+              <button type="button" class="b-btn-ghost" (click)="fecharModalCriar()">Cancelar</button>
+              <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
-                  <lucide-icon name="loader-2" [size]="14" class="spin" />
+                  <lucide-icon name="loader-2" [size]="14" class="b-spin" />
                   Criando...
                 } @else {
                   Criar tenant
@@ -197,20 +197,20 @@ interface TenantInfo {
 
           <form class="modal__form" (submit)="atualizarTenant($event)" novalidate>
             <div class="field">
-              <label class="label">Nome do restaurante</label>
-              <input class="input" type="text"
+              <label class="b-label">Nome do restaurante</label>
+              <input class="b-input" type="text"
                 [value]="editar.nome()" (input)="editar.nome.set($any($event.target).value)" />
             </div>
 
             <div class="field">
-              <label class="label">Slug (subdomínio)</label>
-              <input class="input" type="text" [value]="modalEditar()!.slug" disabled />
+              <label class="b-label">Slug (subdomínio)</label>
+              <input class="b-input" type="text" [value]="modalEditar()!.slug" disabled />
               <span class="field__hint">O slug não pode ser alterado</span>
             </div>
 
             <div class="field">
-              <label class="label">Plano</label>
-              <select class="input" [value]="editar.plano()"
+              <label class="b-label">Plano</label>
+              <select class="b-input" [value]="editar.plano()"
                 (change)="editar.plano.set($any($event.target).value)">
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
@@ -218,7 +218,7 @@ interface TenantInfo {
             </div>
 
             <div class="field field--toggle">
-              <label class="label">Status</label>
+              <label class="b-label">Status</label>
               <button
                 type="button"
                 class="toggle"
@@ -235,10 +235,10 @@ interface TenantInfo {
             }
 
             <div class="modal__footer">
-              <button type="button" class="btn-ghost" (click)="fecharModalEditar()">Cancelar</button>
-              <button type="submit" class="btn-primary" [disabled]="salvando()">
+              <button type="button" class="b-btn-ghost" (click)="fecharModalEditar()">Cancelar</button>
+              <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
-                  <lucide-icon name="loader-2" [size]="14" class="spin" />
+                  <lucide-icon name="loader-2" [size]="14" class="b-spin" />
                   Salvando...
                 } @else {
                   Salvar
@@ -379,86 +379,16 @@ interface TenantInfo {
       gap: var(--b-space-2);
     }
 
-    /* ===== BOTÕES ===== */
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-2) var(--b-space-4);
-      border: none;
-      border-radius: var(--b-radius-sm);
-      background-color: var(--b-primary-500);
-      color: white;
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-bold);
-      font-family: var(--b-font-sans);
-      cursor: pointer;
-      min-height: 40px;
-      transition: background-color 0.1s;
-
-      &:hover:not(:disabled) { background-color: var(--b-primary-600); }
-      &:disabled { opacity: 0.5; cursor: not-allowed; }
-    }
-
-    .btn-ghost {
-      display: inline-flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-2) var(--b-space-3);
-      border: 1px solid var(--b-neutral-200);
-      border-radius: var(--b-radius-sm);
-      background: transparent;
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      font-family: var(--b-font-sans);
-      min-height: 40px;
-      transition: background-color 0.1s;
-
-      &:hover { background-color: var(--b-bg-sunken); color: var(--b-fg); }
-    }
-
+    /* ===== BOTÕES DE CARD (tamanho compacto) ===== */
     .btn-acessar {
       flex: 1;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-2) var(--b-space-3);
-      border: none;
-      border-radius: var(--b-radius-sm);
-      background-color: var(--b-primary-500);
-      color: white;
       font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-bold);
-      font-family: var(--b-font-sans);
-      cursor: pointer;
       min-height: 36px;
-      transition: background-color 0.1s;
-
-      &:hover:not(:disabled) { background-color: var(--b-primary-600); }
-      &:disabled { opacity: 0.5; cursor: not-allowed; }
     }
 
     .btn-editar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-2) var(--b-space-3);
-      border: 1px solid var(--b-neutral-200);
-      border-radius: var(--b-radius-sm);
-      background: transparent;
       font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      font-family: var(--b-font-sans);
       min-height: 36px;
-      transition: background-color 0.1s;
-
-      &:hover { background-color: var(--b-bg-sunken); color: var(--b-fg); }
     }
 
     /* ===== LOADING / EMPTY ===== */
@@ -580,31 +510,9 @@ interface TenantInfo {
       border-bottom: 1px solid var(--b-neutral-100);
     }
 
-    .label {
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-    }
-
     .field__hint {
       font-size: var(--b-font-size-xs);
       color: var(--b-fg-subtle);
-    }
-
-    .input {
-      height: 40px;
-      padding: 0 var(--b-space-3);
-      border: 1.5px solid var(--b-neutral-200);
-      border-radius: var(--b-radius-sm);
-      background-color: var(--b-bg);
-      color: var(--b-fg);
-      font-size: var(--b-font-size-sm);
-      font-family: var(--b-font-sans);
-      transition: border-color 0.15s;
-
-      &:focus { outline: none; border-color: var(--b-primary-400); }
-      &::placeholder { color: var(--b-fg-subtle); }
-      &:disabled { background-color: var(--b-bg-sunken); color: var(--b-fg-muted); cursor: not-allowed; }
     }
 
     .erro {
@@ -651,9 +559,6 @@ interface TenantInfo {
       color: var(--b-fg-muted);
     }
 
-    /* ===== SPINNER ===== */
-    .spin { animation: spin 1s linear infinite; }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class TenantsComponent {

@@ -41,7 +41,7 @@ interface CategoriaComProdutos extends Categoria {
 
       <!-- Header -->
       <header class="header">
-        <button class="btn-back" (click)="voltar()" aria-label="Voltar">
+        <button class="b-btn-back" (click)="voltar()" aria-label="Voltar">
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
         <div class="header__info">
@@ -75,19 +75,19 @@ interface CategoriaComProdutos extends Categoria {
             </div>
           }
         } @else if (comanda.error()) {
-          <div class="empty-state">
+          <div class="b-empty-state">
             <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
-            <p class="empty-state__title">Erro ao carregar comanda</p>
+            <p class="b-empty-state__title">Erro ao carregar comanda</p>
             <button class="b-btn-secondary" (click)="comanda.reload()">
               <lucide-icon name="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (itensAtivos().length === 0 && itensCancelados().length === 0) {
-          <div class="empty-state">
+          <div class="b-empty-state">
             <lucide-icon name="shopping-bag" [size]="48" color="var(--b-fg-subtle)" />
-            <p class="empty-state__title">Comanda vazia</p>
-            <p class="empty-state__sub">Toque em "Adicionar item" para começar o pedido</p>
+            <p class="b-empty-state__title">Comanda vazia</p>
+            <p class="b-empty-state__sub">Toque em "Adicionar item" para começar o pedido</p>
           </div>
         } @else {
           <!-- Itens ativos -->
@@ -182,7 +182,7 @@ interface CategoriaComProdutos extends Categoria {
 
     <!-- ===== BOTTOM SHEET: EDITAR ITEM ===== -->
     @if (uiStep() === 'edicao') {
-      <div class="sheet-backdrop" (click)="fecharEdicao()"></div>
+      <div class="b-backdrop" (click)="fecharEdicao()"></div>
       <div class="sheet" role="dialog" aria-modal="true" aria-label="Editar item">
         <div class="sheet__header">
           <h2 class="sheet__title">{{ itemEmEdicao()?.produto?.nome ?? 'Editar item' }}</h2>
@@ -240,7 +240,7 @@ interface CategoriaComProdutos extends Categoria {
             (click)="confirmarEdicao()"
           >
             @if (salvando()) {
-              <lucide-icon name="loader-2" [size]="18" class="spin" />
+              <lucide-icon name="loader-2" [size]="18" class="b-spin" />
               Salvando...
             } @else {
               <lucide-icon name="check" [size]="18" />
@@ -253,7 +253,7 @@ interface CategoriaComProdutos extends Categoria {
 
     <!-- ===== BOTTOM SHEET: PICKER DE PRODUTOS ===== -->
     @if (uiStep() === 'picker' || uiStep() === 'form') {
-      <div class="sheet-backdrop" (click)="fecharPicker()"></div>
+      <div class="b-backdrop" (click)="fecharPicker()"></div>
       <div class="sheet" role="dialog" aria-modal="true" aria-label="Selecionar produto">
 
         @if (uiStep() === 'picker') {
@@ -315,8 +315,8 @@ interface CategoriaComProdutos extends Categoria {
                 </div>
               }
             } @else if (produtosFiltrados().length === 0) {
-              <div class="empty-state" style="padding: var(--b-space-8) 0">
-                <p class="empty-state__sub">Nenhum produto encontrado</p>
+              <div class="b-empty-state" style="padding: var(--b-space-8) 0">
+                <p class="b-empty-state__sub">Nenhum produto encontrado</p>
               </div>
             } @else {
               @for (cat of categoriasFiltradas(); track cat.id) {
@@ -341,7 +341,7 @@ interface CategoriaComProdutos extends Categoria {
 
         @if (uiStep() === 'form') {
           <div class="sheet__header">
-            <button class="btn-back" (click)="voltarParaPicker()" aria-label="Voltar">
+            <button class="b-btn-back" (click)="voltarParaPicker()" aria-label="Voltar">
               <lucide-icon name="arrow-left" [size]="18" />
             </button>
             <h2 class="sheet__title">{{ produtoSelecionado()?.nome }}</h2>
@@ -398,7 +398,7 @@ interface CategoriaComProdutos extends Categoria {
               (click)="confirmarAdicao()"
             >
               @if (adicionando()) {
-                <lucide-icon name="loader-2" [size]="18" class="spin" />
+                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
                 Adicionando...
               } @else {
                 <lucide-icon name="check" [size]="18" />
@@ -431,21 +431,6 @@ interface CategoriaComProdutos extends Categoria {
       border-bottom: 1px solid var(--b-neutral-100);
       box-shadow: var(--b-shadow-1);
       min-height: 64px;
-    }
-
-    .btn-back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px;
-      min-height: 44px;
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-      background-color: transparent;
-      color: var(--b-fg);
-      flex-shrink: 0;
-
-      &:hover { background-color: var(--b-bg-sunken); }
     }
 
     .header__info {
@@ -613,51 +598,13 @@ interface CategoriaComProdutos extends Categoria {
     }
 
     .fab {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-2);
       width: 100%;
       max-width: 400px;
       min-height: 52px;
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
       box-shadow: var(--b-shadow-3);
     }
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-12) var(--b-space-4);
-      text-align: center;
-    }
-
-    .empty-state__title {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-      margin: 0;
-    }
-
-    .empty-state__sub {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-      margin: 0;
-    }
-
     /* ===== BOTTOM SHEET ===== */
-    .sheet-backdrop {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(44, 26, 14, 0.45);
-      backdrop-filter: blur(2px);
-      z-index: 100;
-    }
-
     .sheet {
       position: fixed;
       bottom: 0;
@@ -666,7 +613,7 @@ interface CategoriaComProdutos extends Categoria {
       background-color: var(--b-bg-elevated);
       border-radius: var(--b-radius-lg) var(--b-radius-lg) 0 0;
       box-shadow: var(--b-shadow-4);
-      z-index: 101;
+      z-index: 301;
       max-height: 85dvh;
       display: flex;
       flex-direction: column;
@@ -920,22 +867,10 @@ interface CategoriaComProdutos extends Categoria {
     }
 
     .confirm-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-2);
       width: 100%;
       min-height: 52px;
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
-
-      &:disabled { opacity: 0.6; cursor: not-allowed; }
     }
 
-    /* Spinner */
-    .spin { animation: spin 1s linear infinite; }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class ComandaDetalheComponent implements OnInit, OnDestroy {

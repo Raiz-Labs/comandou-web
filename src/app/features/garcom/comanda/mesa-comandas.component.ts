@@ -29,7 +29,7 @@ import { LucideAngularModule } from 'lucide-angular';
       <app-notificacao-banner />
 
       <header class="header">
-        <button class="btn-back" (click)="voltar()" aria-label="Voltar para mesas">
+        <button class="b-btn-back" (click)="voltar()" aria-label="Voltar para mesas">
           <lucide-icon name="arrow-left" [size]="20" />
         </button>
 
@@ -151,7 +151,7 @@ import { LucideAngularModule } from 'lucide-angular';
           aria-label="Abrir nova comanda"
         >
           @if (abrindo()) {
-            <lucide-icon name="loader-2" [size]="20" class="spin" />
+            <lucide-icon name="loader-2" [size]="20" class="b-spin" />
             Abrindo...
           } @else {
             <lucide-icon name="plus" [size]="20" />
@@ -181,23 +181,6 @@ import { LucideAngularModule } from 'lucide-angular';
       border-bottom: 1px solid var(--b-neutral-100);
       box-shadow: var(--b-shadow-1);
       min-height: 64px;
-    }
-
-    .btn-back {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px;
-      min-height: 44px;
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-      background-color: transparent;
-      color: var(--b-fg);
-      flex-shrink: 0;
-
-      &:hover {
-        background-color: var(--b-bg-sunken);
-      }
     }
 
     .header__info {
@@ -420,14 +403,6 @@ import { LucideAngularModule } from 'lucide-angular';
       }
     }
 
-    /* Spinner */
-    .spin {
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
   `],
 })
 export class MesaComandasComponent implements OnInit, OnDestroy {
