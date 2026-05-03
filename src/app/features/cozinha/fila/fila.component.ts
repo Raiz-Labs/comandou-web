@@ -562,7 +562,7 @@ export class FilaComponent implements OnInit, OnDestroy {
   private setProcessando(itemId: string, ativo: boolean): void {
     this.processando.update(set => {
       const next = new Set(set);
-      ativo ? next.add(itemId) : next.delete(itemId);
+      if (ativo) { next.add(itemId); } else { next.delete(itemId); }
       return next;
     });
   }

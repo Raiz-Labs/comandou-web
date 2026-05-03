@@ -14,4 +14,4 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     :host { display: block; min-height: 100vh; }
   `],
 })
-export class App {}
+export class AppComponent {}
