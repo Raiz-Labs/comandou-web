@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { environment } from '../../../environments/environment';
@@ -18,30 +18,40 @@ export class AuthService {
   private readonly http = inject(HttpClient);
   private readonly router = inject(Router);
 
+  private get tenantHeaders(): HttpHeaders {
+    return new HttpHeaders({ 'X-Tenant-Slug': environment.tenantSlug });
+  }
+
   async login(payload: LoginPayload): Promise<void> {
     const response = await firstValueFrom(
       this.http.post<LoginResponse>(`${environment.apiUrl}/auth/login`, payload, {
         withCredentials: true,
+        headers: this.tenantHeaders,
       })
     );
-    setAuth(response.token, response.user);
+    setAuth(response.accessToken, response.user);
     const destino = PERFIL_ROUTES[response.user.perfil] ?? '/login';
     await this.router.navigateByUrl(destino);
   }
 
   async refresh(): Promise<string> {
     const response = await firstValueFrom(
-      this.http.post<{ token: string }>(`${environment.apiUrl}/auth/refresh`, {}, {
+      this.http.post<LoginResponse>(`${environment.apiUrl}/auth/refresh`, {}, {
         withCredentials: true,
+        headers: this.tenantHeaders,
       })
     );
-    return response.token;
+    setAuth(response.accessToken, response.user);
+    return response.accessToken;
   }
 
   async logout(): Promise<void> {
     try {
       await firstValueFrom(
-        this.http.post(`${environment.apiUrl}/auth/logout`, {}, { withCredentials: true })
+        this.http.post(`${environment.apiUrl}/auth/logout`, {}, {
+          withCredentials: true,
+          headers: this.tenantHeaders,
+        })
       );
     } finally {
       clearAuth();
