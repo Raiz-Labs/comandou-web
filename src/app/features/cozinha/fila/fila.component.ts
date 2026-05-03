@@ -19,7 +19,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-fila',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <app-connection-banner />

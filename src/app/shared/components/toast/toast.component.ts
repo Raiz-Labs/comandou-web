@@ -6,7 +6,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [NgFor, LucideAngularModule],
+  imports: [LucideAngularModule],
   template: `
     <div class="toast-container">
       @for (toast of toastService.toasts(); track toast.id) {
