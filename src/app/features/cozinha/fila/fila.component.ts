@@ -13,7 +13,6 @@ import { SocketService } from '../../../core/socket/socket.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
-import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { LucideAngularModule } from 'lucide-angular';
 
 @Component({

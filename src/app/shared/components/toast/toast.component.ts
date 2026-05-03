@@ -1,5 +1,4 @@
 import { Component, inject } from '@angular/core';
-import { NgFor } from '@angular/common';
 import { ToastService } from './toast.service';
 import { LucideAngularModule } from 'lucide-angular';
 
