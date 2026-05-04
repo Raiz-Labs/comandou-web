@@ -1,0 +1,10 @@
+{
+    "buildCommand": "ng build",
+    "outputDirectory": "dist/comandou-web",
+    "rewrites": [
+        {
+            "source": "/(.*)",
+            "destination": "/index.html"
+        }
+    ]
+}
