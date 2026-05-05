@@ -1,8 +1,8 @@
 export const environment = {
   production: true,
   tenantSlug: getTenantSlug(),
-  apiUrl: 'https://comandou-api-production.up.railway.app',
-  wsUrl: 'https://comandou-api-production.up.railway.app',
+  apiUrl: 'https://api.comandou.app.br',
+  wsUrl: 'https://api.comandou.app.br',
 };
 
 function getTenantSlug(): string {
