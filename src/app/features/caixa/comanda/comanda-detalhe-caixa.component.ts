@@ -249,6 +249,19 @@ import { LucideAngularModule } from 'lucide-angular';
         (cancelled)="confirmandoFechamento.set(false)"
       />
     }
+
+    <!-- ConfirmDialog: itens pendentes -->
+    @if (confirmandoPendentes()) {
+      <app-confirm-dialog
+        title="Há itens pendentes"
+        [message]="'Há ' + qtdBloqueantes() + ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'"
+        confirmLabel="Sim, fechar mesmo assim"
+        cancelLabel="Cancelar"
+        [confirmDanger]="true"
+        (confirmed)="confirmarFechamentoForcado()"
+        (cancelled)="confirmandoPendentes.set(false)"
+      />
+    }
   `,
   styles: [`
     .layout {
@@ -675,6 +688,8 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
   protected readonly divisoes = signal(1);
   protected readonly fechando = signal(false);
   protected readonly confirmandoFechamento = signal(false);
+  protected readonly confirmandoPendentes = signal(false);
+  protected readonly qtdBloqueantes = signal(0);
 
   protected readonly comanda = resource({
     loader: () => this.caixaService.buscarComanda(this.comandaId),
@@ -746,12 +761,31 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
     this.confirmandoFechamento.set(true);
   }
 
-  protected async confirmarFechamento(): Promise<void> {
+  protected confirmarFechamento(): void {
     this.confirmandoFechamento.set(false);
+    const bloqueantes = (this.comanda.value()?.itens ?? []).filter(
+      (i) => i.status === 'pendente' || i.status === 'em_preparo'
+    );
+    if (bloqueantes.length > 0) {
+      this.qtdBloqueantes.set(bloqueantes.length);
+      this.confirmandoPendentes.set(true);
+    } else {
+      void this.executarFechamento(false);
+    }
+  }
+
+  protected confirmarFechamentoForcado(): void {
+    this.confirmandoPendentes.set(false);
+    void this.executarFechamento(true);
+  }
+
+  private async executarFechamento(ignorarPendentes: boolean): Promise<void> {
+    if (this.fechando()) return;
     this.fechando.set(true);
     try {
       await this.caixaService.fecharComanda(this.comandaId, {
         divisoes: this.divisoes() > 1 ? this.divisoes() : undefined,
+        ignorarPendentes,
       });
       this.toast.success('Comanda fechada com sucesso!');
       this.comanda.reload();

@@ -10,6 +10,7 @@ import {
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
 import { Categoria, ItemComanda, Produto, StatusItem } from '../../../shared/types';
+import { userPerfil } from '../../../core/auth/auth.signal';
 import { GarcomService } from '../garcom.service';
 import { SocketService } from '../../../core/socket/socket.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -159,6 +160,12 @@ interface CategoriaComProdutos extends Categoria {
       <!-- FAB -->
       @if (!comanda.isLoading() && comanda.value()?.aberta) {
         <div class="fab-area">
+          @if (podeFechar()) {
+            <button class="b-btn-ghost fab-fechar" (click)="pedirFechamento()">
+              <lucide-icon name="lock" [size]="18" />
+              Fechar comanda
+            </button>
+          }
           <button class="b-btn-primary fab" (click)="abrirPicker()">
             <lucide-icon name="plus" [size]="20" />
             Adicionar item
@@ -166,6 +173,19 @@ interface CategoriaComProdutos extends Categoria {
         </div>
       }
     </div>
+
+    <!-- ===== CONFIRM DIALOG: FECHAR COMANDA COM ITENS PENDENTES ===== -->
+    @if (pedindoFechar()) {
+      <app-confirm-dialog
+        title="Fechar com itens pendentes?"
+        [message]="'Há ' + qtdBloqueantes() + ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'"
+        confirmLabel="Sim, fechar mesmo assim"
+        cancelLabel="Cancelar"
+        [confirmDanger]="true"
+        (confirmed)="confirmarFechamentoForcado()"
+        (cancelled)="pedindoFechar.set(false)"
+      />
+    }
 
     <!-- ===== CONFIRM DIALOG: CANCELAR ITEM ===== -->
     @if (itemParaCancelar()) {
@@ -418,7 +438,7 @@ interface CategoriaComProdutos extends Categoria {
       min-height: 100dvh;
       background-color: var(--b-bg);
       font-family: var(--b-font-sans);
-      padding-bottom: 88px;
+      padding-bottom: 140px;
     }
 
     /* ===== HEADER ===== */
@@ -594,7 +614,9 @@ interface CategoriaComProdutos extends Categoria {
       left: var(--b-space-4);
       right: var(--b-space-4);
       display: flex;
-      justify-content: center;
+      flex-direction: column;
+      align-items: center;
+      gap: var(--b-space-2);
     }
 
     .fab {
@@ -602,6 +624,13 @@ interface CategoriaComProdutos extends Categoria {
       max-width: 400px;
       min-height: 52px;
       box-shadow: var(--b-shadow-3);
+    }
+
+    .fab-fechar {
+      width: 100%;
+      max-width: 400px;
+      min-height: 44px;
+      border: 1px solid var(--b-neutral-300);
     }
 
     /* ===== BOTTOM SHEET ===== */
@@ -617,6 +646,15 @@ interface CategoriaComProdutos extends Categoria {
       max-height: 85dvh;
       display: flex;
       flex-direction: column;
+
+      @media (min-width: 768px) {
+        left: 50%;
+        right: auto;
+        width: 480px;
+        transform: translateX(-50%);
+        border-radius: var(--b-radius-lg);
+        bottom: var(--b-space-6);
+      }
     }
 
     .sheet__header {
@@ -900,6 +938,12 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   protected readonly salvando = signal(false);
   protected readonly cancelando = signal(false);
 
+  // UI state — fechar comanda
+  protected readonly pedindoFechar = signal(false);
+  protected readonly qtdBloqueantes = signal(0);
+  protected readonly fechando = signal(false);
+  protected readonly podeFechar = computed(() => ['admin', 'caixa'].includes(userPerfil() ?? ''));
+
   // Data
   protected readonly comanda = resource({
     loader: () => this.garcomService.buscarComanda(this.comandaId),
@@ -1086,6 +1130,40 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
       this.toast.danger('Não foi possível cancelar o item. Tente novamente.');
     } finally {
       this.cancelando.set(false);
+    }
+  }
+
+  // ===== Fechar comanda =====
+
+  protected pedirFechamento(): void {
+    const itens = this.comanda.value()?.itens ?? [];
+    const bloqueantes = itens.filter(
+      (i) => i.status === 'pendente' || i.status === 'em_preparo'
+    );
+    if (bloqueantes.length > 0) {
+      this.qtdBloqueantes.set(bloqueantes.length);
+      this.pedindoFechar.set(true);
+    } else {
+      void this.executarFechamento(false);
+    }
+  }
+
+  protected confirmarFechamentoForcado(): void {
+    this.pedindoFechar.set(false);
+    void this.executarFechamento(true);
+  }
+
+  private async executarFechamento(ignorarPendentes: boolean): Promise<void> {
+    if (this.fechando()) return;
+    this.fechando.set(true);
+    try {
+      await this.garcomService.fecharComanda(this.comandaId, ignorarPendentes);
+      this.toast.success('Comanda fechada com sucesso!');
+      this.voltar();
+    } catch {
+      this.toast.danger('Não foi possível fechar a comanda.');
+    } finally {
+      this.fechando.set(false);
     }
   }
 

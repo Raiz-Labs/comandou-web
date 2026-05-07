@@ -23,7 +23,7 @@ export class CozinhaService {
 
   marcarEmPreparo(comandaId: string, itemId: string): Promise<ItemComanda> {
     return firstValueFrom(
-      this.api.patch<ItemComanda>(`/comandas/${comandaId}/itens/${itemId}`, {
+      this.api.patch<ItemComanda>(`/comandas/${comandaId}/itens/${itemId}/status`, {
         status: 'em_preparo',
       })
     );
@@ -31,7 +31,7 @@ export class CozinhaService {
 
   marcarPronto(comandaId: string, itemId: string): Promise<ItemComanda> {
     return firstValueFrom(
-      this.api.patch<ItemComanda>(`/comandas/${comandaId}/itens/${itemId}`, {
+      this.api.patch<ItemComanda>(`/comandas/${comandaId}/itens/${itemId}/status`, {
         status: 'pronto',
       })
     );

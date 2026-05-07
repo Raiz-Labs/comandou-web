@@ -56,4 +56,8 @@ export class GarcomService {
       this.api.delete<void>(`/comandas/${comandaId}/itens/${itemId}`)
     );
   }
+
+  fecharComanda(id: string, ignorarPendentes = false): Promise<void> {
+    return firstValueFrom(this.api.post<void>(`/comandas/${id}/fechar`, { ignorarPendentes }));
+  }
 }
