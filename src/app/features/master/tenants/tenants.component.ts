@@ -659,8 +659,8 @@ export class TenantsComponent {
       );
       this.fecharModalCriar();
       this.tenants.reload();
-    } catch (err: any) {
-      const msg = err?.error?.error?.message ?? 'Erro ao criar tenant';
+    } catch (err: unknown) {
+      const msg = (err as { error?: { error?: { message?: string } } })?.error?.error?.message ?? 'Erro ao criar tenant';
       this.erroModal.set(msg);
     } finally {
       this.salvando.set(false);
@@ -686,8 +686,8 @@ export class TenantsComponent {
       );
       this.fecharModalEditar();
       this.tenants.reload();
-    } catch (err: any) {
-      const msg = err?.error?.error?.message ?? 'Erro ao atualizar tenant';
+    } catch (err: unknown) {
+      const msg = (err as { error?: { error?: { message?: string } } })?.error?.error?.message ?? 'Erro ao atualizar tenant';
       this.erroModal.set(msg);
     } finally {
       this.salvando.set(false);

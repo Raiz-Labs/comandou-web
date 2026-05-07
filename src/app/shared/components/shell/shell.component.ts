@@ -9,8 +9,9 @@ import { Perfil } from '../../types';
 
 interface NavLink {
   label: string;
-  icon: string;
-  rota: string;
+  icon?: string;
+  rota?: string;
+  separator?: boolean;
 }
 
 const NAV_CONFIG: Record<Perfil, NavLink[]> = {
@@ -24,12 +25,16 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
     { label: 'Comandas',  icon: 'receipt',     rota: '/caixa/comandas' },
   ],
   admin: [
-    { label: 'Dashboard', icon: 'layout-dashboard', rota: '/admin/dashboard'  },
-    { label: 'Produtos',  icon: 'package',          rota: '/admin/produtos'   },
-    { label: 'Categorias',icon: 'tag',               rota: '/admin/categorias' },
-    { label: 'Mesas',     icon: 'layout-grid',       rota: '/admin/mesas'      },
-    { label: 'Usuários',  icon: 'users',             rota: '/admin/usuarios'   },
-    { label: 'Relatórios',icon: 'bar-chart-2',       rota: '/admin/relatorios' },
+    { label: 'Dashboard',  icon: 'layout-dashboard', rota: '/admin/dashboard'  },
+    { label: 'Produtos',   icon: 'package',           rota: '/admin/produtos'   },
+    { label: 'Categorias', icon: 'tag',               rota: '/admin/categorias' },
+    { label: 'Mesas',      icon: 'layout-grid',       rota: '/admin/mesas'      },
+    { label: 'Usuários',   icon: 'users',             rota: '/admin/usuarios'   },
+    { label: 'Relatórios', icon: 'bar-chart-2',       rota: '/admin/relatorios' },
+    { label: 'Operação',   separator: true },
+    { label: 'Salão',      icon: 'layout-grid',       rota: '/garcom/mesas'     },
+    { label: 'Cozinha',    icon: 'chef-hat',           rota: '/cozinha/fila'     },
+    { label: 'Caixa',      icon: 'receipt',            rota: '/caixa/comandas'   },
   ],
 };
 
@@ -65,18 +70,22 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
         </button>
 
         <ul class="sidebar__nav" role="list">
-          @for (link of navLinks(); track link.rota) {
-            <li>
-              <a
-                [routerLink]="link.rota"
-                routerLinkActive="sidebar__link--active"
-                class="sidebar__link"
-                (click)="drawerOpen.set(false)"
-              >
-                <lucide-icon [name]="link.icon" [size]="18" />
-                {{ link.label }}
-              </a>
-            </li>
+          @for (link of navLinks(); track link.label) {
+            @if (link.separator) {
+              <li class="sidebar__separator">{{ link.label }}</li>
+            } @else {
+              <li>
+                <a
+                  [routerLink]="link.rota"
+                  routerLinkActive="sidebar__link--active"
+                  class="sidebar__link"
+                  (click)="drawerOpen.set(false)"
+                >
+                  <lucide-icon [name]="link.icon!" [size]="18" />
+                  {{ link.label }}
+                </a>
+              </li>
+            }
           }
         </ul>
 
@@ -236,6 +245,17 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
       flex-direction: column;
       gap: 2px;
       overflow-y: auto;
+    }
+
+    .sidebar__separator {
+      font-size: var(--b-font-size-xs);
+      font-weight: var(--b-font-weight-semibold);
+      color: var(--b-fg-subtle);
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      padding: var(--b-space-3) var(--b-space-3) var(--b-space-1);
+      margin-top: var(--b-space-2);
+      border-top: 1px solid var(--b-neutral-100);
     }
 
     .sidebar__link {

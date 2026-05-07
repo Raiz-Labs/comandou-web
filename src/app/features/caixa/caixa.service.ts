@@ -4,7 +4,8 @@ import { ApiService } from '../../core/api/api.service';
 import { Comanda } from '../../shared/types';
 
 export interface FechamentoPayload {
-  divisoes?: number; // número de pessoas para divisão
+  divisoes?: number;
+  ignorarPendentes?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
