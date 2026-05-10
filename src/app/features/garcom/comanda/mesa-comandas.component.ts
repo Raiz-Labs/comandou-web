@@ -8,6 +8,7 @@ import {
   resource,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
+import { FormsModule } from '@angular/forms';
 import { Subscription } from 'rxjs';
 import { Comanda } from '../../../shared/types';
 import { GarcomService } from '../garcom.service';
@@ -22,7 +23,7 @@ import { LucideAngularModule } from 'lucide-angular';
 @Component({
   selector: 'app-mesa-comandas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule, FormsModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -89,7 +90,14 @@ import { LucideAngularModule } from 'lucide-angular';
               @for (comanda of comandasAbertas(); track comanda.id) {
                 <button class="comanda-card" (click)="abrirDetalhe(comanda)">
                   <div class="comanda-card__top">
-                    <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
+                    <span class="comanda-card__id">
+                      @if (comanda.nomeCliente) {
+                        <lucide-icon name="user" [size]="13" />
+                        {{ comanda.nomeCliente }}
+                      } @else {
+                        #{{ comanda.id.slice(-6).toUpperCase() }}
+                      }
+                    </span>
                     <span class="comanda-card__total">{{ comanda.total | currencyBr }}</span>
                   </div>
                   <div class="comanda-card__bottom">
@@ -147,7 +155,7 @@ import { LucideAngularModule } from 'lucide-angular';
         <button
           class="b-btn-primary fab"
           [disabled]="abrindo()"
-          (click)="abrirNovaComanda()"
+          (click)="abrirModalNome()"
           aria-label="Abrir nova comanda"
         >
           @if (abrindo()) {
@@ -159,6 +167,46 @@ import { LucideAngularModule } from 'lucide-angular';
           }
         </button>
       </div>
+
+      <!-- Modal: nome do cliente -->
+      @if (modalNomeAberto()) {
+        <div class="modal-backdrop" (click)="fecharModalNome()"></div>
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+          <div class="modal__header">
+            <h2 class="modal__titulo" id="modal-titulo">Nova comanda</h2>
+            <button class="modal__fechar" (click)="fecharModalNome()" aria-label="Fechar">
+              <lucide-icon name="x" [size]="20" />
+            </button>
+          </div>
+          <div class="modal__body">
+            <p class="modal__desc">Em qual nome está a comanda? (opcional)</p>
+            <div class="campo">
+              <label class="b-label" for="nome-cliente">Nome do cliente</label>
+              <input
+                id="nome-cliente"
+                class="b-input"
+                type="text"
+                [(ngModel)]="nomeClienteInput"
+                placeholder="Ex: João, Mesa do fundo..."
+                maxlength="100"
+                (keydown.enter)="confirmarAbertura()"
+                autofocus
+              />
+            </div>
+          </div>
+          <div class="modal__acoes">
+            <button class="b-btn-ghost" (click)="fecharModalNome()">Cancelar</button>
+            <button class="b-btn-primary" (click)="confirmarAbertura()" [disabled]="abrindo()">
+              @if (abrindo()) {
+                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                Abrindo...
+              } @else {
+                Abrir comanda
+              }
+            </button>
+          </div>
+        </div>
+      }
     </div>
   `,
   styles: [`
@@ -403,6 +451,93 @@ import { LucideAngularModule } from 'lucide-angular';
       }
     }
 
+    /* Modal nome do cliente */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background-color: rgba(44, 26, 14, 0.45);
+      backdrop-filter: blur(2px);
+      z-index: 300;
+    }
+
+    .modal {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: calc(100% - var(--b-space-8));
+      max-width: 400px;
+      background-color: var(--b-bg-elevated);
+      border-radius: var(--b-radius-lg);
+      box-shadow: var(--b-shadow-4);
+      z-index: 301;
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+    }
+
+    .modal__header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: var(--b-space-5) var(--b-space-5) var(--b-space-3);
+    }
+
+    .modal__titulo {
+      font-size: var(--b-font-size-xl);
+      font-weight: var(--b-font-weight-bold);
+      color: var(--b-fg);
+      margin: 0;
+    }
+
+    .modal__fechar {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      min-height: 44px;
+      border: none;
+      background: transparent;
+      color: var(--b-fg-muted);
+      border-radius: var(--b-radius-sm);
+      cursor: pointer;
+      &:hover { background-color: var(--b-bg-sunken); }
+    }
+
+    .modal__body {
+      padding: 0 var(--b-space-5) var(--b-space-4);
+      display: flex;
+      flex-direction: column;
+      gap: var(--b-space-3);
+    }
+
+    .modal__desc {
+      font-size: var(--b-font-size-sm);
+      color: var(--b-fg-muted);
+      margin: 0;
+    }
+
+    .campo {
+      display: flex;
+      flex-direction: column;
+      gap: var(--b-space-2);
+    }
+
+    .modal__acoes {
+      display: flex;
+      justify-content: flex-end;
+      gap: var(--b-space-3);
+      padding: var(--b-space-4) var(--b-space-5);
+      border-top: 1px solid var(--b-neutral-100);
+    }
+
+    .modal__acoes button {
+      min-height: 44px;
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-2);
+    }
+
   `],
 })
 export class MesaComandasComponent implements OnInit, OnDestroy {
@@ -417,6 +552,8 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
 
   protected readonly skeletonItems = Array.from({ length: 2 }, (_, i) => i);
   protected readonly abrindo = signal(false);
+  protected readonly modalNomeAberto = signal(false);
+  protected nomeClienteInput = '';
 
   protected readonly dados = resource({
     loader: () =>
@@ -457,16 +594,29 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
     this.router.navigate(['/garcom/comanda', comanda.id]);
   }
 
-  protected async abrirNovaComanda(): Promise<void> {
+  protected abrirModalNome(): void {
+    this.nomeClienteInput = '';
+    this.modalNomeAberto.set(true);
+  }
+
+  protected fecharModalNome(): void {
+    this.modalNomeAberto.set(false);
+    this.nomeClienteInput = '';
+  }
+
+  protected async confirmarAbertura(): Promise<void> {
     if (this.abrindo()) return;
     this.abrindo.set(true);
     try {
-      const novaComanda = await this.garcomService.abrirComanda(this.mesaId);
+      const nome = this.nomeClienteInput.trim() || undefined;
+      const novaComanda = await this.garcomService.abrirComanda(this.mesaId, nome);
       this.toast.success('Comanda aberta!');
-      this.router.navigate(['/garcom/comanda', novaComanda.id]);
+      await this.router.navigate(['/garcom/comanda', novaComanda.id]);
     } catch {
       this.toast.danger('Não foi possível abrir a comanda. Tente novamente.');
+    } finally {
       this.abrindo.set(false);
+      this.modalNomeAberto.set(false);
     }
   }
 

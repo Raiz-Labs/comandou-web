@@ -67,6 +67,7 @@ export interface Comanda {
   id: string;
   mesaId: string;
   mesa?: Mesa;
+  nomeCliente?: string | null;
   itens: ItemComanda[];
   total: number;
   aberta: boolean;
