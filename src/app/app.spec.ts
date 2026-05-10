@@ -17,7 +17,9 @@ describe('AppComponent', () => {
 
   it('should render router outlet', async () => {
     const fixture = TestBed.createComponent(AppComponent);
+    fixture.detectChanges();
     await fixture.whenStable();
-    expect(fixture.componentInstance).toBeTruthy();
+    const compiled = fixture.nativeElement as HTMLElement;
+    expect(compiled.querySelector('router-outlet')).toBeTruthy();
   });
 });
