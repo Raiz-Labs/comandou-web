@@ -611,11 +611,11 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
       const nome = this.nomeClienteInput.trim() || undefined;
       const novaComanda = await this.garcomService.abrirComanda(this.mesaId, nome);
       this.toast.success('Comanda aberta!');
-      this.router.navigate(['/garcom/comanda', novaComanda.id]);
+      await this.router.navigate(['/garcom/comanda', novaComanda.id]);
     } catch {
       this.toast.danger('Não foi possível abrir a comanda. Tente novamente.');
-      this.abrindo.set(false);
     } finally {
+      this.abrindo.set(false);
       this.modalNomeAberto.set(false);
     }
   }
