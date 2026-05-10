@@ -120,6 +120,8 @@ import { LucideAngularModule } from 'lucide-angular';
       display: flex;
       flex-direction: column;
       gap: var(--b-space-1);
+      flex: 1;
+      min-width: 0;
     }
 
     .header__title {
@@ -137,6 +139,9 @@ import { LucideAngularModule } from 'lucide-angular';
       font-size: var(--b-font-size-xs);
       color: var(--b-fg-muted);
       font-weight: var(--b-font-weight-medium);
+      overflow: hidden;
+      white-space: nowrap;
+      text-overflow: ellipsis;
     }
 
     .header__counts {
