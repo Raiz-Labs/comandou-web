@@ -49,6 +49,10 @@ import { LucideAngularModule } from 'lucide-angular';
               <span class="header__id">#{{ comanda.value()!.id.slice(-6).toUpperCase() }}</span>
             </h1>
             <span class="header__sub">
+              @if (comanda.value()!.nomeCliente) {
+                <lucide-icon name="user" [size]="13" />
+                {{ comanda.value()!.nomeCliente }} ·
+              }
               Aberta {{ tempoAberta(comanda.value()!.criadoEm) }} atrás
             </span>
           }

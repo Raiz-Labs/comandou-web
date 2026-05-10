@@ -51,10 +51,19 @@ interface CategoriaComProdutos extends Categoria {
             <app-skeleton height="0.875rem" width="100px" />
           } @else if (comanda.value()) {
             <h1 class="header__title">
-              Comanda #{{ comanda.value()!.id.slice(-6).toUpperCase() }}
+              @if (comanda.value()!.nomeCliente) {
+                {{ comanda.value()!.nomeCliente }}
+              } @else {
+                Comanda #{{ comanda.value()!.id.slice(-6).toUpperCase() }}
+              }
             </h1>
             @if (comanda.value()!.mesa) {
-              <span class="header__sub">Mesa {{ comanda.value()!.mesa!.numero }}</span>
+              <span class="header__sub">
+                Mesa {{ comanda.value()!.mesa!.numero }}
+                @if (comanda.value()!.nomeCliente) {
+                  · #{{ comanda.value()!.id.slice(-6).toUpperCase() }}
+                }
+              </span>
             }
           }
         </div>

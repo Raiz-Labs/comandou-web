@@ -19,8 +19,10 @@ export class GarcomService {
     return firstValueFrom(this.api.get<Comanda[]>(`/mesas/${mesaId}/comandas`));
   }
 
-  abrirComanda(mesaId: string): Promise<Comanda> {
-    return firstValueFrom(this.api.post<Comanda>('/comandas', { mesaId }));
+  abrirComanda(mesaId: string, nomeCliente?: string): Promise<Comanda> {
+    const payload: Record<string, unknown> = { mesaId };
+    if (nomeCliente?.trim()) payload['nomeCliente'] = nomeCliente.trim();
+    return firstValueFrom(this.api.post<Comanda>('/comandas', payload));
   }
 
   buscarComanda(id: string): Promise<Comanda> {
