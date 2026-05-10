@@ -196,6 +196,10 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
 
     /* Content */
     .content { flex: 1; padding: var(--b-space-6); display: flex; flex-direction: column; gap: var(--b-space-6); }
+    @media (max-width: 767px) {
+      .periodo-bar { padding: var(--b-space-3) var(--b-space-4); flex-wrap: wrap; }
+      .content { padding: var(--b-space-4); gap: var(--b-space-4); }
+    }
 
     /* KPIs */
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--b-space-4); }
