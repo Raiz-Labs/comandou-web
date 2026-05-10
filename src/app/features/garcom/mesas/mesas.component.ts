@@ -26,7 +26,7 @@ import { LucideAngularModule } from 'lucide-angular';
           @if (currentUser()) {
             <span class="header__user">
               <lucide-icon name="user" [size]="14" />
-              {{ currentUser()!.nome }}
+              <span class="header__user-name">{{ currentUser()!.nome }}</span>
             </span>
           }
         </div>
@@ -139,9 +139,15 @@ import { LucideAngularModule } from 'lucide-angular';
       font-size: var(--b-font-size-xs);
       color: var(--b-fg-muted);
       font-weight: var(--b-font-weight-medium);
+      min-width: 0;
+      max-width: 100%;
+    }
+
+    .header__user-name {
       overflow: hidden;
       white-space: nowrap;
       text-overflow: ellipsis;
+      min-width: 0;
     }
 
     .header__counts {
