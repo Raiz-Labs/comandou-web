@@ -8,6 +8,14 @@
   <meta name="theme-color" content="#D95C25">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="manifest" href="manifest.webmanifest">
+  <!-- Aplica o tema salvo/preferido antes do primeiro paint, evitando flash -->
+  <script>
+    (function () {
+      var saved = localStorage.getItem('comandou-theme');
+      var dark = saved ? saved === 'dark' : matchMedia('(prefers-color-scheme: dark)').matches;
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
   <!-- Google Fonts: Nunito -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>

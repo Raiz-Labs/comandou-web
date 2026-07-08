@@ -141,3 +141,90 @@
   --b-z-modal: 400;
   --b-z-toast: 500;
 }
+
+/* ============================================================
+   DARK MODE — [data-theme="dark"] no <html>
+   Mesma identidade "warm dark brown" da skill do design system,
+   nunca cinza-azulado frio. Cada família de cor é reescrita
+   inteira (não só os tokens semânticos) porque os componentes
+   referenciam degraus específicos da escala diretamente.
+   ============================================================ */
+[data-theme="dark"] {
+  /* --- primary (Terracotta) --- */
+  --b-primary-50: #331A10;
+  --b-primary-100: #53230E;
+  --b-primary-200: #7A3415;
+  --b-primary-300: #A1441B;
+  --b-primary-400: #CD5723;
+  --b-primary-500: #DD6937;   /* CTA principal no dark */
+  --b-primary-600: #E4875E;
+  --b-primary-700: #EBA789;
+  --b-primary-800: #F3CBB9;
+  --b-primary-900: #F5E6E0;
+
+  /* --- neutral (Warm Gray) --- */
+  --b-neutral-50: #2A221D;
+  --b-neutral-100: #362C25;
+  --b-neutral-200: #493B32;
+  --b-neutral-300: #614F42;
+  --b-neutral-400: #7F6757;
+  --b-neutral-500: #9B806E;
+  --b-neutral-600: #B09B8C;
+  --b-neutral-700: #C7B8AD;
+  --b-neutral-800: #DED5CF;
+  --b-neutral-900: #F0EDEA;
+
+  /* --- success --- */
+  --b-success-50: #162D25;
+  --b-success-100: #1A4738;
+  --b-success-500: #4CBD98;
+  --b-success-600: #71CBAD;
+  --b-success-700: #9ADAC5;
+
+  /* --- warning --- */
+  --b-warning-50: #35260E;
+  --b-warning-100: #563A0B;
+  --b-warning-500: #E49D25;
+  --b-warning-600: #EAB252;
+  --b-warning-700: #F0C884;
+
+  /* --- danger --- */
+  --b-danger-50: #311111;
+  --b-danger-100: #4F1212;
+  --b-danger-500: #D23737;
+  --b-danger-600: #DB6161;
+  --b-danger-700: #E68F8F;
+
+  /* --- info --- */
+  --b-info-50: #0E1D34;
+  --b-info-100: #0B2756;
+  --b-info-500: #266EE4;
+  --b-info-600: #538CE9;
+  --b-info-700: #85ADF0;
+
+  /* --- accent --- */
+  --b-accent-50: #35260E;
+  --b-accent-100: #563A0B;
+  --b-accent-500: #E49D25;
+
+  /* --- background / superfície --- */
+  --b-bg: #1C1916;             /* cream escuro → marrom quente */
+  --b-bg-elevated: #252119;    /* cards, modais — mais claro que o bg */
+  --b-bg-sunken: #17140F;      /* inputs, áreas deprimidas — mais escuro que o bg */
+
+  /* --- foreground / texto --- */
+  --b-fg: #F2EDE5;
+  --b-fg-muted: #B0A898;
+  --b-fg-subtle: #7A7268;
+
+  /* --- border --- */
+  --b-border: #3A342C;
+  --b-border-strong: #4A443C;
+  --b-border-focus: #DD6937;
+
+  /* --- sombras — precisam de mais opacidade sobre fundo escuro --- */
+  --b-shadow-1: 0 1px 3px 0 rgba(0, 0, 0, 0.35), 0 1px 2px -1px rgba(0, 0, 0, 0.25);
+  --b-shadow-2: 0 4px 6px -1px rgba(0, 0, 0, 0.40), 0 2px 4px -2px rgba(0, 0, 0, 0.30);
+  --b-shadow-3: 0 10px 15px -3px rgba(0, 0, 0, 0.45), 0 4px 6px -4px rgba(0, 0, 0, 0.35);
+  --b-shadow-4: 0 25px 50px -12px rgba(0, 0, 0, 0.55);
+}

@@ -2,13 +2,15 @@ import { Component, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { environment } from '../../../environments/environment';
+import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule],
+  imports: [FormsModule, ThemeToggleComponent],
   template: `
     <div class="login-page">
+      <app-theme-toggle class="login-page__theme-toggle" />
       <div class="login-card b-card">
         <div class="login-card__header">
           <h1 class="login-card__title">Comandou</h1>
@@ -67,12 +69,19 @@ import { environment } from '../../../environments/environment';
   `,
   styles: [`
     .login-page {
+      position: relative;
       min-height: 100vh;
       display: flex;
       align-items: center;
       justify-content: center;
       padding: var(--b-space-4);
       background-color: var(--b-bg);
+    }
+
+    .login-page__theme-toggle {
+      position: absolute;
+      top: var(--b-space-4);
+      right: var(--b-space-4);
     }
 
     .login-card {

@@ -6,6 +6,7 @@ import { currentUser, userPerfil } from '../../../core/auth/auth.signal';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 import { masterImpersonating } from '../../../core/master/master-auth.signal';
 import { Perfil } from '../../types';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 interface NavLink {
   label: string;
@@ -41,7 +42,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, ThemeToggleComponent],
   template: `
     <div class="shell">
 
@@ -101,10 +102,13 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
               </div>
             </div>
           }
-          <button class="sidebar__logout" (click)="logout()" aria-label="Sair">
-            <lucide-icon name="log-out" [size]="16" />
-            Sair
-          </button>
+          <div class="sidebar__footer-row">
+            <button class="sidebar__logout" (click)="logout()" aria-label="Sair">
+              <lucide-icon name="log-out" [size]="16" />
+              Sair
+            </button>
+            <app-theme-toggle />
+          </div>
         </div>
       </nav>
 
@@ -327,11 +331,18 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
       text-transform: capitalize;
     }
 
+    .sidebar__footer-row {
+      display: flex;
+      align-items: center;
+      gap: var(--b-space-2);
+    }
+
     .sidebar__logout {
       display: flex;
       align-items: center;
       gap: var(--b-space-2);
-      width: 100%;
+      flex: 1;
+      min-width: 0;
       padding: var(--b-space-2) var(--b-space-3);
       border: 1px solid var(--b-neutral-200);
       border-radius: var(--b-radius-sm);

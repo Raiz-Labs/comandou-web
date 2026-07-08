@@ -3,11 +3,12 @@ import { RouterOutlet } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 import { masterAuthState } from '../../../core/master/master-auth.signal';
+import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
 
 @Component({
   selector: 'app-master-shell',
   standalone: true,
-  imports: [RouterOutlet, LucideAngularModule],
+  imports: [RouterOutlet, LucideAngularModule, ThemeToggleComponent],
   template: `
     <div class="master-layout">
       <header class="master-header">
@@ -17,6 +18,7 @@ import { masterAuthState } from '../../../core/master/master-auth.signal';
         </div>
         <div class="master-header__right">
           <span class="master-header__email">{{ master()?.email }}</span>
+          <app-theme-toggle />
           <button class="master-header__logout" (click)="logout()" aria-label="Sair">
             <lucide-icon name="log-out" [size]="15" />
             Sair

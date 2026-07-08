@@ -57,6 +57,8 @@ import {
   Menu,
   LogOut,
   LogIn,
+  Sun,
+  Moon,
 } from 'lucide-angular';
 
 export const appConfig: ApplicationConfig = {
@@ -127,6 +129,8 @@ export const appConfig: ApplicationConfig = {
         Menu,
         LogOut,
         LogIn,
+        Sun,
+        Moon,
       }),
     },
   ],
