@@ -27,7 +27,7 @@ import { MasterAuthService } from '../../../core/master/master-auth.service';
               placeholder="admin@comandou.com.br"
               autocomplete="email"
               [value]="email()"
-              (input)="email.set($any($event.target).value)"
+              (input)="onEmailInput($event)"
             />
           </div>
 
@@ -41,7 +41,7 @@ import { MasterAuthService } from '../../../core/master/master-auth.service';
                 placeholder="••••••"
                 autocomplete="current-password"
                 [value]="senha()"
-                (input)="senha.set($any($event.target).value)"
+                (input)="onSenhaInput($event)"
               />
               <button
                 type="button"
@@ -223,6 +223,14 @@ export class MasterLoginComponent {
   protected readonly senhaVisivel = signal(false);
   protected readonly loading = signal(false);
   protected readonly erro = signal('');
+
+  protected onEmailInput(event: Event): void {
+    this.email.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onSenhaInput(event: Event): void {
+    this.senha.set((event.target as HTMLInputElement).value);
+  }
 
   protected async onSubmit(event: Event): Promise<void> {
     event.preventDefault();

@@ -6,6 +6,7 @@ import {
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AdminService, CriarProdutoPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -52,7 +53,7 @@ type Campo = keyof ProdutoModel;
         <div class="search-box">
           <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome..."
-            [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
+            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <lucide-icon name="x" [size]="13" />
@@ -158,7 +159,7 @@ type Campo = keyof ProdutoModel;
             <label class="b-label" for="f-nome">Nome <span class="obrigatorio">*</span></label>
             <input id="f-nome" class="b-input" type="text"
               [value]="model().nome"
-              (input)="setField('nome', $any($event.target).value)"
+              (input)="onFieldInput($event, 'nome')"
               (blur)="tocou('nome')"
               placeholder="Ex: Filé com fritas" />
             @if (erroVisivel('nome')) { <span class="b-error-message">{{ erroVisivel('nome') }}</span> }
@@ -169,7 +170,7 @@ type Campo = keyof ProdutoModel;
             <label class="b-label" for="f-desc">Descrição</label>
             <textarea id="f-desc" class="b-input" rows="2"
               [value]="model().descricao"
-              (input)="setField('descricao', $any($event.target).value)"
+              (input)="onFieldInput($event, 'descricao')"
               placeholder="Breve descrição opcional"></textarea>
           </div>
 
@@ -179,7 +180,7 @@ type Campo = keyof ProdutoModel;
               <label class="b-label" for="f-preco">Preço <span class="obrigatorio">*</span></label>
               <input id="f-preco" class="b-input" type="number" step="0.01" min="0"
                 [value]="model().preco"
-                (input)="setField('preco', $any($event.target).value)"
+                (input)="onFieldInput($event, 'preco')"
                 (blur)="tocou('preco')"
                 placeholder="0,00" />
               @if (erroVisivel('preco')) { <span class="b-error-message">{{ erroVisivel('preco') }}</span> }
@@ -188,7 +189,7 @@ type Campo = keyof ProdutoModel;
               <label class="b-label" for="f-estoque">Estoque</label>
               <input id="f-estoque" class="b-input" type="number" min="0"
                 [value]="model().estoque"
-                (input)="setField('estoque', $any($event.target).value)"
+                (input)="onFieldInput($event, 'estoque')"
                 placeholder="0" />
             </div>
           </div>
@@ -198,7 +199,7 @@ type Campo = keyof ProdutoModel;
             <label class="b-label" for="f-cat">Categoria <span class="obrigatorio">*</span></label>
             <select id="f-cat" class="b-input"
               [value]="model().categoriaId"
-              (change)="setField('categoriaId', $any($event.target).value)"
+              (change)="onFieldInput($event, 'categoriaId')"
               (blur)="tocou('categoriaId')">
               <option value="">Selecione uma categoria</option>
               @for (cat of categorias.value() ?? []; track cat.id) {
@@ -213,7 +214,7 @@ type Campo = keyof ProdutoModel;
             <label class="check-label">
               <input type="checkbox" class="check-input"
                 [checked]="model().disponivel"
-                (change)="setField('disponivel', $any($event.target).checked)" />
+                (change)="onFieldCheckbox($event, 'disponivel')" />
               <span>Disponível no cardápio</span>
             </label>
           </div>
@@ -354,6 +355,18 @@ export class ProdutosComponent {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
 
+  protected onBuscaInput(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onFieldInput(event: Event, campo: Campo): void {
+    this.setField(campo, (event.target as HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement).value);
+  }
+
+  protected onFieldCheckbox(event: Event, campo: Campo): void {
+    this.setField(campo, (event.target as HTMLInputElement).checked);
+  }
+
   protected tocou(campo: Campo): void {
     this._tocados.update(s => new Set([...s, campo]));
   }
@@ -420,8 +433,18 @@ export class ProdutosComponent {
       }
       this.fecharPainel();
       this.produtos.reload();
-    } catch {
-      this.toast.danger('Não foi possível salvar o produto. Tente novamente.');
+    } catch (err) {
+      // Categoria pode ter sido excluída por outro admin enquanto o painel
+      // estava aberto — o backend rejeita com 404 nesse caso. Recarrega as
+      // categorias pra sumir a opção obsoleta do <select> em vez de deixar
+      // o usuário tentando salvar contra um dado que não existe mais.
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.warning('A categoria selecionada não existe mais. Escolha outra.');
+        this.categorias.reload();
+      } else {
+        this.toast.danger('Não foi possível salvar o produto. Tente novamente.');
+      }
+      this.produtos.reload();
     } finally {
       this.salvando.set(false);
     }
@@ -443,9 +466,16 @@ export class ProdutosComponent {
     try {
       await this.adminService.excluirProduto(produto.id);
       this.toast.success(`"${produto.nome}" excluído.`);
+    } catch (err) {
+      // Já excluído por outro admin — trata como sucesso idempotente em vez
+      // de assustar o usuário com um erro sobre algo que já foi resolvido.
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.info(`"${produto.nome}" já tinha sido removido.`);
+      } else {
+        this.toast.danger('Não foi possível excluir o produto.');
+      }
+    } finally {
       this.produtos.reload();
-    } catch {
-      this.toast.danger('Não foi possível excluir o produto.');
     }
   }
 
