@@ -63,6 +63,7 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
     buscarComanda: ReturnType<typeof vi.fn>;
     listarCategorias: ReturnType<typeof vi.fn>;
     listarProdutosDisponiveis: ReturnType<typeof vi.fn>;
+    adicionarItem: ReturnType<typeof vi.fn>;
     editarItem: ReturnType<typeof vi.fn>;
     cancelarItem: ReturnType<typeof vi.fn>;
   };
@@ -73,6 +74,7 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
       buscarComanda: vi.fn().mockResolvedValue(makeComanda()),
       listarCategorias: vi.fn().mockResolvedValue([]),
       listarProdutosDisponiveis: vi.fn().mockResolvedValue([]),
+      adicionarItem: vi.fn().mockResolvedValue(makeItem({ id: 'novo-item' })),
       editarItem: vi.fn().mockResolvedValue(makeItem()),
       cancelarItem: vi.fn().mockResolvedValue(undefined),
     };
@@ -212,5 +214,56 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
     expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(2);
     expect(fixture.componentInstance['comanda'].error()).toBeFalsy();
     expect(fixture.componentInstance['comanda'].hasValue()).toBe(true);
+  });
+
+  it('confirmarAdicao: update otimista adiciona o item local sem refazer o GET da comanda (#13)', async () => {
+    const fixture = TestBed.createComponent(ComandaDetalheComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['produtoSelecionado'].set({
+      id: 'produto-x', nome: 'Suco', preco: 8, categoriaId: 'cat-1', estoque: 5, disponivel: true,
+    });
+    comp['quantidade'].set(2);
+
+    await comp['confirmarAdicao']();
+
+    expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(1); // só o load inicial
+    const itens = comp['comanda'].value()!.itens;
+    expect(itens.some((i: ItemComanda) => i.id === 'novo-item')).toBe(true);
+  });
+
+  it('confirmarEdicao: update otimista substitui o item local sem refazer o GET da comanda (#13)', async () => {
+    garcomServiceMock.editarItem.mockResolvedValue(makeItem({ quantidade: 5 }));
+    const fixture = TestBed.createComponent(ComandaDetalheComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['itemEmEdicao'].set(makeItem({ status: 'pendente' }));
+    comp['quantidade'].set(5);
+    comp['uiStep'].set('edicao');
+
+    await comp['confirmarEdicao']();
+
+    expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(1);
+    const itens = comp['comanda'].value()!.itens;
+    expect(itens.find((i: ItemComanda) => i.id === 'item-1')?.quantidade).toBe(5);
+  });
+
+  it('confirmarCancelamento: update otimista marca o item como cancelado localmente sem refazer o GET (#13)', async () => {
+    const fixture = TestBed.createComponent(ComandaDetalheComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['itemParaCancelar'].set(makeItem({ status: 'pendente' }));
+
+    await comp['confirmarCancelamento']();
+
+    expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(1);
+    const itens = comp['comanda'].value()!.itens;
+    expect(itens.find((i: ItemComanda) => i.id === 'item-1')?.status).toBe('cancelado');
   });
 });
