@@ -10,6 +10,7 @@ import {
 import { Subscription } from 'rxjs';
 import { CozinhaService, ItemFila } from '../cozinha.service';
 import { SocketService } from '../../../core/socket/socket.service';
+import { RelogioService } from '../../../core/relogio/relogio.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
@@ -483,12 +484,13 @@ export class FilaComponent implements OnInit, OnDestroy {
   private readonly cozinhaService = inject(CozinhaService);
   private readonly socketService = inject(SocketService);
   private readonly toast = inject(ToastService);
+  private readonly relogio = inject(RelogioService);
 
   private subs: Subscription[] = [];
-  private clockInterval: ReturnType<typeof setInterval> | null = null;
+  private cancelarRegistroRelogio: (() => void) | null = null;
 
   protected readonly skeletons = Array.from({ length: 3 }, (_, i) => i);
-  protected readonly horaAtual = signal(this.formatarHora());
+  protected readonly horaAtual = this.relogio.horaAtual;
   protected readonly processando = signal<Set<string>>(new Set());
 
   protected readonly fila = resource({
@@ -504,10 +506,7 @@ export class FilaComponent implements OnInit, OnDestroy {
   );
 
   ngOnInit(): void {
-    // Atualiza relógio a cada segundo
-    this.clockInterval = setInterval(() => {
-      this.horaAtual.set(this.formatarHora());
-    }, 1000);
+    this.cancelarRegistroRelogio = this.relogio.registrar();
 
     // WS: novos itens entram na fila
     this.subs.push(
@@ -527,7 +526,7 @@ export class FilaComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.subs.forEach(s => s.unsubscribe());
-    if (this.clockInterval) clearInterval(this.clockInterval);
+    this.cancelarRegistroRelogio?.();
   }
 
   protected async iniciarPreparo(item: ItemFila): Promise<void> {
@@ -570,14 +569,6 @@ export class FilaComponent implements OnInit, OnDestroy {
       const next = new Set(set);
       if (ativo) { next.add(itemId); } else { next.delete(itemId); }
       return next;
-    });
-  }
-
-  private formatarHora(): string {
-    return new Date().toLocaleTimeString('pt-BR', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit',
     });
   }
 
