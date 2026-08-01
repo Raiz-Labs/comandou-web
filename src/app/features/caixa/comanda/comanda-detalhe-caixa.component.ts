@@ -9,7 +9,7 @@ import {
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { CaixaService } from '../caixa.service';
+import { CaixaService, DivisaoConta } from '../caixa.service';
 import { SocketService } from '../../../core/socket/socket.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
@@ -43,7 +43,7 @@ import { LucideAngularModule } from 'lucide-angular';
           @if (comanda.isLoading()) {
             <app-skeleton height="1.5rem" width="180px" />
             <app-skeleton height="1rem" width="100px" />
-          } @else if (comanda.value()) {
+          } @else if (comanda.hasValue()) {
             <h1 class="header__title">
               Mesa {{ comanda.value()!.mesa?.numero ?? '—' }}
               <span class="header__id">#{{ comanda.value()!.id.slice(-6).toUpperCase() }}</span>
@@ -58,7 +58,7 @@ import { LucideAngularModule } from 'lucide-angular';
           }
         </div>
 
-        @if (!comanda.isLoading() && comanda.value()) {
+        @if (!comanda.isLoading() && comanda.hasValue()) {
           <div class="header__total">
             <span class="header__total-label">Total</span>
             <span class="header__total-valor">{{ totalAtivo() | currencyBr }}</span>
@@ -146,7 +146,7 @@ import { LucideAngularModule } from 'lucide-angular';
         </section>
 
         <!-- Coluna direita: fechamento -->
-        @if (!comanda.isLoading() && comanda.value()?.aberta) {
+        @if (!comanda.isLoading() && comanda.hasValue() && comanda.value().aberta) {
           <aside class="fechamento-section">
             <h2 class="section-title">
               <lucide-icon name="calculator" [size]="16" />
@@ -209,12 +209,15 @@ import { LucideAngularModule } from 'lucide-angular';
             <!-- Botão fechar -->
             <button
               class="b-btn-primary btn-fechar"
-              [disabled]="fechando()"
+              [disabled]="fechando() || validandoDivisao()"
               (click)="pedirFechamento()"
             >
               @if (fechando()) {
                 <lucide-icon name="loader-2" [size]="18" class="b-spin" />
                 Fechando...
+              } @else if (validandoDivisao()) {
+                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
+                Validando divisão...
               } @else {
                 <lucide-icon name="check-circle-2" [size]="18" />
                 Fechar comanda
@@ -223,7 +226,7 @@ import { LucideAngularModule } from 'lucide-angular';
           </aside>
         }
 
-        @if (!comanda.isLoading() && comanda.value() && !comanda.value()!.aberta) {
+        @if (!comanda.isLoading() && comanda.hasValue() && !comanda.value().aberta) {
           <aside class="fechamento-section">
             <div class="comanda-fechada">
               <lucide-icon name="check-circle-2" [size]="48" color="var(--b-success-500)" />
@@ -691,20 +694,25 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
   protected readonly skeletons = Array.from({ length: 4 }, (_, i) => i);
   protected readonly divisoes = signal(1);
   protected readonly fechando = signal(false);
+  protected readonly validandoDivisao = signal(false);
   protected readonly confirmandoFechamento = signal(false);
   protected readonly confirmandoPendentes = signal(false);
   protected readonly qtdBloqueantes = signal(0);
+  // Divisão confirmada pelo servidor (Decimal, com rateio de resto de
+  // arredondamento) — some ser a fonte de verdade na hora de fechar; o
+  // valor calculado no cliente (valorPorPessoa) é só uma prévia rápida.
+  private readonly divisaoServidor = signal<DivisaoConta | null>(null);
 
   protected readonly comanda = resource({
     loader: () => this.caixaService.buscarComanda(this.comandaId),
   });
 
   protected readonly itensAtivos = computed(
-    () => (this.comanda.value()?.itens ?? []).filter(i => i.status !== 'cancelado')
+    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status !== 'cancelado')
   );
 
   protected readonly itensCancelados = computed(
-    () => (this.comanda.value()?.itens ?? []).filter(i => i.status === 'cancelado')
+    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status === 'cancelado')
   );
 
   protected readonly totalAtivo = computed(
@@ -720,13 +728,13 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
   );
 
   protected readonly mensagemConfirmacao = computed(() => {
-    const total = this.totalAtivo();
+    const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
     const div = this.divisoes();
-    if (div > 1) {
-      const fmt = new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' });
-      return `Total: ${fmt.format(total)} — ${div} pessoas × ${fmt.format(total / div)} cada. Confirmar fechamento?`;
+    const servidor = this.divisaoServidor();
+    if (div > 1 && servidor) {
+      return `Total: ${fmt.format(servidor.total)} — ${servidor.partes} pessoas × ${fmt.format(servidor.porPessoa)} cada. Confirmar fechamento?`;
     }
-    return `Total de ${new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(total)}. Confirmar fechamento?`;
+    return `Total de ${fmt.format(this.totalAtivo())}. Confirmar fechamento?`;
   });
 
   ngOnInit(): void {
@@ -754,20 +762,43 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
 
   protected incrementarDivisoes(): void {
     this.divisoes.update(v => v + 1);
+    this.divisaoServidor.set(null);
   }
 
   protected decrementarDivisoes(): void {
     this.divisoes.update(v => Math.max(1, v - 1));
+    this.divisaoServidor.set(null);
   }
 
-  protected pedirFechamento(): void {
-    if (this.fechando()) return;
+  protected async pedirFechamento(): Promise<void> {
+    if (this.fechando() || this.validandoDivisao()) return;
+
+    const partes = this.divisoes();
+    if (partes > 1) {
+      // Revalida a divisão no servidor (Decimal, com rateio de resto) antes
+      // de mostrar a confirmação — o valor local é só uma prévia com float.
+      this.validandoDivisao.set(true);
+      try {
+        const resultado = await this.caixaService.dividirConta(this.comandaId, partes);
+        this.divisaoServidor.set(resultado);
+        const previaLocal = this.valorPorPessoa();
+        if (Math.abs(resultado.porPessoa - previaLocal) >= 0.01) {
+          this.toast.danger('O valor por pessoa foi ajustado pelo servidor após o arredondamento.');
+        }
+      } catch {
+        this.toast.danger('Não foi possível validar a divisão da conta. Tente novamente.');
+        this.validandoDivisao.set(false);
+        return;
+      }
+      this.validandoDivisao.set(false);
+    }
+
     this.confirmandoFechamento.set(true);
   }
 
   protected confirmarFechamento(): void {
     this.confirmandoFechamento.set(false);
-    const bloqueantes = (this.comanda.value()?.itens ?? []).filter(
+    const bloqueantes = (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
       (i) => i.status === 'pendente' || i.status === 'em_preparo'
     );
     if (bloqueantes.length > 0) {

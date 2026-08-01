@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   OnInit,
   OnDestroy,
   resource,
@@ -49,7 +50,7 @@ interface CategoriaComProdutos extends Categoria {
           @if (comanda.isLoading()) {
             <app-skeleton height="1.25rem" width="140px" />
             <app-skeleton height="0.875rem" width="100px" />
-          } @else if (comanda.value()) {
+          } @else if (comanda.hasValue()) {
             <h1 class="header__title">
               @if (comanda.value()!.nomeCliente) {
                 {{ comanda.value()!.nomeCliente }}
@@ -67,7 +68,7 @@ interface CategoriaComProdutos extends Categoria {
             }
           }
         </div>
-        @if (!comanda.isLoading() && comanda.value()) {
+        @if (!comanda.isLoading() && comanda.hasValue()) {
           <div class="header__total">
             {{ totalAtivo() | currencyBr }}
           </div>
@@ -167,7 +168,7 @@ interface CategoriaComProdutos extends Categoria {
       </main>
 
       <!-- FAB -->
-      @if (!comanda.isLoading() && comanda.value()?.aberta) {
+      @if (!comanda.isLoading() && comanda.hasValue() && comanda.value().aberta) {
         <div class="fab-area">
           @if (podeFechar()) {
             <button class="b-btn-ghost fab-fechar" (click)="pedirFechamento()">
@@ -968,11 +969,11 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   // Computed
   protected readonly itensAtivos = computed(
-    () => (this.comanda.value()?.itens ?? []).filter(i => i.status !== 'cancelado')
+    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status !== 'cancelado')
   );
 
   protected readonly itensCancelados = computed(
-    () => (this.comanda.value()?.itens ?? []).filter(i => i.status === 'cancelado')
+    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status === 'cancelado')
   );
 
   protected readonly totalAtivo = computed(
@@ -998,10 +999,31 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     }));
   });
 
+  constructor() {
+    // Se a comanda falhar ao (re)carregar com algum sheet/dialog aberto, os
+    // dados que a UI mostra podem já não existir mais no servidor — fecha
+    // tudo em vez de deixar o usuário editar/cancelar contra estado morto.
+    effect(() => {
+      if (this.comanda.error()) {
+        this.resetarUiState();
+      }
+    });
+  }
+
+  private resetarUiState(): void {
+    this.uiStep.set('lista');
+    this.produtoSelecionado.set(null);
+    this.itemEmEdicao.set(null);
+    this.itemParaCancelar.set(null);
+    this.pedindoFechar.set(false);
+    this.quantidade.set(1);
+    this.observacao.set('');
+  }
+
   ngOnInit(): void {
     this.subs.push(
       this.socketService.on<ItemComanda>('item:novo').subscribe(item => {
-        if (this.comanda.value()?.id === item.id) return;
+        if (this.comanda.hasValue() && this.comanda.value().id === item.id) return;
         this.comanda.reload();
       }),
       this.socketService.on<unknown>('item:atualizado').subscribe(() => {
@@ -1018,7 +1040,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   }
 
   protected voltar(): void {
-    const mesaId = this.comanda.value()?.mesaId;
+    const mesaId = this.comanda.hasValue() ? this.comanda.value().mesaId : undefined;
     if (mesaId) {
       this.router.navigate(['/garcom/mesa', mesaId, 'comandas']);
     } else {
@@ -1099,6 +1121,18 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     const item = this.itemEmEdicao();
     if (!item || this.salvando()) return;
 
+    // O item pode ter mudado de status (ou sumido) via WS enquanto o sheet
+    // de edição estava aberto — reconfere contra o estado atual antes de
+    // mandar pro servidor, em vez de editar contra dado morto.
+    const atual = this.comanda.hasValue()
+      ? this.comanda.value().itens.find(i => i.id === item.id)
+      : undefined;
+    if (!atual || !this.podeEditar(atual.status)) {
+      this.toast.danger('Este item não pode mais ser editado.');
+      this.fecharEdicao();
+      return;
+    }
+
     this.salvando.set(true);
     try {
       await this.garcomService.editarItem(this.comandaId, item.id, {
@@ -1129,8 +1163,17 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     const item = this.itemParaCancelar();
     if (!item || this.cancelando()) return;
 
-    this.cancelando.set(true);
     this.itemParaCancelar.set(null);
+
+    const atual = this.comanda.hasValue()
+      ? this.comanda.value().itens.find(i => i.id === item.id)
+      : undefined;
+    if (!atual || !this.podeCancelar(atual.status)) {
+      this.toast.danger('Este item não pode mais ser cancelado.');
+      return;
+    }
+
+    this.cancelando.set(true);
     try {
       await this.garcomService.cancelarItem(this.comandaId, item.id);
       this.toast.success(`${item.produto?.nome ?? 'Item'} cancelado.`);
@@ -1145,7 +1188,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   // ===== Fechar comanda =====
 
   protected pedirFechamento(): void {
-    const itens = this.comanda.value()?.itens ?? [];
+    const itens = this.comanda.hasValue() ? this.comanda.value().itens : [];
     const bloqueantes = itens.filter(
       (i) => i.status === 'pendente' || i.status === 'em_preparo'
     );
