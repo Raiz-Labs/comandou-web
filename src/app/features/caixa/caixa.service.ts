@@ -8,6 +8,13 @@ export interface FechamentoPayload {
   ignorarPendentes?: boolean;
 }
 
+export interface DivisaoConta {
+  comandaId: string;
+  total: number;
+  partes: number;
+  porPessoa: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class CaixaService {
   private readonly api = inject(ApiService);
@@ -22,5 +29,9 @@ export class CaixaService {
 
   fecharComanda(id: string, payload: FechamentoPayload = {}): Promise<Comanda> {
     return firstValueFrom(this.api.post<Comanda>(`/comandas/${id}/fechar`, payload));
+  }
+
+  dividirConta(id: string, partes: number): Promise<DivisaoConta> {
+    return firstValueFrom(this.api.post<DivisaoConta>(`/comandas/${id}/dividir`, { partes }));
   }
 }
