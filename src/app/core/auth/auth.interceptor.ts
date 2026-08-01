@@ -5,12 +5,29 @@ import { catchError, from, switchMap, throwError } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import { AuthService } from './auth.service';
 import { authState, clearAuth, setAuth } from './auth.signal';
-import { masterAuthState } from '../master/master-auth.signal';
+import { clearMasterAuth, masterAuthState } from '../master/master-auth.signal';
+
+// Compartilhado entre requisições concorrentes: garante uma única chamada de
+// refresh em voo mesmo se várias requisições receberem 401 ao mesmo tempo.
+let refreshInFlight: Promise<string> | null = null;
+
+const getRefreshedToken = (authService: AuthService): Promise<string> => {
+  if (!refreshInFlight) {
+    refreshInFlight = authService.refresh().finally(() => {
+      refreshInFlight = null;
+    });
+  }
+  return refreshInFlight;
+};
 
 export const authInterceptor: HttpInterceptorFn = (
   req: HttpRequest<unknown>,
   next: HttpHandlerFn
 ) => {
+  // inject() só é válido no corpo síncrono do interceptor — nunca dentro de
+  // callbacks assíncronos como catchError, senão dispara NG0203 em runtime.
+  const router = inject(Router);
+
   // Rotas master usam o token do admin master — sem X-Tenant-Slug
   if (req.url.includes('/master/')) {
     const masterToken = masterAuthState().token;
@@ -20,7 +37,8 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(masterReq).pipe(
       catchError((err) => {
         if (err.status === 401) {
-          inject(Router).navigateByUrl('/master/login');
+          clearMasterAuth();
+          router.navigateByUrl('/master/login');
         }
         return throwError(() => err);
       })
@@ -30,7 +48,6 @@ export const authInterceptor: HttpInterceptorFn = (
   // Rotas regulares — token de usuário + slug de tenant
   const token = authState().token;
   const authService = inject(AuthService);
-  const router = inject(Router);
 
   const headers: Record<string, string> = {
     'X-Tenant-Slug': environment.tenantSlug,
@@ -44,7 +61,7 @@ export const authInterceptor: HttpInterceptorFn = (
   return next(authReq).pipe(
     catchError((err) => {
       if (err.status === 401 && !req.url.includes('/auth/refresh')) {
-        return from(authService.refresh()).pipe(
+        return from(getRefreshedToken(authService)).pipe(
           switchMap((newToken) => {
             const user = authState().user;
             setAuth(newToken, user);
