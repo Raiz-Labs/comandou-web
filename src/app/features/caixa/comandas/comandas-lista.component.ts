@@ -34,7 +34,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
               <lucide-icon name="receipt" [size]="22" color="var(--b-primary-500)" />
               Caixa
             </h1>
-            @if (!comandas.isLoading() && comandas.value()) {
+            @if (!comandas.isLoading() && comandas.hasValue()) {
               <span class="header__badge">
                 {{ comandasAbertas().length }} aberta{{ comandasAbertas().length !== 1 ? 's' : '' }}
               </span>
@@ -461,7 +461,7 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
     loader: () => this.caixaService.listarComandasAbertas(),
   });
 
-  protected readonly comandasAbertas = computed(() => this.comandas.value() ?? []);
+  protected readonly comandasAbertas = computed(() => (this.comandas.hasValue() ? this.comandas.value() : []));
 
   protected readonly comandasFiltradas = computed(() => {
     const lista = this.comandasAbertas();

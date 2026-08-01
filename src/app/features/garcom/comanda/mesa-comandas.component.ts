@@ -39,7 +39,7 @@ import { LucideAngularModule } from 'lucide-angular';
             <app-skeleton height="1.25rem" width="120px" />
             <app-skeleton height="1rem" width="80px" />
           </div>
-        } @else if (dados.value()) {
+        } @else if (dados.hasValue()) {
           <div class="header__info">
             <h1 class="header__title">Mesa {{ dados.value()!.mesa.numero }}</h1>
             @if (dados.value()!.mesa.descricao) {
@@ -564,11 +564,11 @@ export class MesaComandasComponent implements OnInit, OnDestroy {
   });
 
   protected readonly comandasAbertas = computed(
-    () => (this.dados.value()?.comandas ?? []).filter(c => c.aberta)
+    () => (this.dados.hasValue() ? this.dados.value().comandas : []).filter(c => c.aberta)
   );
 
   protected readonly comandasFechadas = computed(
-    () => (this.dados.value()?.comandas ?? []).filter(c => !c.aberta)
+    () => (this.dados.hasValue() ? this.dados.value().comandas : []).filter(c => !c.aberta)
   );
 
   ngOnInit(): void {

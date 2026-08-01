@@ -256,7 +256,7 @@ export class CategoriasComponent {
   });
 
   protected readonly categoriasFiltradas = computed(() => {
-    const lista = [...(this.categorias.value() ?? [])].sort((a, b) => a.ordem - b.ordem);
+    const lista = [...(this.categorias.hasValue() ? this.categorias.value() : [])].sort((a, b) => a.ordem - b.ordem);
     const q = this.busca().toLowerCase().trim();
     return lista.filter(c => !q || c.nome.toLowerCase().includes(q));
   });

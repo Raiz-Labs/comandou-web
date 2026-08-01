@@ -34,7 +34,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
         </button>
         <div class="topbar__info">
           <h1 class="topbar__title">Relatório de vendas</h1>
-          @if (relatorio.value()) {
+          @if (relatorio.hasValue()) {
             <span class="topbar__sub">Atualizado agora</span>
           }
         </div>
@@ -88,7 +88,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             <p>Erro ao carregar o relatório</p>
             <button class="b-btn-secondary" (click)="relatorio.reload()">Tentar novamente</button>
           </div>
-        } @else if (relatorio.value()) {
+        } @else if (relatorio.hasValue()) {
           <!-- KPIs -->
           <div class="kpi-grid">
             <div class="kpi-card">
@@ -273,12 +273,14 @@ export class RelatoriosComponent {
   }
 
   protected barAltura(total: number): number {
-    const max = Math.max(...(this.relatorio.value()?.vendasPorDia.map(d => d.total) ?? [1]), 1);
+    const dias = this.relatorio.hasValue() ? this.relatorio.value().vendasPorDia : [];
+    const max = Math.max(...dias.map(d => d.total), 1);
     return Math.round((total / max) * 100);
   }
 
   protected barProduto(total: number): number {
-    const max = Math.max(...(this.relatorio.value()?.topProdutos.map(p => p.total) ?? [1]), 1);
+    const produtos = this.relatorio.hasValue() ? this.relatorio.value().topProdutos : [];
+    const max = Math.max(...produtos.map(p => p.total), 1);
     return Math.round((total / max) * 100);
   }
 

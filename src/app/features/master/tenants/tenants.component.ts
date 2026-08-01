@@ -25,7 +25,7 @@ interface TenantInfo {
       <div class="page__header">
         <div>
           <h1 class="page__title">Tenants</h1>
-          <p class="page__sub">{{ tenants.value()?.length ?? 0 }} restaurante(s) cadastrado(s)</p>
+          <p class="page__sub">{{ tenants.hasValue() ? tenants.value().length : 0 }} restaurante(s) cadastrado(s)</p>
         </div>
         <button class="b-btn-primary" (click)="abrirModalCriar()">
           <lucide-icon name="plus" [size]="16" />

@@ -31,7 +31,7 @@ import { LucideAngularModule } from 'lucide-angular';
           }
         </div>
         <div class="header__counts">
-          @if (!mesas.isLoading() && mesas.value()) {
+          @if (!mesas.isLoading() && mesas.hasValue()) {
             <span class="badge badge--ocupada">
               {{ mesasOcupadas() }} ocupadas
             </span>
@@ -360,12 +360,12 @@ export class MesasComponent implements OnInit, OnDestroy {
   });
 
   protected readonly mesasOcupadas = () => {
-    const lista = this.mesas.value() ?? [];
+    const lista = this.mesas.hasValue() ? this.mesas.value() : [];
     return lista.filter(m => m.status === 'ocupada' || m.status === 'item_pronto').length;
   };
 
   protected readonly mesasLivres = () => {
-    const lista = this.mesas.value() ?? [];
+    const lista = this.mesas.hasValue() ? this.mesas.value() : [];
     return lista.filter(m => m.status === 'livre').length;
   };
 

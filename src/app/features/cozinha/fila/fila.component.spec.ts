@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
@@ -16,6 +17,7 @@ import {
   Loader2,
   Play,
   Check,
+  WifiOff,
 } from 'lucide-angular';
 import { FilaComponent } from './fila.component';
 import { CozinhaService } from '../cozinha.service';
@@ -66,6 +68,7 @@ describe('FilaComponent — subscriptions WebSocket', () => {
             Loader2,
             Play,
             Check,
+            WifiOff,
           }),
         },
       ],
@@ -126,6 +129,27 @@ describe('FilaComponent — subscriptions WebSocket', () => {
 
     expect(cozinhaServiceMock.listarFila.mock.calls.length).toBeGreaterThan(1);
     expect(fixture.componentInstance['fila'].isLoading()).toBe(false);
+    expect(fixture.componentInstance['fila'].error()).toBeUndefined();
+    fixture.destroy();
+  });
+
+  it('em erro de carregamento, mostra a UI de erro e o botão "Tentar novamente" chama fila.reload()', async () => {
+    cozinhaServiceMock.listarFila.mockRejectedValueOnce(new Error('network error'));
+    const fixture = TestBed.createComponent(FilaComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['fila'].error()).toBeTruthy();
+    const retryBtn = fixture.debugElement.query(By.css('.b-empty-state button.b-btn-secondary'));
+    expect(retryBtn).toBeTruthy();
+
+    cozinhaServiceMock.listarFila.mockResolvedValueOnce([]);
+    retryBtn.nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(cozinhaServiceMock.listarFila).toHaveBeenCalledTimes(2);
     expect(fixture.componentInstance['fila'].error()).toBeUndefined();
     fixture.destroy();
   });

@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
@@ -161,5 +162,26 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
 
     expect(toastMock.success).toHaveBeenCalled();
     expect(comp['painelAberto']()).toBe(false);
+  });
+
+  it('em erro de carregamento, mostra a UI de erro e o botão "Tentar novamente" chama produtos.reload()', async () => {
+    adminServiceMock.listarProdutos.mockRejectedValueOnce(new Error('network error'));
+    const fixture = TestBed.createComponent(ProdutosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['produtos'].error()).toBeTruthy();
+    const retryBtn = fixture.debugElement.query(By.css('.empty-state button.b-btn-secondary'));
+    expect(retryBtn).toBeTruthy();
+    expect(retryBtn.nativeElement.textContent).toContain('Tentar novamente');
+
+    adminServiceMock.listarProdutos.mockResolvedValueOnce([makeProduto()]);
+    retryBtn.nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance['produtos'].hasValue()).toBe(true);
   });
 });

@@ -202,7 +202,7 @@ type Campo = keyof ProdutoModel;
               (change)="onFieldInput($event, 'categoriaId')"
               (blur)="tocou('categoriaId')">
               <option value="">Selecione uma categoria</option>
-              @for (cat of categorias.value() ?? []; track cat.id) {
+              @for (cat of categorias.hasValue() ? categorias.value() : []; track cat.id) {
                 <option [value]="cat.id">{{ cat.nome }}</option>
               }
             </select>
@@ -321,7 +321,7 @@ export class ProdutosComponent {
   });
 
   protected readonly produtosFiltrados = computed(() => {
-    const lista = this.produtos.value() ?? [];
+    const lista = this.produtos.hasValue() ? this.produtos.value() : [];
     const q = this.busca().toLowerCase().trim();
     const disp = this.filtroDisp();
     return lista.filter(p =>

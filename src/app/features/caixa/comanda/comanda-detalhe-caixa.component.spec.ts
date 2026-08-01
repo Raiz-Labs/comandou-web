@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
+import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
@@ -170,5 +171,26 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
 
     expect(toastMock.danger).toHaveBeenCalled();
     expect(fixture.componentInstance['confirmandoFechamento']()).toBe(false);
+  });
+
+  it('em erro de carregamento, mostra a UI de erro e o botão "Tentar novamente" chama comanda.reload()', async () => {
+    caixaServiceMock.buscarComanda.mockRejectedValueOnce(new Error('network error'));
+    const fixture = TestBed.createComponent(ComandaDetalheCaixaComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(fixture.componentInstance['comanda'].error()).toBeTruthy();
+    const retryBtn = fixture.debugElement.query(By.css('.empty-state button.b-btn-secondary'));
+    expect(retryBtn).toBeTruthy();
+    expect(retryBtn.nativeElement.textContent).toContain('Tentar novamente');
+
+    caixaServiceMock.buscarComanda.mockResolvedValueOnce(makeComanda());
+    retryBtn.nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(caixaServiceMock.buscarComanda).toHaveBeenCalledTimes(2);
+    expect(fixture.componentInstance['comanda'].hasValue()).toBe(true);
   });
 });
