@@ -6,6 +6,7 @@ import {
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AdminService, CriarMesaPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -51,7 +52,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
         <div class="search-box">
           <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por número ou descrição..."
-            [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
+            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <lucide-icon name="x" [size]="13" />
@@ -139,7 +140,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             <label class="b-label" for="f-numero">Número da mesa <span class="obrigatorio">*</span></label>
             <input id="f-numero" class="b-input" type="number" min="1"
               [value]="model().numero"
-              (input)="setField('numero', $any($event.target).value)"
+              (input)="onFieldInput($event, 'numero')"
               (blur)="tocou('numero')"
               placeholder="1" />
             @if (erroVisivel('numero')) {
@@ -152,7 +153,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             <label class="b-label" for="f-desc">Descrição (opcional)</label>
             <input id="f-desc" class="b-input" type="text"
               [value]="model().descricao"
-              (input)="setField('descricao', $any($event.target).value)"
+              (input)="onFieldInput($event, 'descricao')"
               placeholder="Ex: Varanda, Térreo, Salão..." />
           </div>
 
@@ -295,6 +296,14 @@ export class AdminMesasComponent {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
 
+  protected onBuscaInput(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onFieldInput(event: Event, campo: Campo): void {
+    this.setField(campo, (event.target as HTMLInputElement).value);
+  }
+
   protected tocou(campo: Campo): void {
     this._tocados.update(s => new Set([...s, campo]));
   }
@@ -349,8 +358,16 @@ export class AdminMesasComponent {
       }
       this.fecharPainel();
       this.mesas.reload();
-    } catch {
-      this.toast.danger('Não foi possível salvar a mesa. Tente novamente.');
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.warning('Esta mesa não existe mais.');
+        this.fecharPainel();
+      } else if (err instanceof HttpErrorResponse && err.status === 409) {
+        this.toast.danger('Já existe uma mesa com esse número.');
+      } else {
+        this.toast.danger('Não foi possível salvar a mesa. Tente novamente.');
+      }
+      this.mesas.reload();
     } finally {
       this.salvando.set(false);
     }
@@ -372,9 +389,16 @@ export class AdminMesasComponent {
     try {
       await this.adminService.excluirMesa(mesa.id);
       this.toast.success(`Mesa ${mesa.numero} excluída.`);
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.info(`Mesa ${mesa.numero} já tinha sido removida.`);
+      } else if (err instanceof HttpErrorResponse && err.status === 422) {
+        this.toast.danger('Mesa possui comanda(s) aberta(s). Feche as comandas antes de excluir.');
+      } else {
+        this.toast.danger('Não foi possível excluir a mesa.');
+      }
+    } finally {
       this.mesas.reload();
-    } catch {
-      this.toast.danger('Não foi possível excluir a mesa.');
     }
   }
 

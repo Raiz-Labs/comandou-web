@@ -125,19 +125,19 @@ interface TenantInfo {
               <div class="field">
                 <label class="b-label">Nome do restaurante</label>
                 <input class="b-input" type="text" placeholder="Burguer House"
-                  [value]="criar.nome()" (input)="onNomeInput($any($event.target).value)" />
+                  [value]="criar.nome()" (input)="onNomeInputEvent($event)" />
               </div>
               <div class="field">
                 <label class="b-label">Slug (subdomínio)</label>
                 <input class="b-input" type="text" placeholder="burguer-house"
-                  [value]="criar.slug()" (input)="criar.slug.set($any($event.target).value)" />
+                  [value]="criar.slug()" (input)="onCriarSlugInput($event)" />
               </div>
             </div>
 
             <div class="field">
               <label class="b-label">Plano</label>
               <select class="b-input" [value]="criar.plano()"
-                (change)="criar.plano.set($any($event.target).value)">
+                (change)="onCriarPlanoChange($event)">
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
               </select>
@@ -149,19 +149,19 @@ interface TenantInfo {
               <div class="field">
                 <label class="b-label">Nome</label>
                 <input class="b-input" type="text" placeholder="João Silva"
-                  [value]="criar.adminNome()" (input)="criar.adminNome.set($any($event.target).value)" />
+                  [value]="criar.adminNome()" (input)="onCriarAdminNomeInput($event)" />
               </div>
               <div class="field">
                 <label class="b-label">E-mail</label>
                 <input class="b-input" type="email" placeholder="admin@burguer.com"
-                  [value]="criar.adminEmail()" (input)="criar.adminEmail.set($any($event.target).value)" />
+                  [value]="criar.adminEmail()" (input)="onCriarAdminEmailInput($event)" />
               </div>
             </div>
 
             <div class="field">
               <label class="b-label">Senha</label>
               <input class="b-input" type="password" placeholder="mínimo 6 caracteres"
-                [value]="criar.adminSenha()" (input)="criar.adminSenha.set($any($event.target).value)" />
+                [value]="criar.adminSenha()" (input)="onCriarAdminSenhaInput($event)" />
             </div>
 
             @if (erroModal()) {
@@ -199,7 +199,7 @@ interface TenantInfo {
             <div class="field">
               <label class="b-label">Nome do restaurante</label>
               <input class="b-input" type="text"
-                [value]="editar.nome()" (input)="editar.nome.set($any($event.target).value)" />
+                [value]="editar.nome()" (input)="onEditarNomeInput($event)" />
             </div>
 
             <div class="field">
@@ -211,7 +211,7 @@ interface TenantInfo {
             <div class="field">
               <label class="b-label">Plano</label>
               <select class="b-input" [value]="editar.plano()"
-                (change)="editar.plano.set($any($event.target).value)">
+                (change)="onEditarPlanoChange($event)">
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
               </select>
@@ -595,6 +595,10 @@ export class TenantsComponent {
       ),
   });
 
+  protected onNomeInputEvent(event: Event): void {
+    this.onNomeInput((event.target as HTMLInputElement).value);
+  }
+
   protected onNomeInput(value: string): void {
     this.criar.nome.set(value);
     // Auto-gera slug a partir do nome se slug ainda não foi editado manualmente
@@ -605,6 +609,34 @@ export class TenantsComponent {
       .replace(/[^a-z0-9]+/g, '-')
       .replace(/^-|-$/g, '');
     this.criar.slug.set(slug);
+  }
+
+  protected onCriarSlugInput(event: Event): void {
+    this.criar.slug.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onCriarPlanoChange(event: Event): void {
+    this.criar.plano.set((event.target as HTMLSelectElement).value);
+  }
+
+  protected onCriarAdminNomeInput(event: Event): void {
+    this.criar.adminNome.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onCriarAdminEmailInput(event: Event): void {
+    this.criar.adminEmail.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onCriarAdminSenhaInput(event: Event): void {
+    this.criar.adminSenha.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onEditarNomeInput(event: Event): void {
+    this.editar.nome.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onEditarPlanoChange(event: Event): void {
+    this.editar.plano.set((event.target as HTMLSelectElement).value);
   }
 
   protected abrirModalCriar(): void {

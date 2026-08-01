@@ -36,7 +36,7 @@ interface CategoriaComProdutos extends Categoria {
         <div class="search-box">
           <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar no cardápio..."
-            [value]="busca()" (input)="busca.set($any($event.target).value)"
+            [value]="busca()" (input)="onBuscaInput($event)"
             autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
@@ -236,6 +236,10 @@ export class CardapioComponent {
 
   protected readonly busca = signal('');
   protected readonly catAtiva = signal<string | null>(null);
+
+  protected onBuscaInput(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
+  }
 
   protected readonly dados = resource({
     loader: async () => {

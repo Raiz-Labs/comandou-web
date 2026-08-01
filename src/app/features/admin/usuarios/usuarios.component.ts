@@ -6,6 +6,7 @@ import {
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AdminService, CriarUsuarioPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -58,7 +59,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         <div class="search-box">
           <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome ou e-mail..."
-            [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
+            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <lucide-icon name="x" [size]="13" />
@@ -72,7 +73,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           }
         </div>
         <label class="toggle-inativos">
-          <input type="checkbox" [checked]="mostrarInativos()" (change)="mostrarInativos.set($any($event.target).checked)" />
+          <input type="checkbox" [checked]="mostrarInativos()" (change)="onMostrarInativosChange($event)" />
           <span>Mostrar inativos</span>
         </label>
         @if (!usuarios.isLoading()) {
@@ -175,7 +176,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <label class="b-label" for="f-nome">Nome <span class="obrigatorio">*</span></label>
             <input id="f-nome" class="b-input" type="text"
               [value]="model().nome"
-              (input)="setField('nome', $any($event.target).value)"
+              (input)="onFieldInput($event, 'nome')"
               (blur)="tocou('nome')"
               placeholder="Nome completo" />
             @if (erroVisivel('nome')) { <span class="b-error-message">{{ erroVisivel('nome') }}</span> }
@@ -186,7 +187,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <label class="b-label" for="f-email">E-mail <span class="obrigatorio">*</span></label>
             <input id="f-email" class="b-input" type="email"
               [value]="model().email"
-              (input)="setField('email', $any($event.target).value)"
+              (input)="onFieldInput($event, 'email')"
               (blur)="tocou('email')"
               placeholder="usuario@email.com"
               [disabled]="!!editandoId()" />
@@ -204,7 +205,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <div class="senha-wrap">
               <input id="f-senha" class="b-input" [type]="mostrarSenha() ? 'text' : 'password'"
                 [value]="model().senha"
-                (input)="setField('senha', $any($event.target).value)"
+                (input)="onFieldInput($event, 'senha')"
                 (blur)="tocou('senha')"
                 placeholder="{{ editandoId() ? '••••••••' : 'Mín. 6 caracteres' }}" />
               <button type="button" class="btn-olho" (click)="mostrarSenha.set(!mostrarSenha())" aria-label="Mostrar/ocultar senha">
@@ -219,7 +220,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <label class="b-label" for="f-perfil">Perfil de acesso <span class="obrigatorio">*</span></label>
             <select id="f-perfil" class="b-input"
               [value]="model().perfil"
-              (change)="setField('perfil', $any($event.target).value)"
+              (change)="onFieldInput($event, 'perfil')"
               (blur)="tocou('perfil')">
               <option value="">Selecione um perfil</option>
               @for (p of perfis; track p) {
@@ -399,6 +400,18 @@ export class UsuariosComponent {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
 
+  protected onBuscaInput(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onMostrarInativosChange(event: Event): void {
+    this.mostrarInativos.set((event.target as HTMLInputElement).checked);
+  }
+
+  protected onFieldInput(event: Event, campo: Campo): void {
+    this.setField(campo, (event.target as HTMLInputElement | HTMLSelectElement).value);
+  }
+
   protected tocou(campo: Campo): void {
     this._tocados.update(s => new Set([...s, campo]));
   }
@@ -462,8 +475,16 @@ export class UsuariosComponent {
       }
       this.fecharPainel();
       this.usuarios.reload();
-    } catch {
-      this.toast.danger('Não foi possível salvar o usuário. Tente novamente.');
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 409) {
+        this.toast.danger('Já existe um usuário com esse e-mail.');
+      } else if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.warning('Este usuário não existe mais.');
+        this.fecharPainel();
+      } else {
+        this.toast.danger('Não foi possível salvar o usuário. Tente novamente.');
+      }
+      this.usuarios.reload();
     } finally {
       this.salvando.set(false);
     }
@@ -489,10 +510,10 @@ export class UsuariosComponent {
     try {
       await this.adminService.toggleUsuarioAtivo(u.id, !u.ativo);
       this.toast.success(u.ativo ? `"${u.nome}" desativado.` : `"${u.nome}" reativado.`);
-      this.usuarios.reload();
     } catch {
       this.toast.danger('Não foi possível alterar o status do usuário.');
     } finally {
+      this.usuarios.reload();
       this.toggling.set(null);
     }
   }

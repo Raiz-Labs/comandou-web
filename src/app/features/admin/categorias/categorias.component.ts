@@ -6,6 +6,7 @@ import {
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
 import { AdminService, CriarCategoriaPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
@@ -45,7 +46,7 @@ type Campo = keyof CategoriaModel;
         <div class="search-box">
           <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome..."
-            [value]="busca()" (input)="busca.set($any($event.target).value)" autocomplete="off" />
+            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <lucide-icon name="x" [size]="13" />
@@ -140,7 +141,7 @@ type Campo = keyof CategoriaModel;
             <label class="b-label" for="f-nome">Nome <span class="obrigatorio">*</span></label>
             <input id="f-nome" class="b-input" type="text"
               [value]="model().nome"
-              (input)="setField('nome', $any($event.target).value)"
+              (input)="onFieldInput($event, 'nome')"
               (blur)="tocou('nome')"
               placeholder="Ex: Pratos Principais" />
             @if (erroVisivel('nome')) {
@@ -153,7 +154,7 @@ type Campo = keyof CategoriaModel;
             <label class="b-label" for="f-ordem">Ordem de exibição <span class="obrigatorio">*</span></label>
             <input id="f-ordem" class="b-input" type="number" min="1"
               [value]="model().ordem"
-              (input)="setField('ordem', $any($event.target).value)"
+              (input)="onFieldInput($event, 'ordem')"
               (blur)="tocou('ordem')"
               placeholder="1" />
             @if (erroVisivel('ordem')) {
@@ -283,6 +284,14 @@ export class CategoriasComponent {
     this.model.update(m => ({ ...m, [campo]: value }));
   }
 
+  protected onBuscaInput(event: Event): void {
+    this.busca.set((event.target as HTMLInputElement).value);
+  }
+
+  protected onFieldInput(event: Event, campo: Campo): void {
+    this.setField(campo, (event.target as HTMLInputElement).value);
+  }
+
   protected tocou(campo: Campo): void {
     this._tocados.update(s => new Set([...s, campo]));
   }
@@ -337,8 +346,16 @@ export class CategoriasComponent {
       }
       this.fecharPainel();
       this.categorias.reload();
-    } catch {
-      this.toast.danger('Não foi possível salvar a categoria. Tente novamente.');
+    } catch (err) {
+      // Categoria pode ter sido excluída por outro admin enquanto o painel
+      // de edição estava aberto — recarrega pra refletir o estado real.
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.warning('Esta categoria não existe mais.');
+        this.fecharPainel();
+      } else {
+        this.toast.danger('Não foi possível salvar a categoria. Tente novamente.');
+      }
+      this.categorias.reload();
     } finally {
       this.salvando.set(false);
     }
@@ -360,9 +377,16 @@ export class CategoriasComponent {
     try {
       await this.adminService.excluirCategoria(cat.id);
       this.toast.success(`"${cat.nome}" excluída.`);
+    } catch (err) {
+      if (err instanceof HttpErrorResponse && err.status === 404) {
+        this.toast.info(`"${cat.nome}" já tinha sido removida.`);
+      } else if (err instanceof HttpErrorResponse && err.status === 422) {
+        this.toast.danger('Categoria possui produtos vinculados. Remova os produtos antes de excluir.');
+      } else {
+        this.toast.danger('Não foi possível excluir a categoria.');
+      }
+    } finally {
       this.categorias.reload();
-    } catch {
-      this.toast.danger('Não foi possível excluir a categoria.');
     }
   }
 
