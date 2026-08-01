@@ -352,7 +352,7 @@ export class UsuariosComponent {
   });
 
   protected readonly usuariosFiltrados = computed(() => {
-    const lista = [...(this.usuarios.value() ?? [])].sort((a, b) => a.nome.localeCompare(b.nome));
+    const lista = [...(this.usuarios.hasValue() ? this.usuarios.value() : [])].sort((a, b) => a.nome.localeCompare(b.nome));
     const q = this.busca().toLowerCase().trim();
     const p = this.filtroPerfil();
     const ativos = this.mostrarInativos();

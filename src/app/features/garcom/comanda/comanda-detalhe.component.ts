@@ -323,7 +323,7 @@ interface CategoriaComProdutos extends Categoria {
               >
                 Todos
               </button>
-              @for (cat of cardapio.value()?.categorias ?? []; track cat.id) {
+              @for (cat of (cardapio.hasValue() ? cardapio.value().categorias : []); track cat.id) {
                 <button
                   class="cat-tab"
                   [class.cat-tab--active]="categoriaSelecionada()?.id === cat.id"
@@ -981,7 +981,9 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   );
 
   protected readonly produtosFiltrados = computed(() => {
-    const { categorias, produtos } = this.cardapio.value() ?? { categorias: [], produtos: [] };
+    const { categorias, produtos } = this.cardapio.hasValue()
+      ? this.cardapio.value()
+      : { categorias: [], produtos: [] };
     const cat = this.categoriaSelecionada();
     const q = this.busca().toLowerCase().trim();
     return produtos.filter(p =>
@@ -991,7 +993,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   });
 
   protected readonly categoriasFiltradas = computed<CategoriaComProdutos[]>(() => {
-    const { categorias } = this.cardapio.value() ?? { categorias: [] };
+    const { categorias } = this.cardapio.hasValue() ? this.cardapio.value() : { categorias: [] };
     const filtrados = this.produtosFiltrados();
     return categorias.map(cat => ({
       ...cat,
@@ -1054,7 +1056,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.busca.set('');
     this.categoriaSelecionada.set(null);
     this.uiStep.set('picker');
-    if (!this.cardapio.value()) this.cardapio.reload();
+    if (!this.cardapio.hasValue()) this.cardapio.reload();
   }
 
   protected fecharPicker(): void {

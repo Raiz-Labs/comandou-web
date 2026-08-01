@@ -51,7 +51,13 @@ const NAV_LINKS: NavLink[] = [
                 <app-skeleton height="0.75rem" width="40%" />
               </div>
             }
-          } @else if (dados.value()) {
+          } @else if (dados.error()) {
+            <div class="kpi-erro">
+              <lucide-icon name="wifi-off" [size]="24" color="var(--b-fg-subtle)" />
+              <span>Erro ao carregar os indicadores</span>
+              <button class="b-btn-secondary" (click)="dados.reload()">Tentar novamente</button>
+            </div>
+          } @else if (dados.hasValue()) {
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--primary">
                 <lucide-icon name="trending-up" [size]="20" />
@@ -112,7 +118,9 @@ const NAV_LINKS: NavLink[] = [
                   <app-skeleton height="1rem" width="25%" />
                 </div>
               }
-            } @else if (!(dados.value()?.relatorio?.topProdutos?.length)) {
+            } @else if (dados.error()) {
+              <div class="vazio">Erro ao carregar. <button class="b-btn-ghost" (click)="dados.reload()">Tentar novamente</button></div>
+            } @else if (!(dados.hasValue() && dados.value().relatorio.topProdutos.length)) {
               <div class="vazio">Nenhuma venda registrada hoje</div>
             } @else {
               @for (p of dados.value()!.relatorio.topProdutos; track p.produto; let idx = $index) {
@@ -140,7 +148,7 @@ const NAV_LINKS: NavLink[] = [
             <h2 class="card__title">
               <lucide-icon name="file-text" [size]="16" color="var(--b-primary-500)" />
               Comandas abertas agora
-              @if (!dados.isLoading() && dados.value()) {
+              @if (!dados.isLoading() && dados.hasValue()) {
                 <span class="card__badge">{{ dados.value()!.comandasAbertas.length }}</span>
               }
             </h2>
@@ -151,7 +159,9 @@ const NAV_LINKS: NavLink[] = [
                   <app-skeleton height="1rem" width="30%" />
                 </div>
               }
-            } @else if (!(dados.value()?.comandasAbertas?.length)) {
+            } @else if (dados.error()) {
+              <div class="vazio">Erro ao carregar. <button class="b-btn-ghost" (click)="dados.reload()">Tentar novamente</button></div>
+            } @else if (!(dados.hasValue() && dados.value().comandasAbertas.length)) {
               <div class="vazio">
                 <lucide-icon name="check-circle-2" [size]="24" color="var(--b-success-500)" />
                 Nenhuma comanda aberta
@@ -507,6 +517,18 @@ const NAV_LINKS: NavLink[] = [
       color: var(--b-fg-subtle);
     }
 
+    .kpi-erro {
+      grid-column: 1 / -1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--b-space-2);
+      padding: var(--b-space-6);
+      font-size: var(--b-font-size-sm);
+      color: var(--b-fg-subtle);
+    }
+
     /* Atalhos */
     .atalhos-grid {
       display: grid;
@@ -555,7 +577,7 @@ export class DashboardComponent {
   });
 
   protected readonly mesasOcupadas = computed(
-    () => (this.dados.value()?.mesas ?? []).filter(
+    () => (this.dados.hasValue() ? this.dados.value().mesas : []).filter(
       m => m.status === 'ocupada' || m.status === 'item_pronto'
     ).length
   );
@@ -565,7 +587,7 @@ export class DashboardComponent {
   }
 
   protected barraLargura(idx: number): number {
-    const top = this.dados.value()?.relatorio.topProdutos ?? [];
+    const top = this.dados.hasValue() ? this.dados.value().relatorio.topProdutos : [];
     if (!top.length) return 0;
     const max = top[0].total;
     return max > 0 ? (top[idx].total / max) * 100 : 0;

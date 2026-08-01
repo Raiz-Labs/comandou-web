@@ -252,8 +252,8 @@ export class CardapioComponent {
   });
 
   protected readonly categoriasComItens = computed((): CategoriaComProdutos[] => {
+    if (!this.dados.hasValue()) return [];
     const d = this.dados.value();
-    if (!d) return [];
     return d.categorias
       .map(cat => ({
         ...cat,
@@ -266,7 +266,7 @@ export class CardapioComponent {
   protected readonly resultadoBusca = computed((): Produto[] => {
     const q = this.busca().toLowerCase().trim();
     if (!q) return [];
-    return (this.dados.value()?.produtos ?? []).filter(p =>
+    return (this.dados.hasValue() ? this.dados.value().produtos : []).filter(p =>
       p.disponivel &&
       (p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q))
     );

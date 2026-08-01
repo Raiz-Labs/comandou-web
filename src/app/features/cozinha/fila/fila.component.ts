@@ -58,6 +58,16 @@ import { LucideAngularModule } from 'lucide-angular';
         </div>
       </div>
 
+      @if (fila.error()) {
+        <div class="b-empty-state">
+          <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+          <p class="b-empty-state__title">Erro ao carregar a fila</p>
+          <button class="b-btn-secondary" (click)="fila.reload()">
+            <lucide-icon name="refresh-cw" [size]="16" />
+            Tentar novamente
+          </button>
+        </div>
+      } @else {
       <main class="board">
         <!-- Coluna: Pendentes -->
         <section class="coluna">
@@ -176,6 +186,7 @@ import { LucideAngularModule } from 'lucide-angular';
           }
         </section>
       </main>
+      }
     </div>
   `,
   styles: [`
@@ -484,7 +495,7 @@ export class FilaComponent implements OnInit, OnDestroy {
     loader: () => this.cozinhaService.listarFila(),
   });
 
-  protected readonly itens = computed(() => this.fila.value() ?? []);
+  protected readonly itens = computed(() => (this.fila.hasValue() ? this.fila.value() : []));
   protected readonly pendentes = computed(() =>
     this.itens().filter(i => i.status === 'pendente')
   );

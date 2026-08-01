@@ -261,7 +261,7 @@ export class AdminMesasComponent {
   });
 
   protected readonly mesasFiltradas = computed(() => {
-    const lista = [...(this.mesas.value() ?? [])].sort((a, b) => a.numero - b.numero);
+    const lista = [...(this.mesas.hasValue() ? this.mesas.value() : [])].sort((a, b) => a.numero - b.numero);
     const q = this.busca().toLowerCase().trim();
     const st = this.filtroStatus();
     return lista.filter(m =>
