@@ -1022,6 +1022,21 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.observacao.set('');
   }
 
+  // Update otimista: muta o item localmente em vez de refazer o GET da
+  // comanda inteira. O WebSocket (item:atualizado/item:cancelado) ainda
+  // dispara comanda.reload() em paralelo — serve de confirmação/correção
+  // caso o estado do servidor divirja do que aplicamos aqui.
+  private atualizarItemLocal(itemId: string, atualizar: (item: ItemComanda) => ItemComanda): void {
+    if (!this.comanda.hasValue()) {
+      this.comanda.reload();
+      return;
+    }
+    this.comanda.update(c => ({
+      ...c,
+      itens: c.itens.map(i => (i.id === itemId ? atualizar(i) : i)),
+    }));
+  }
+
   ngOnInit(): void {
     this.subs.push(
       this.socketService.on<ItemComanda>('item:novo').subscribe(item => {
@@ -1137,13 +1152,13 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
     this.salvando.set(true);
     try {
-      await this.garcomService.editarItem(this.comandaId, item.id, {
+      const itemAtualizado = await this.garcomService.editarItem(this.comandaId, item.id, {
         quantidade: this.quantidade(),
         observacao: this.observacao() || undefined,
       });
       this.toast.success('Item atualizado!');
       this.fecharEdicao();
-      this.comanda.reload();
+      this.atualizarItemLocal(item.id, () => itemAtualizado);
     } catch {
       this.toast.danger('Não foi possível editar o item. Tente novamente.');
     } finally {
@@ -1179,7 +1194,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     try {
       await this.garcomService.cancelarItem(this.comandaId, item.id);
       this.toast.success(`${item.produto?.nome ?? 'Item'} cancelado.`);
-      this.comanda.reload();
+      this.atualizarItemLocal(item.id, (i) => ({ ...i, status: 'cancelado' }));
     } catch {
       this.toast.danger('Não foi possível cancelar o item. Tente novamente.');
     } finally {
@@ -1227,14 +1242,18 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
     this.adicionando.set(true);
     try {
-      await this.garcomService.adicionarItem(this.comandaId, {
+      const novoItem = await this.garcomService.adicionarItem(this.comandaId, {
         produtoId: produto.id,
         quantidade: this.quantidade(),
         observacao: this.observacao() || undefined,
       });
       this.toast.success(`${produto.nome} adicionado!`);
       this.fecharPicker();
-      this.comanda.reload();
+      if (this.comanda.hasValue()) {
+        this.comanda.update(c => ({ ...c, itens: [...c.itens, novoItem] }));
+      } else {
+        this.comanda.reload();
+      }
     } catch {
       this.toast.danger('Não foi possível adicionar o item. Tente novamente.');
     } finally {

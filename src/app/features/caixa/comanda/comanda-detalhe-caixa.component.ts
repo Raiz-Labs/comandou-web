@@ -818,12 +818,14 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
     if (this.fechando()) return;
     this.fechando.set(true);
     try {
-      await this.caixaService.fecharComanda(this.comandaId, {
+      const fechada = await this.caixaService.fecharComanda(this.comandaId, {
         divisoes: this.divisoes() > 1 ? this.divisoes() : undefined,
         ignorarPendentes,
       });
       this.toast.success('Comanda fechada com sucesso!');
-      this.comanda.reload();
+      // Update otimista: o servidor já retorna a comanda fechada por
+      // completo, então usamos a resposta em vez de refazer o GET.
+      this.comanda.set(fechada);
     } catch {
       this.toast.danger('Não foi possível fechar a comanda. Tente novamente.');
     } finally {

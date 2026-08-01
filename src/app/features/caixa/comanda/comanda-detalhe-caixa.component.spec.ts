@@ -58,6 +58,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
   let caixaServiceMock: {
     buscarComanda: ReturnType<typeof vi.fn>;
     dividirConta: ReturnType<typeof vi.fn>;
+    fecharComanda: ReturnType<typeof vi.fn>;
   };
   let toastMock: { success: ReturnType<typeof vi.fn>; danger: ReturnType<typeof vi.fn> };
 
@@ -65,6 +66,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
     caixaServiceMock = {
       buscarComanda: vi.fn().mockResolvedValue(makeComanda()),
       dividirConta: vi.fn(),
+      fecharComanda: vi.fn(),
     };
     toastMock = { success: vi.fn(), danger: vi.fn() };
 
@@ -192,5 +194,20 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
 
     expect(caixaServiceMock.buscarComanda).toHaveBeenCalledTimes(2);
     expect(fixture.componentInstance['comanda'].hasValue()).toBe(true);
+  });
+
+  it('ao fechar a comanda, usa a resposta do servidor como novo estado em vez de refazer o GET (#13)', async () => {
+    const fixture = TestBed.createComponent(ComandaDetalheCaixaComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const fechada = makeComanda({ aberta: false, fechadoEm: new Date().toISOString(), total: 33.33 });
+    caixaServiceMock.fecharComanda.mockResolvedValue(fechada);
+
+    await fixture.componentInstance['confirmarFechamento']();
+    await fixture.whenStable();
+
+    expect(caixaServiceMock.buscarComanda).toHaveBeenCalledTimes(1); // só o load inicial
+    expect(fixture.componentInstance['comanda'].value()).toEqual(fechada);
   });
 });

@@ -120,7 +120,9 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
 
     expect(toastMock.info).toHaveBeenCalledWith(expect.stringContaining('já tinha sido removido'));
     expect(toastMock.danger).not.toHaveBeenCalled();
-    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2); // inicial + reload
+    // Update otimista: remove da lista local em vez de refazer o GET.
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
+    expect(comp['produtos'].value()).toEqual([]);
   });
 
   it('ao excluir e falhar por outro motivo, mostra erro genérico e ainda assim recarrega', async () => {
@@ -141,7 +143,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
   });
 
-  it('salvar com sucesso fecha o painel e recarrega a lista', async () => {
+  it('salvar com sucesso fecha o painel e adiciona o produto na lista local (update otimista)', async () => {
     const fixture = TestBed.createComponent(ProdutosComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -162,6 +164,9 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
 
     expect(toastMock.success).toHaveBeenCalled();
     expect(comp['painelAberto']()).toBe(false);
+    // Update otimista: o produto aparece na lista sem um novo GET.
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
+    expect(comp['produtos'].value()!.map((p: Produto) => p.id)).toContain('novo');
   });
 
   it('em erro de carregamento, mostra a UI de erro e o botão "Tentar novamente" chama produtos.reload()', async () => {

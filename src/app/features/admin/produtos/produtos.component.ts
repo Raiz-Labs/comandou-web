@@ -425,14 +425,16 @@ export class ProdutosComponent {
     try {
       const id = this.editandoId();
       if (id) {
-        await this.adminService.editarProduto(id, payload);
+        const atualizado = await this.adminService.editarProduto(id, payload);
         this.toast.success('Produto atualizado!');
+        this.fecharPainel();
+        this.atualizarProdutoLocal(id, () => atualizado);
       } else {
-        await this.adminService.criarProduto(payload);
+        const criado = await this.adminService.criarProduto(payload);
         this.toast.success('Produto criado!');
+        this.fecharPainel();
+        this.adicionarProdutoLocal(criado);
       }
-      this.fecharPainel();
-      this.produtos.reload();
     } catch (err) {
       // Categoria pode ter sido excluída por outro admin enquanto o painel
       // estava aberto — o backend rejeita com 404 nesse caso. Recarrega as
@@ -448,6 +450,24 @@ export class ProdutosComponent {
     } finally {
       this.salvando.set(false);
     }
+  }
+
+  // Update otimista: muta a lista local em vez de refazer o GET inteiro a
+  // cada mutação bem-sucedida. Em caso de erro os catches acima continuam
+  // chamando produtos.reload() pra garantir estado autoritativo.
+  private adicionarProdutoLocal(produto: Produto): void {
+    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
+    this.produtos.update(lista => [...lista, produto]);
+  }
+
+  private atualizarProdutoLocal(id: string, atualizar: (p: Produto) => Produto): void {
+    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
+    this.produtos.update(lista => lista.map(p => (p.id === id ? atualizar(p) : p)));
+  }
+
+  private removerProdutoLocal(id: string): void {
+    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
+    this.produtos.update(lista => lista.filter(p => p.id !== id));
   }
 
   protected mensagemExclusao(): string {
@@ -466,16 +486,17 @@ export class ProdutosComponent {
     try {
       await this.adminService.excluirProduto(produto.id);
       this.toast.success(`"${produto.nome}" excluído.`);
+      this.removerProdutoLocal(produto.id);
     } catch (err) {
       // Já excluído por outro admin — trata como sucesso idempotente em vez
       // de assustar o usuário com um erro sobre algo que já foi resolvido.
       if (err instanceof HttpErrorResponse && err.status === 404) {
         this.toast.info(`"${produto.nome}" já tinha sido removido.`);
+        this.removerProdutoLocal(produto.id);
       } else {
         this.toast.danger('Não foi possível excluir o produto.');
+        this.produtos.reload();
       }
-    } finally {
-      this.produtos.reload();
     }
   }
 
