@@ -51,7 +51,7 @@ export class SocketService {
       this.connectionStatus.set('disconnected');
     });
 
-    this.socket.on('reconnecting', () => {
+    this.socket.on('reconnect_attempt', () => {
       this.connectionStatus.set('reconnecting');
     });
 

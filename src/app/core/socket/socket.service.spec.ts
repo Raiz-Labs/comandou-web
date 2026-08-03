@@ -165,4 +165,23 @@ describe('SocketService', () => {
     expect(options['reconnectionAttempts']).toBe(10);
     expect(options['reconnectionDelayMax']).toBe(60000);
   });
+
+  it('atualiza connectionStatus para reconnecting no evento reconnect_attempt', () => {
+    setAuth('token-1', usuario);
+    TestBed.flushEffects();
+
+    fakeSocket.emitFromServer('reconnect_attempt');
+    expect(service.connectionStatus()).toBe('reconnecting');
+  });
+
+  it('atualiza connectionStatus para connected no evento reconnect', () => {
+    setAuth('token-1', usuario);
+    TestBed.flushEffects();
+
+    fakeSocket.emitFromServer('reconnect_attempt');
+    expect(service.connectionStatus()).toBe('reconnecting');
+
+    fakeSocket.emitFromServer('reconnect');
+    expect(service.connectionStatus()).toBe('connected');
+  });
 });
