@@ -1,15 +1,15 @@
 // Variáveis de ambiente — desenvolvimento
 // Em produção, o Angular substitui por environment.prod.ts via fileReplacements
 
+export const SLUG_VALIDO = /^[a-z0-9-]+$/;
+export const DEV_TENANT_STORAGE_KEY = 'comandou_dev_tenant_slug';
+
 export const environment = {
   production: false,
   tenantSlug: resolveTenantSlug(),
   apiUrl: 'http://localhost:3000',
   wsUrl: 'http://localhost:3000',
 };
-
-export const SLUG_VALIDO = /^[a-z0-9-]+$/;
-export const DEV_TENANT_STORAGE_KEY = 'comandou_dev_tenant_slug';
 
 export function slugValido(slug: string | null | undefined): string | null {
   if (!slug) return null;

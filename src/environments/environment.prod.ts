@@ -1,11 +1,11 @@
+const SLUG_VALIDO = /^[a-z0-9-]+$/;
+
 export const environment = {
   production: true,
   tenantSlug: getTenantSlug(),
   apiUrl: 'https://api.comandou.app.br',
   wsUrl: 'https://api.comandou.app.br',
 };
-
-const SLUG_VALIDO = /^[a-z0-9-]+$/;
 
 function getTenantSlug(): string {
   const hostname = window?.location?.hostname ?? '';
