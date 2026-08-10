@@ -10,10 +10,28 @@ import { ApiService } from '../../core/api/api.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../shared/pipes/currency-br.pipe';
 import { LucideAngularModule } from 'lucide-angular';
-import { Categoria, Produto } from '../../shared/types';
 
-interface CategoriaComProdutos extends Categoria {
-  produtos: Produto[];
+// GET /cardapio é um endpoint público dedicado (sem autenticação) — devolve só
+// os campos necessários pra vitrine, já filtrados por disponível+estoque>0 e
+// agrupados/ordenados no backend. Não é o mesmo shape de Produto/Categoria em
+// shared/types (que descrevem as entidades administrativas completas).
+interface CardapioProdutoItem {
+  id: string;
+  nome: string;
+  descricao?: string;
+  preco: number;
+  estoque: number;
+}
+
+interface CardapioCategoriaItem {
+  id: string;
+  nome: string;
+  produtos: CardapioProdutoItem[];
+}
+
+interface CardapioResponse {
+  restaurante: { id: string; nome: string; slug: string };
+  categorias: CardapioCategoriaItem[];
 }
 
 @Component({
@@ -109,13 +127,9 @@ interface CategoriaComProdutos extends Categoria {
                 @for (p of resultadoBusca(); track p.id) {
                   <article class="produto-card">
                     <div class="produto-card__img-wrap">
-                      @if (p.imagemUrl) {
-                        <img class="produto-card__img" [src]="p.imagemUrl" [alt]="p.nome" loading="lazy" />
-                      } @else {
-                        <div class="produto-card__img-placeholder">
-                          <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
-                        </div>
-                      }
+                      <div class="produto-card__img-placeholder">
+                        <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
+                      </div>
                     </div>
                     <div class="produto-card__info">
                       <h3 class="produto-card__nome">{{ p.nome }}</h3>
@@ -142,16 +156,9 @@ interface CategoriaComProdutos extends Categoria {
                   <article class="produto-card">
                     <!-- Imagem -->
                     <div class="produto-card__img-wrap">
-                      @if (p.imagemUrl) {
-                        <img class="produto-card__img" [src]="p.imagemUrl" [alt]="p.nome" loading="lazy" />
-                      } @else {
-                        <div class="produto-card__img-placeholder">
-                          <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
-                        </div>
-                      }
-                      @if (!p.disponivel) {
-                        <div class="produto-card__indisponivel">Indisponível</div>
-                      }
+                      <div class="produto-card__img-placeholder">
+                        <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
+                      </div>
                     </div>
                     <!-- Info -->
                     <div class="produto-card__info">
@@ -214,9 +221,7 @@ interface CategoriaComProdutos extends Categoria {
     }
     .card-skeleton { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); overflow: hidden; }
     .produto-card__img-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background-color: var(--b-bg-sunken); }
-    .produto-card__img { width: 100%; height: 100%; object-fit: cover; display: block; }
     .produto-card__img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    .produto-card__indisponivel { position: absolute; inset: 0; background-color: rgba(44,26,14,0.55); display: flex; align-items: center; justify-content: center; font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-bold); color: white; letter-spacing: 0.02em; }
     .produto-card__info { padding: var(--b-space-3); display: flex; flex-direction: column; gap: var(--b-space-2); flex: 1; }
     .produto-card__nome { font-size: var(--b-font-size-base); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; line-height: 1.3; }
     .produto-card__desc { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -241,35 +246,22 @@ export class CardapioComponent {
     this.busca.set((event.target as HTMLInputElement).value);
   }
 
+  // /cardapio é público (sem auth) e já devolve as categorias com os produtos
+  // aninhados, filtrados por disponível+estoque>0 e ordenados — ver #34.
   protected readonly dados = resource({
-    loader: async () => {
-      const [categorias, produtos] = await Promise.all([
-        firstValueFrom(this.api.get<Categoria[]>('/categorias')),
-        firstValueFrom(this.api.get<Produto[]>('/produtos?disponivel=true')),
-      ]);
-      return { categorias, produtos };
-    },
+    loader: () => firstValueFrom(this.api.get<CardapioResponse>('/cardapio')),
   });
 
-  protected readonly categoriasComItens = computed((): CategoriaComProdutos[] => {
-    if (!this.dados.hasValue()) return [];
-    const d = this.dados.value();
-    return d.categorias
-      .map(cat => ({
-        ...cat,
-        produtos: d.produtos.filter(p => p.categoriaId === cat.id && p.disponivel),
-      }))
-      .filter(cat => cat.produtos.length > 0)
-      .sort((a, b) => a.ordem - b.ordem);
-  });
+  protected readonly categoriasComItens = computed((): CardapioCategoriaItem[] =>
+    this.dados.hasValue() ? this.dados.value().categorias : []
+  );
 
-  protected readonly resultadoBusca = computed((): Produto[] => {
+  protected readonly resultadoBusca = computed((): CardapioProdutoItem[] => {
     const q = this.busca().toLowerCase().trim();
     if (!q) return [];
-    return (this.dados.hasValue() ? this.dados.value().produtos : []).filter(p =>
-      p.disponivel &&
-      (p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q))
-    );
+    return this.categoriasComItens()
+      .flatMap(cat => cat.produtos)
+      .filter(p => p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q));
   });
 
   protected scrollParaCategoria(catId: string): void {
