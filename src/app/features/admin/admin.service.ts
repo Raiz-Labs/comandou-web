@@ -68,6 +68,16 @@ export class AdminService {
     return firstValueFrom(this.api.patch<Produto>(`/produtos/${id}`, payload));
   }
 
+  ajustarEstoque(
+    id: string,
+    tipo: 'entrada' | 'saida',
+    quantidade: number
+  ): Promise<{ estoqueAtual: number }> {
+    return firstValueFrom(
+      this.api.patch<{ estoqueAtual: number }>(`/produtos/${id}/estoque`, { tipo, quantidade })
+    );
+  }
+
   excluirProduto(id: string): Promise<void> {
     return firstValueFrom(this.api.delete<void>(`/produtos/${id}`));
   }

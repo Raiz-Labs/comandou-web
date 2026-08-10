@@ -71,6 +71,18 @@ describe('AdminService', () => {
     expect(resultado.descricao).toBe('Varanda');
   });
 
+  it('ajustarEstoque: faz PATCH em /produtos/:id/estoque com tipo e quantidade', async () => {
+    const promise = service.ajustarEstoque('prod-1', 'entrada', 10);
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/produtos/prod-1/estoque`);
+    expect(req.request.method).toBe('PATCH');
+    expect(req.request.body).toEqual({ tipo: 'entrada', quantidade: 10 });
+    req.flush({ estoqueAtual: 25 });
+
+    const resultado = await promise;
+    expect(resultado.estoqueAtual).toBe(25);
+  });
+
   it('toggleUsuarioAtivo: faz PATCH em /usuarios/:id com o novo status', async () => {
     const promise = service.toggleUsuarioAtivo('user-1', false);
 
