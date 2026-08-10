@@ -39,6 +39,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     editarProduto: ReturnType<typeof vi.fn>;
     criarProduto: ReturnType<typeof vi.fn>;
     excluirProduto: ReturnType<typeof vi.fn>;
+    ajustarEstoque: ReturnType<typeof vi.fn>;
   };
   let toastMock: {
     success: ReturnType<typeof vi.fn>;
@@ -54,6 +55,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
       editarProduto: vi.fn(),
       criarProduto: vi.fn(),
       excluirProduto: vi.fn(),
+      ajustarEstoque: vi.fn(),
     };
     toastMock = { success: vi.fn(), danger: vi.fn(), warning: vi.fn(), info: vi.fn() };
 
@@ -167,6 +169,48 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     // Update otimista: o produto aparece na lista sem um novo GET.
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
     expect(comp['produtos'].value()!.map((p: Produto) => p.id)).toContain('novo');
+  });
+
+  it('ao editar e mudar o estoque, ajusta via endpoint dedicado com o delta (#35)', async () => {
+    const fixture = TestBed.createComponent(ProdutosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    const produto = makeProduto({ estoque: 10 });
+    comp['abrirEditar'](produto);
+    comp['model'].update(m => ({ ...m, estoque: '25' }));
+
+    adminServiceMock.editarProduto.mockResolvedValue(produto);
+    adminServiceMock.ajustarEstoque.mockResolvedValue({ estoqueAtual: 25 });
+
+    await comp['salvar']();
+    await fixture.whenStable();
+
+    expect(adminServiceMock.editarProduto).toHaveBeenCalledWith(
+      'produto-1',
+      expect.not.objectContaining({ estoque: expect.anything() }),
+    );
+    expect(adminServiceMock.ajustarEstoque).toHaveBeenCalledWith('produto-1', 'entrada', 15);
+    // Ajuste de estoque pode mudar `disponivel` no backend — recarrega em vez de update otimista.
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
+  });
+
+  it('ao editar sem mudar o estoque, não chama o endpoint de ajuste', async () => {
+    const fixture = TestBed.createComponent(ProdutosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    const produto = makeProduto({ estoque: 10 });
+    comp['abrirEditar'](produto);
+
+    adminServiceMock.editarProduto.mockResolvedValue(produto);
+
+    await comp['salvar']();
+    await fixture.whenStable();
+
+    expect(adminServiceMock.ajustarEstoque).not.toHaveBeenCalled();
   });
 
   it('em erro de carregamento, mostra a UI de erro e o botão "Tentar novamente" chama produtos.reload()', async () => {

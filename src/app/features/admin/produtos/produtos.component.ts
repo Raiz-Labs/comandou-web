@@ -338,6 +338,7 @@ export class ProdutosComponent {
 
   protected readonly model = signal<ProdutoModel>({ ...MODELO_VAZIO });
   private readonly _tocados = signal<Set<Campo>>(new Set());
+  private readonly estoqueOriginal = signal(0);
 
   protected readonly erros = computed(() => {
     const m = this.model();
@@ -398,6 +399,7 @@ export class ProdutosComponent {
       estoque: String(produto.estoque),
       disponivel: produto.disponivel,
     });
+    this.estoqueOriginal.set(produto.estoque);
     this._tocados.set(new Set());
     this.painelAberto.set(true);
   }
@@ -413,23 +415,41 @@ export class ProdutosComponent {
 
     this.salvando.set(true);
     const m = this.model();
-    const payload: CriarProdutoPayload = {
-      nome: m.nome.trim(),
-      descricao: m.descricao.trim() || undefined,
-      preco: Number(m.preco),
-      categoriaId: m.categoriaId,
-      estoque: Number(m.estoque) || 0,
-      disponivel: m.disponivel,
-    };
 
     try {
       const id = this.editandoId();
       if (id) {
-        const atualizado = await this.adminService.editarProduto(id, payload);
+        // Estoque não vai nesse payload: o backend ignora silenciosamente
+        // (atualizarProdutoSchema não tem o campo) — ajuste de estoque tem
+        // endpoint dedicado, chamado logo abaixo, que mantém o histórico de
+        // movimentação de estoque.
+        const payload: Partial<CriarProdutoPayload> = {
+          nome: m.nome.trim(),
+          descricao: m.descricao.trim() || undefined,
+          preco: Number(m.preco),
+          categoriaId: m.categoriaId,
+          disponivel: m.disponivel,
+        };
+        await this.adminService.editarProduto(id, payload);
+
+        const novoEstoque = Number(m.estoque) || 0;
+        const delta = novoEstoque - this.estoqueOriginal();
+        if (delta !== 0) {
+          await this.adminService.ajustarEstoque(id, delta > 0 ? 'entrada' : 'saida', Math.abs(delta));
+        }
+
         this.toast.success('Produto atualizado!');
         this.fecharPainel();
-        this.atualizarProdutoLocal(id, () => atualizado);
+        this.produtos.reload();
       } else {
+        const payload: CriarProdutoPayload = {
+          nome: m.nome.trim(),
+          descricao: m.descricao.trim() || undefined,
+          preco: Number(m.preco),
+          categoriaId: m.categoriaId,
+          estoque: Number(m.estoque) || 0,
+          disponivel: m.disponivel,
+        };
         const criado = await this.adminService.criarProduto(payload);
         this.toast.success('Produto criado!');
         this.fecharPainel();
@@ -458,11 +478,6 @@ export class ProdutosComponent {
   private adicionarProdutoLocal(produto: Produto): void {
     if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
     this.produtos.update(lista => [...lista, produto]);
-  }
-
-  private atualizarProdutoLocal(id: string, atualizar: (p: Produto) => Produto): void {
-    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
-    this.produtos.update(lista => lista.map(p => (p.id === id ? atualizar(p) : p)));
   }
 
   private removerProdutoLocal(id: string): void {
