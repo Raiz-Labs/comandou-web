@@ -83,6 +83,34 @@ export interface RelatorioVendas {
   topProdutos: { produto: string; quantidade: number; total: number }[];
 }
 
+export type TipoMovimentacao = 'entrada' | 'saida';
+export type OrigemMovimentacao = 'manual' | 'automatica';
+export type StatusMovimentacao = 'ativa' | 'estornada';
+
+export interface MovimentacaoFinanceira {
+  id: string;
+  tipo: TipoMovimentacao;
+  origem: OrigemMovimentacao;
+  status: StatusMovimentacao;
+  valor: number;
+  categoria: string;
+  descricao?: string | null;
+  formaPagamento?: string | null;
+  ocorridaEm: string;
+  comandaId?: string | null;
+  usuarioId: string;
+  estornadaEm?: string | null;
+  comanda?: { id: string; total: number; mesa: { numero: number } } | null;
+}
+
+export interface ResumoFluxoCaixa {
+  saldoInicial: number;
+  totalEntradas: number;
+  totalSaidas: number;
+  saldoAtual: number;
+  quantidade: number;
+}
+
 // Payloads de API
 export interface LoginPayload {
   email: string;
