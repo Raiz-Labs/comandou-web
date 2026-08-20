@@ -51,6 +51,22 @@ npm run typecheck  # Checagem de tipos
 npm run lint       # ESLint
 ```
 
+## Testes E2E (Playwright)
+
+Pré-requisito: `comandou-api` rodando local (`npm run dev`) com o seed aplicado
+(`npm run seed`) — o Playwright sobe o `comandou-web` sozinho (`npm start`), mas
+não sobe a API.
+
+```bash
+npx playwright install chromium  # só na primeira vez
+npm run test:e2e                 # roda todos os specs em e2e/
+npm run test:e2e:ui              # modo interativo (UI mode)
+```
+
+Specs ficam em `e2e/`. `e2e/auth.setup.ts` loga uma vez por perfil e salva a
+sessão (`e2e/.auth/<perfil>.json`, gitignored) — specs novos reaproveitam via
+`test.use({ storageState: 'e2e/.auth/<perfil>.json' })` em vez de refazer login.
+
 ## Variáveis de Ambiente
 
 Copie `.env.example` para `.env.local` e configure:

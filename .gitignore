@@ -40,6 +40,11 @@ testem.log
 __screenshots__/
 .claude\settings.local.json
 
+# Playwright (e2e)
+/e2e/.auth/
+/playwright-report/
+/test-results/
+
 # System files
 .DS_Store
 Thumbs.db
