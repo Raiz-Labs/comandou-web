@@ -18,16 +18,14 @@ import { AdminService } from '../admin.service';
 import { RelatorioVendas } from '../../../shared/types';
 
 const makeRelatorio = (overrides: Partial<RelatorioVendas> = {}): RelatorioVendas => ({
-  totalVendas: 1500,
-  totalComandas: 10,
-  ticketMedio: 150,
+  resumo: { totalVendas: 1500, totalComandas: 10, ticketMedio: 150 },
   vendasPorDia: [
     { data: '2024-01-01', total: 500 },
     { data: '2024-01-02', total: 1000 },
   ],
   topProdutos: [
-    { produto: 'X-Burguer', quantidade: 8, total: 800 },
-    { produto: 'Fritas', quantidade: 5, total: 250 },
+    { id: '1', nome: 'X-Burguer', quantidade: 8, total: 800 },
+    { id: '2', nome: 'Fritas', quantidade: 5, total: 250 },
   ],
   ...overrides,
 });
@@ -115,7 +113,11 @@ describe('RelatoriosComponent', () => {
 
   it('exibe estado vazio quando não há comandas no período', async () => {
     adminServiceMock.buscarRelatorio.mockResolvedValue(
-      makeRelatorio({ totalComandas: 0, vendasPorDia: [], topProdutos: [] }),
+      makeRelatorio({
+        resumo: { totalVendas: 0, totalComandas: 0, ticketMedio: 0 },
+        vendasPorDia: [],
+        topProdutos: [],
+      }),
     );
 
     const fixture = TestBed.createComponent(RelatoriosComponent);

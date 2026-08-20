@@ -64,7 +64,7 @@ const NAV_LINKS: NavLink[] = [
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Receita hoje</span>
-                <span class="kpi-card__valor">{{ dados.value()!.relatorio.totalVendas | currencyBr }}</span>
+                <span class="kpi-card__valor">{{ dados.value()!.relatorio.resumo.totalVendas | currencyBr }}</span>
               </div>
             </div>
 
@@ -74,7 +74,7 @@ const NAV_LINKS: NavLink[] = [
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Comandas fechadas</span>
-                <span class="kpi-card__valor">{{ dados.value()!.relatorio.totalComandas }}</span>
+                <span class="kpi-card__valor">{{ dados.value()!.relatorio.resumo.totalComandas }}</span>
               </div>
             </div>
 
@@ -84,7 +84,7 @@ const NAV_LINKS: NavLink[] = [
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Ticket médio</span>
-                <span class="kpi-card__valor">{{ dados.value()!.relatorio.ticketMedio | currencyBr }}</span>
+                <span class="kpi-card__valor">{{ dados.value()!.relatorio.resumo.ticketMedio | currencyBr }}</span>
               </div>
             </div>
 
@@ -123,11 +123,11 @@ const NAV_LINKS: NavLink[] = [
             } @else if (!(dados.hasValue() && dados.value().relatorio.topProdutos.length)) {
               <div class="vazio">Nenhuma venda registrada hoje</div>
             } @else {
-              @for (p of dados.value()!.relatorio.topProdutos; track p.produto; let idx = $index) {
+              @for (p of dados.value()!.relatorio.topProdutos; track p.id; let idx = $index) {
                 <div class="top-row">
                   <div class="top-row__rank">{{ idx + 1 }}</div>
                   <div class="top-row__info">
-                    <span class="top-row__nome">{{ p.produto }}</span>
+                    <span class="top-row__nome">{{ p.nome }}</span>
                     <span class="top-row__qtd">{{ p.quantidade }} vendido{{ p.quantidade !== 1 ? 's' : '' }}</span>
                   </div>
                   <span class="top-row__total">{{ p.total | currencyBr }}</span>
