@@ -117,6 +117,20 @@ export const routes: Routes = [
                 (m) => m.ComandaDetalheCaixaComponent
               ),
           },
+          {
+            path: 'fluxo-caixa',
+            loadComponent: () =>
+              import('./features/caixa/fluxo-caixa/fluxo-caixa-lista.component').then(
+                (m) => m.FluxoCaixaListaComponent
+              ),
+          },
+          {
+            path: 'fluxo-caixa/:id',
+            loadComponent: () =>
+              import('./features/caixa/fluxo-caixa/fluxo-caixa-detalhe.component').then(
+                (m) => m.FluxoCaixaDetalheComponent
+              ),
+          },
           { path: '', redirectTo: 'comandas', pathMatch: 'full' },
         ],
       },

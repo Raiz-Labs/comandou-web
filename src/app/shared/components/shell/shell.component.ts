@@ -23,7 +23,8 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
     { label: 'Fila',      icon: 'chef-hat',    rota: '/cozinha/fila' },
   ],
   caixa: [
-    { label: 'Comandas',  icon: 'receipt',     rota: '/caixa/comandas' },
+    { label: 'Comandas',      icon: 'receipt', rota: '/caixa/comandas'     },
+    { label: 'Fluxo de caixa', icon: 'wallet',  rota: '/caixa/fluxo-caixa' },
   ],
   admin: [
     { label: 'Dashboard',  icon: 'layout-dashboard', rota: '/admin/dashboard'  },
@@ -33,9 +34,10 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
     { label: 'Usuários',   icon: 'users',             rota: '/admin/usuarios'   },
     { label: 'Relatórios', icon: 'bar-chart-2',       rota: '/admin/relatorios' },
     { label: 'Operação',   separator: true },
-    { label: 'Salão',      icon: 'layout-grid',       rota: '/garcom/mesas'     },
-    { label: 'Cozinha',    icon: 'chef-hat',           rota: '/cozinha/fila'     },
-    { label: 'Caixa',      icon: 'receipt',            rota: '/caixa/comandas'   },
+    { label: 'Salão',         icon: 'layout-grid', rota: '/garcom/mesas'      },
+    { label: 'Cozinha',       icon: 'chef-hat',     rota: '/cozinha/fila'      },
+    { label: 'Caixa',         icon: 'receipt',      rota: '/caixa/comandas'    },
+    { label: 'Fluxo de caixa', icon: 'wallet',       rota: '/caixa/fluxo-caixa' },
   ],
 };
 
