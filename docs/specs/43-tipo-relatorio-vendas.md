@@ -1,7 +1,7 @@
 # Tipo RelatorioVendas não bate com a resposta real da API
 
 - **Issue:** #43 — https://github.com/Raiz-Labs/comandou-web/issues/43
-- **Status:** Draft
+- **Status:** Implemented
 - **Repo:** Raiz-Labs/comandou-web
 
 ## Problema
@@ -30,8 +30,8 @@ Como os dois repositórios não compartilham tipos, não há como o TypeScript g
 
 ## Critério de aceite
 
-- [ ] `RelatorioVendas` em `shared/types/index.ts` declara `resumo: { totalVendas: number; totalComandas: number; ticketMedio: number }` e `topProdutos: { id: string; nome: string; quantidade: number; total: number }[]`, batendo com o retorno de `relatorio.service.ts`;
-- [ ] Em `/admin/dashboard`, com pelo menos uma comanda fechada no dia, os cards "Receita hoje", "Comandas fechadas" e "Ticket médio" mostram os valores reais (não "—" nem vazio), e a lista "Top produtos hoje" mostra o nome do produto;
-- [ ] Em `/admin/relatorios`, o mesmo vale pros cards "Total em vendas", "Comandas fechadas", "Ticket médio" e pra lista "Top produtos", em qualquer período selecionado (hoje/7 dias/30 dias);
-- [ ] `npm run typecheck` passa sem erros após o ajuste dos dois componentes;
-- [ ] Teste cobre o cenário com resposta mockada no formato aninhado real da API (não no formato achatado antigo) e falha se algum campo voltar a ser lido do nível errado.
+- [x] `RelatorioVendas` em `shared/types/index.ts` declara `resumo: { totalVendas: number; totalComandas: number; ticketMedio: number }` e `topProdutos: { id: string; nome: string; quantidade: number; total: number }[]`, batendo com o retorno de `relatorio.service.ts`;
+- [x] Em `/admin/dashboard`, com pelo menos uma comanda fechada no dia, os cards "Receita hoje", "Comandas fechadas" e "Ticket médio" mostram os valores reais (não "—" nem vazio), e a lista "Top produtos hoje" mostra o nome do produto;
+- [x] Em `/admin/relatorios`, o mesmo vale pros cards "Total em vendas", "Comandas fechadas", "Ticket médio" e pra lista "Top produtos", em qualquer período selecionado (hoje/7 dias/30 dias);
+- [x] `npm run typecheck` passa sem erros após o ajuste dos dois componentes;
+- [x] Teste cobre o cenário com resposta mockada no formato aninhado real da API (não no formato achatado antigo) e falha se algum campo voltar a ser lido do nível errado.

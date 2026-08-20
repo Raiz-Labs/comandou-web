@@ -1,7 +1,7 @@
 # Timeout em requisições HTTP
 
 - **Issue:** #42 — https://github.com/Raiz-Labs/comandou-web/issues/42
-- **Status:** Draft
+- **Status:** Implemented
 - **Repo:** Raiz-Labs/comandou-web
 
 ## Problema
@@ -31,7 +31,7 @@ Quando o timeout estoura, RxJS emite `TimeoutError`, que já cai no `catchError`
 
 ## Critério de aceite
 
-- [ ] Uma chamada via `ApiService` que não recebe resposta do servidor dentro do timeout configurado rejeita a Promise correspondente (em vez de ficar pendente pra sempre);
-- [ ] O handler chamador (ex.: `confirmarAdicao()`) recebe esse erro no `catch`, executa o `finally` (reset do loading signal) e mostra o toast de erro já existente — sem precisar de código novo no componente;
-- [ ] Uma chamada que responde normalmente dentro do timeout não é afetada (comportamento idêntico ao atual);
-- [ ] Teste cobre o caso de timeout: mock de uma requisição que nunca resolve, junto com fake timers do RxJS, verificando que o Observable erra após o tempo configurado.
+- [x] Uma chamada via `ApiService` que não recebe resposta do servidor dentro do timeout configurado rejeita a Promise correspondente (em vez de ficar pendente pra sempre);
+- [x] O handler chamador (ex.: `confirmarAdicao()`) recebe esse erro no `catch`, executa o `finally` (reset do loading signal) e mostra o toast de erro já existente — sem precisar de código novo no componente;
+- [x] Uma chamada que responde normalmente dentro do timeout não é afetada (comportamento idêntico ao atual);
+- [x] Teste cobre o caso de timeout: mock de uma requisição que nunca resolve, junto com fake timers do RxJS, verificando que o Observable erra após o tempo configurado.
