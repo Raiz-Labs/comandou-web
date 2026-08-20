@@ -96,7 +96,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                 <lucide-icon name="trending-up" [size]="14" />
                 Total em vendas
               </div>
-              <div class="kpi-card__valor kpi-card__valor--primary">{{ relatorio.value()!.totalVendas | currencyBr }}</div>
+              <div class="kpi-card__valor kpi-card__valor--primary">{{ relatorio.value()!.resumo.totalVendas | currencyBr }}</div>
               <div class="kpi-card__sub">{{ periodoLabel(periodo()) }}</div>
             </div>
             <div class="kpi-card">
@@ -104,7 +104,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                 <lucide-icon name="receipt" [size]="14" />
                 Comandas fechadas
               </div>
-              <div class="kpi-card__valor">{{ relatorio.value()!.totalComandas }}</div>
+              <div class="kpi-card__valor">{{ relatorio.value()!.resumo.totalComandas }}</div>
               <div class="kpi-card__sub">comandas no período</div>
             </div>
             <div class="kpi-card">
@@ -112,7 +112,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                 <lucide-icon name="divide-circle" [size]="14" />
                 Ticket médio
               </div>
-              <div class="kpi-card__valor">{{ relatorio.value()!.ticketMedio | currencyBr }}</div>
+              <div class="kpi-card__valor">{{ relatorio.value()!.resumo.ticketMedio | currencyBr }}</div>
               <div class="kpi-card__sub">por comanda</div>
             </div>
           </div>
@@ -149,11 +149,11 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                   <span class="top-table__qtd">Qtd</span>
                   <span class="top-table__total">Total</span>
                 </div>
-                @for (item of relatorio.value()!.topProdutos; track item.produto; let i = $index) {
+                @for (item of relatorio.value()!.topProdutos; track item.id; let i = $index) {
                   <div class="top-row">
                     <div class="top-row__rank">{{ i + 1 }}</div>
                     <div class="top-row__info">
-                      <div class="top-row__nome">{{ item.produto }}</div>
+                      <div class="top-row__nome">{{ item.nome }}</div>
                       <div class="top-row__bar">
                         <div class="top-row__bar-fill"
                           [style.width.%]="barProduto(item.total)">
@@ -169,7 +169,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           }
 
           <!-- Sem dados -->
-          @if (relatorio.value()!.totalComandas === 0) {
+          @if (relatorio.value()!.resumo.totalComandas === 0) {
             <div class="sem-dados">
               <lucide-icon name="bar-chart-2" [size]="48" color="var(--b-fg-subtle)" />
               <p class="sem-dados__title">Sem dados para este período</p>

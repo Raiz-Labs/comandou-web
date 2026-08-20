@@ -76,11 +76,13 @@ export interface Comanda {
 }
 
 export interface RelatorioVendas {
-  totalVendas: number;
-  totalComandas: number;
-  ticketMedio: number;
+  resumo: {
+    totalVendas: number;
+    totalComandas: number;
+    ticketMedio: number;
+  };
   vendasPorDia: { data: string; total: number }[];
-  topProdutos: { produto: string; quantidade: number; total: number }[];
+  topProdutos: { id: string; nome: string; quantidade: number; total: number }[];
 }
 
 export type TipoMovimentacao = 'entrada' | 'saida';
