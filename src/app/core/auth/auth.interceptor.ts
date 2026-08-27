@@ -37,6 +37,11 @@ export const authInterceptor: HttpInterceptorFn = (
     return next(masterReq).pipe(
       catchError((err) => {
         if (err.status === 401) {
+          // Master expirou em meio a uma impersonação: a sessão do tenant
+          // impersonado não faz sentido sem o master que a originou.
+          if (masterAuthState().impersonating) {
+            clearAuth();
+          }
           clearMasterAuth();
           router.navigateByUrl('/master/login');
         }
@@ -75,6 +80,11 @@ export const authInterceptor: HttpInterceptorFn = (
             return next(retryReq);
           }),
           catchError((refreshErr) => {
+            // Token de tenant expirou em meio a uma impersonação: não deixa
+            // o master com "impersonating" órfão apontando pra uma sessão morta.
+            if (masterAuthState().impersonating) {
+              clearMasterAuth();
+            }
             clearAuth();
             router.navigateByUrl('/login');
             return throwError(() => refreshErr);

@@ -5,7 +5,12 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { Router } from '@angular/router';
 import { authInterceptor } from './auth.interceptor';
 import { authState, clearAuth, setAuth } from './auth.signal';
-import { clearMasterAuth, masterAuthState, setMasterAuth } from '../master/master-auth.signal';
+import {
+  clearMasterAuth,
+  masterAuthState,
+  setImpersonating,
+  setMasterAuth,
+} from '../master/master-auth.signal';
 import { environment } from '../../../environments/environment';
 import { Usuario } from '../../shared/types';
 
@@ -150,5 +155,75 @@ describe('authInterceptor', () => {
     expect(await erro).toBeTruthy();
     expect(masterAuthState().token).toBeNull();
     expect(authState().token).toBe('token-usuario');
+  });
+
+  it('refresh falho numa rota regular sem impersonação não mexe na sessão master', async () => {
+    setAuth('token-usuario', usuario);
+    setMasterAuth('master-token', { id: 'm1', email: 'master@test.com' });
+
+    const promise = new Promise<unknown>((resolve, reject) => {
+      http.get(`${environment.apiUrl}/produtos`).subscribe({ next: resolve, error: reject });
+    });
+    const erro = promise.catch((e) => e);
+
+    httpMock
+      .expectOne((r) => r.url.includes('/produtos'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock
+      .expectOne((r) => r.url.includes('/auth/refresh'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+    await flushPromises();
+
+    expect(await erro).toBeTruthy();
+    expect(authState().isAuthenticated).toBe(false);
+    expect(masterAuthState().token).toBe('master-token');
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('401 na rota /master/ durante impersonação ativa também limpa a sessão do tenant impersonado', async () => {
+    setAuth('token-tenant-impersonado', usuario);
+    setMasterAuth('master-token', { id: 'm1', email: 'master@test.com' });
+    setImpersonating({ tenantId: 't1', tenantNome: 'Burguer House' });
+
+    const promise = new Promise<unknown>((resolve, reject) => {
+      http.get(`${environment.apiUrl}/master/tenants`).subscribe({ next: resolve, error: reject });
+    });
+    const erro = promise.catch((e) => e);
+
+    httpMock
+      .expectOne((r) => r.url.includes('/master/tenants'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    expect(await erro).toBeTruthy();
+    expect(masterAuthState().token).toBeNull();
+    expect(authState().isAuthenticated).toBe(false);
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/master/login');
+  });
+
+  it('refresh falho durante impersonação também limpa masterAuthState — sem deixar "impersonating" órfão', async () => {
+    setAuth('token-tenant-impersonado', usuario);
+    setMasterAuth('master-token', { id: 'm1', email: 'master@test.com' });
+    setImpersonating({ tenantId: 't1', tenantNome: 'Burguer House' });
+
+    const promise = new Promise<unknown>((resolve, reject) => {
+      http.get(`${environment.apiUrl}/produtos`).subscribe({ next: resolve, error: reject });
+    });
+    const erro = promise.catch((e) => e);
+
+    httpMock
+      .expectOne((r) => r.url.includes('/produtos'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock
+      .expectOne((r) => r.url.includes('/auth/refresh'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+    await flushPromises();
+
+    expect(await erro).toBeTruthy();
+    expect(authState().isAuthenticated).toBe(false);
+    expect(masterAuthState().token).toBeNull();
+    expect(masterAuthState().impersonating).toBeNull();
+    expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
   });
 });
