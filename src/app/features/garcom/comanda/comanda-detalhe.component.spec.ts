@@ -149,7 +149,7 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
     fixture.componentInstance['comanda'].reload();
     await fixture.whenStable();
 
-    await fixture.componentInstance['confirmarEdicao']();
+    await fixture.componentInstance['confirmarEdicao']({ quantidade: 1 });
 
     expect(garcomServiceMock.editarItem).not.toHaveBeenCalled();
     expect(toastMock.danger).toHaveBeenCalledWith('Este item não pode mais ser editado.');
@@ -182,10 +182,9 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
 
     const item = makeItem({ status: 'pendente' });
     fixture.componentInstance['itemEmEdicao'].set(item);
-    fixture.componentInstance['quantidade'].set(2);
     fixture.componentInstance['uiStep'].set('edicao');
 
-    await fixture.componentInstance['confirmarEdicao']();
+    await fixture.componentInstance['confirmarEdicao']({ quantidade: 2 });
 
     expect(garcomServiceMock.editarItem).toHaveBeenCalledWith('comanda-1', item.id, {
       quantidade: 2,
@@ -225,9 +224,8 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
     comp['produtoSelecionado'].set({
       id: 'produto-x', nome: 'Suco', preco: 8, categoriaId: 'cat-1', estoque: 5, disponivel: true,
     });
-    comp['quantidade'].set(2);
 
-    await comp['confirmarAdicao']();
+    await comp['confirmarAdicao']({ quantidade: 2 });
 
     expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(1); // só o load inicial
     const itens = comp['comanda'].value()!.itens;
@@ -242,10 +240,9 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
 
     const comp = fixture.componentInstance;
     comp['itemEmEdicao'].set(makeItem({ status: 'pendente' }));
-    comp['quantidade'].set(5);
     comp['uiStep'].set('edicao');
 
-    await comp['confirmarEdicao']();
+    await comp['confirmarEdicao']({ quantidade: 5 });
 
     expect(garcomServiceMock.buscarComanda).toHaveBeenCalledTimes(1);
     const itens = comp['comanda'].value()!.itens;

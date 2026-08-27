@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
-import { Categoria, ItemComanda, Produto, StatusItem } from '../../../shared/types';
+import { ItemComanda, Produto, StatusItem } from '../../../shared/types';
 import { userPerfil } from '../../../core/auth/auth.signal';
 import { GarcomService } from '../garcom.service';
 import { SocketService } from '../../../core/socket/socket.service';
@@ -20,6 +20,8 @@ import { ConnectionBannerComponent } from '../../../shared/components/connection
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
+import { SeletorProdutoComponent } from './seletor-produto.component';
+import { ConfirmacaoItem, FormularioItemComponent } from './formulario-item.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { LucideAngularModule } from 'lucide-angular';
 
@@ -28,14 +30,20 @@ type UiStep = 'lista' | 'picker' | 'form' | 'edicao';
 const EDITAVEL: StatusItem[] = ['pendente'];
 const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
 
-interface CategoriaComProdutos extends Categoria {
-  produtos: Produto[];
-}
-
 @Component({
   selector: 'app-comanda-detalhe',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, StatusBadgeComponent, ConfirmDialogComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [
+    SkeletonComponent,
+    ConnectionBannerComponent,
+    StatusBadgeComponent,
+    ConfirmDialogComponent,
+    NotificacaoBannerComponent,
+    SeletorProdutoComponent,
+    FormularioItemComponent,
+    CurrencyBrPipe,
+    LucideAngularModule,
+  ],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -210,234 +218,41 @@ interface CategoriaComProdutos extends Categoria {
       />
     }
 
-    <!-- ===== BOTTOM SHEET: EDITAR ITEM ===== -->
-    @if (uiStep() === 'edicao') {
-      <div class="b-backdrop" (click)="fecharEdicao()"></div>
-      <div class="sheet" role="dialog" aria-modal="true" aria-label="Editar item">
-        <div class="sheet__header">
-          <h2 class="sheet__title">{{ itemEmEdicao()?.produto?.nome ?? 'Editar item' }}</h2>
-          <button class="sheet__close" (click)="fecharEdicao()" aria-label="Fechar">
-            <lucide-icon name="x" [size]="20" />
-          </button>
-        </div>
-        <div class="form-body">
-          <div class="preco-produto">
-            {{ (itemEmEdicao()?.produto?.preco ?? 0) | currencyBr }}
-          </div>
-
-          <!-- Quantidade -->
-          <div class="qty-control">
-            <button
-              class="qty-btn"
-              (click)="decrementarQtd()"
-              [disabled]="quantidade() <= 1"
-              aria-label="Diminuir quantidade"
-            >
-              <lucide-icon name="minus" [size]="18" />
-            </button>
-            <span class="qty-value">{{ quantidade() }}</span>
-            <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
-              <lucide-icon name="plus" [size]="18" />
-            </button>
-          </div>
-
-          <!-- Observação -->
-          <div class="obs-field">
-            <label class="b-label" for="obs-edit">Observação (opcional)</label>
-            <textarea
-              id="obs-edit"
-              class="b-input obs-input"
-              placeholder="Ex: sem cebola, bem passado..."
-              [value]="observacao()"
-              (input)="setObservacao($event)"
-              rows="3"
-              maxlength="200"
-            ></textarea>
-          </div>
-
-          <!-- Subtotal -->
-          <div class="subtotal">
-            <span class="subtotal__label">Subtotal</span>
-            <span class="subtotal__valor">
-              {{ (itemEmEdicao()?.produto?.preco ?? 0) * quantidade() | currencyBr }}
-            </span>
-          </div>
-
-          <!-- Salvar -->
-          <button
-            class="b-btn-primary confirm-btn"
-            [disabled]="salvando()"
-            (click)="confirmarEdicao()"
-          >
-            @if (salvando()) {
-              <lucide-icon name="loader-2" [size]="18" class="b-spin" />
-              Salvando...
-            } @else {
-              <lucide-icon name="check" [size]="18" />
-              Salvar alterações
-            }
-          </button>
-        </div>
-      </div>
+    <!-- ===== SHEET: EDITAR ITEM ===== -->
+    @if (uiStep() === 'edicao' && itemEmEdicao(); as item) {
+      <app-formulario-item
+        [titulo]="item.produto?.nome ?? 'Editar item'"
+        [preco]="item.produto?.preco ?? 0"
+        [valorInicial]="{ quantidade: item.quantidade, observacao: item.observacao ?? '' }"
+        [salvando]="salvando()"
+        textoConfirmar="Salvar alterações"
+        (confirmado)="confirmarEdicao($event)"
+        (cancelado)="fecharEdicao()"
+      />
     }
 
-    <!-- ===== BOTTOM SHEET: PICKER DE PRODUTOS ===== -->
-    @if (uiStep() === 'picker' || uiStep() === 'form') {
-      <div class="b-backdrop" (click)="fecharPicker()"></div>
-      <div class="sheet" role="dialog" aria-modal="true" aria-label="Selecionar produto">
+    <!-- ===== SHEET: PICKER DE PRODUTOS ===== -->
+    @if (uiStep() === 'picker') {
+      <app-seletor-produto
+        [cardapio]="cardapio.hasValue() ? cardapio.value() : undefined"
+        [carregando]="cardapio.isLoading()"
+        (produtoEscolhido)="selecionarProduto($event)"
+        (fechado)="fecharPicker()"
+      />
+    }
 
-        @if (uiStep() === 'picker') {
-          <div class="sheet__header">
-            <h2 class="sheet__title">Selecionar produto</h2>
-            <button class="sheet__close" (click)="fecharPicker()" aria-label="Fechar">
-              <lucide-icon name="x" [size]="20" />
-            </button>
-          </div>
-
-          <!-- Busca -->
-          <div class="sheet__search">
-            <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
-            <input
-              class="b-input search-input"
-              type="search"
-              placeholder="Buscar produto..."
-              [value]="busca()"
-              (input)="setBusca($event)"
-              autocomplete="off"
-            />
-          </div>
-
-          <!-- Filtro de categorias -->
-          @if (cardapio.isLoading()) {
-            <div class="cat-tabs">
-              @for (i of [1,2,3]; track i) {
-                <app-skeleton height="32px" width="80px" radius="var(--b-radius-sm)" />
-              }
-            </div>
-          } @else {
-            <div class="cat-tabs">
-              <button
-                class="cat-tab"
-                [class.cat-tab--active]="categoriaSelecionada() === null"
-                (click)="categoriaSelecionada.set(null)"
-              >
-                Todos
-              </button>
-              @for (cat of (cardapio.hasValue() ? cardapio.value().categorias : []); track cat.id) {
-                <button
-                  class="cat-tab"
-                  [class.cat-tab--active]="categoriaSelecionada()?.id === cat.id"
-                  (click)="categoriaSelecionada.set(cat)"
-                >
-                  {{ cat.nome }}
-                </button>
-              }
-            </div>
-          }
-
-          <!-- Lista de produtos -->
-          <div class="sheet__produtos">
-            @if (cardapio.isLoading()) {
-              @for (i of [1,2,3,4]; track i) {
-                <div class="produto-card produto-card--skeleton">
-                  <app-skeleton height="1rem" width="60%" />
-                  <app-skeleton height="0.875rem" width="40%" />
-                </div>
-              }
-            } @else if (produtosFiltrados().length === 0) {
-              <div class="b-empty-state" style="padding: var(--b-space-8) 0">
-                <p class="b-empty-state__sub">Nenhum produto encontrado</p>
-              </div>
-            } @else {
-              @for (cat of categoriasFiltradas(); track cat.id) {
-                @if (cat.produtos.length > 0) {
-                  <div class="cat-label">{{ cat.nome }}</div>
-                  @for (produto of cat.produtos; track produto.id) {
-                    <button class="produto-card" (click)="selecionarProduto(produto)">
-                      <div class="produto-card__info">
-                        <span class="produto-card__nome">{{ produto.nome }}</span>
-                        @if (produto.descricao) {
-                          <span class="produto-card__desc">{{ produto.descricao }}</span>
-                        }
-                      </div>
-                      <span class="produto-card__preco">{{ produto.preco | currencyBr }}</span>
-                    </button>
-                  }
-                }
-              }
-            }
-          </div>
-        }
-
-        @if (uiStep() === 'form') {
-          <div class="sheet__header">
-            <button class="b-btn-back" (click)="voltarParaPicker()" aria-label="Voltar">
-              <lucide-icon name="arrow-left" [size]="18" />
-            </button>
-            <h2 class="sheet__title">{{ produtoSelecionado()?.nome }}</h2>
-            <button class="sheet__close" (click)="fecharPicker()" aria-label="Fechar">
-              <lucide-icon name="x" [size]="20" />
-            </button>
-          </div>
-
-          <div class="form-body">
-            <div class="preco-produto">{{ produtoSelecionado()?.preco | currencyBr }}</div>
-
-            <!-- Quantidade -->
-            <div class="qty-control">
-              <button
-                class="qty-btn"
-                (click)="decrementarQtd()"
-                [disabled]="quantidade() <= 1"
-                aria-label="Diminuir quantidade"
-              >
-                <lucide-icon name="minus" [size]="18" />
-              </button>
-              <span class="qty-value">{{ quantidade() }}</span>
-              <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
-                <lucide-icon name="plus" [size]="18" />
-              </button>
-            </div>
-
-            <!-- Observação -->
-            <div class="obs-field">
-              <label class="b-label" for="obs">Observação (opcional)</label>
-              <textarea
-                id="obs"
-                class="b-input obs-input"
-                placeholder="Ex: sem cebola, bem passado..."
-                [value]="observacao()"
-                (input)="setObservacao($event)"
-                rows="3"
-                maxlength="200"
-              ></textarea>
-            </div>
-
-            <!-- Subtotal -->
-            <div class="subtotal">
-              <span class="subtotal__label">Subtotal</span>
-              <span class="subtotal__valor">
-                {{ (produtoSelecionado()?.preco ?? 0) * quantidade() | currencyBr }}
-              </span>
-            </div>
-
-            <!-- Confirmar -->
-            <button
-              class="b-btn-primary confirm-btn"
-              [disabled]="adicionando()"
-              (click)="confirmarAdicao()"
-            >
-              @if (adicionando()) {
-                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
-                Adicionando...
-              } @else {
-                <lucide-icon name="check" [size]="18" />
-                Confirmar pedido
-              }
-            </button>
-          </div>
-        }
-      </div>
+    <!-- ===== SHEET: ADICIONAR ITEM ===== -->
+    @if (uiStep() === 'form' && produtoSelecionado(); as produto) {
+      <app-formulario-item
+        [titulo]="produto.nome"
+        [preco]="produto.preco"
+        [mostrarVoltar]="true"
+        [salvando]="adicionando()"
+        textoConfirmar="Confirmar pedido"
+        (confirmado)="confirmarAdicao($event)"
+        (cancelado)="fecharPicker()"
+        (voltar)="voltarParaPicker()"
+      />
     }
   `,
   styles: [`
@@ -643,282 +458,6 @@ interface CategoriaComProdutos extends Categoria {
       border: 1px solid var(--b-neutral-300);
     }
 
-    /* ===== BOTTOM SHEET ===== */
-    .sheet {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-lg) var(--b-radius-lg) 0 0;
-      box-shadow: var(--b-shadow-4);
-      z-index: 301;
-      max-height: 85dvh;
-      display: flex;
-      flex-direction: column;
-
-      @media (min-width: 768px) {
-        left: 50%;
-        right: auto;
-        width: 480px;
-        transform: translateX(-50%);
-        border-radius: var(--b-radius-lg);
-        bottom: var(--b-space-6);
-      }
-    }
-
-    .sheet__header {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-4) var(--b-space-4) var(--b-space-3);
-      border-bottom: 1px solid var(--b-neutral-100);
-      flex-shrink: 0;
-    }
-
-    .sheet__title {
-      flex: 1;
-      font-size: var(--b-font-size-lg);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
-      margin: 0;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .sheet__close {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 44px;
-      min-height: 44px;
-      border-radius: var(--b-radius-sm);
-      border: none;
-      background-color: transparent;
-      color: var(--b-fg-muted);
-      flex-shrink: 0;
-
-      &:hover { background-color: var(--b-bg-sunken); }
-    }
-
-    /* Busca */
-    .sheet__search {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-3) var(--b-space-4);
-      border-bottom: 1px solid var(--b-neutral-100);
-      flex-shrink: 0;
-    }
-
-    .search-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: var(--b-font-size-sm);
-      padding: var(--b-space-1) 0;
-      outline: none;
-      color: var(--b-fg);
-
-      &::placeholder { color: var(--b-fg-subtle); }
-    }
-
-    /* Categorias tabs */
-    .cat-tabs {
-      display: flex;
-      gap: var(--b-space-2);
-      padding: var(--b-space-3) var(--b-space-4);
-      overflow-x: auto;
-      flex-shrink: 0;
-      scrollbar-width: none;
-
-      &::-webkit-scrollbar { display: none; }
-    }
-
-    .cat-tab {
-      flex-shrink: 0;
-      padding: var(--b-space-1) var(--b-space-3);
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-      background-color: transparent;
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-      min-height: 36px;
-      font-family: var(--b-font-sans);
-      white-space: nowrap;
-
-      &--active {
-        background-color: var(--b-primary-500);
-        border-color: var(--b-primary-500);
-        color: var(--b-fg-inverted);
-        font-weight: var(--b-font-weight-semibold);
-      }
-    }
-
-    /* Produtos */
-    .sheet__produtos {
-      flex: 1;
-      overflow-y: auto;
-      padding: 0 var(--b-space-4) var(--b-space-6);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-    }
-
-    .cat-label {
-      font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg-subtle);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding-top: var(--b-space-3);
-      padding-bottom: var(--b-space-1);
-    }
-
-    .produto-card {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--b-space-3);
-      padding: var(--b-space-3) var(--b-space-4);
-      background-color: var(--b-bg);
-      border-radius: var(--b-radius-md);
-      border: 1px solid var(--b-neutral-100);
-      cursor: pointer;
-      text-align: left;
-      font-family: var(--b-font-sans);
-      min-height: 56px;
-      transition: background-color 0.1s ease;
-
-      &:hover { background-color: var(--b-primary-50); }
-      &:active { background-color: var(--b-primary-100); }
-
-      &--skeleton {
-        cursor: default;
-        gap: var(--b-space-3);
-        flex-direction: column;
-        align-items: flex-start;
-        min-height: 64px;
-
-        &:hover { background-color: var(--b-bg); }
-      }
-    }
-
-    .produto-card__info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-    }
-
-    .produto-card__nome {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-    }
-
-    .produto-card__desc {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-    }
-
-    .produto-card__preco {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-primary-600);
-      flex-shrink: 0;
-    }
-
-    /* ===== FORM de quantidade ===== */
-    .form-body {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-5);
-      padding: var(--b-space-5) var(--b-space-4) var(--b-space-6);
-      overflow-y: auto;
-    }
-
-    .preco-produto {
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-primary-600);
-      text-align: center;
-    }
-
-    .qty-control {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-6);
-    }
-
-    .qty-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 48px;
-      min-height: 48px;
-      border-radius: 50%;
-      border: 2px solid var(--b-primary-500);
-      background-color: transparent;
-      color: var(--b-primary-500);
-      transition: background-color 0.1s ease;
-
-      &:hover:not(:disabled) { background-color: var(--b-primary-50); }
-      &:disabled {
-        border-color: var(--b-neutral-300);
-        color: var(--b-neutral-300);
-        cursor: not-allowed;
-      }
-    }
-
-    .qty-value {
-      font-size: var(--b-font-size-3xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-      min-width: 48px;
-      text-align: center;
-    }
-
-    .obs-field {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-    }
-
-    .obs-input {
-      resize: none;
-      font-size: var(--b-font-size-sm);
-    }
-
-    .subtotal {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--b-space-3) var(--b-space-4);
-      background-color: var(--b-bg-sunken);
-      border-radius: var(--b-radius-md);
-    }
-
-    .subtotal__label {
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-    }
-
-    .subtotal__valor {
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-    }
-
-    .confirm-btn {
-      width: 100%;
-      min-height: 52px;
-    }
-
   `],
 })
 export class ComandaDetalheComponent implements OnInit, OnDestroy {
@@ -936,10 +475,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   // UI state — add flow
   protected readonly uiStep = signal<UiStep>('lista');
   protected readonly produtoSelecionado = signal<Produto | null>(null);
-  protected readonly quantidade = signal(1);
-  protected readonly observacao = signal('');
-  protected readonly busca = signal('');
-  protected readonly categoriaSelecionada = signal<Categoria | null>(null);
   protected readonly adicionando = signal(false);
 
   // UI state — edit/cancel flow
@@ -980,27 +515,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     () => this.itensAtivos().reduce((sum, i) => sum + i.total, 0)
   );
 
-  protected readonly produtosFiltrados = computed(() => {
-    const { categorias, produtos } = this.cardapio.hasValue()
-      ? this.cardapio.value()
-      : { categorias: [], produtos: [] };
-    const cat = this.categoriaSelecionada();
-    const q = this.busca().toLowerCase().trim();
-    return produtos.filter(p =>
-      (!cat || p.categoriaId === cat.id) &&
-      (!q || p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q))
-    ).map(p => ({ ...p, categoria: categorias.find(c => c.id === p.categoriaId) }));
-  });
-
-  protected readonly categoriasFiltradas = computed<CategoriaComProdutos[]>(() => {
-    const { categorias } = this.cardapio.hasValue() ? this.cardapio.value() : { categorias: [] };
-    const filtrados = this.produtosFiltrados();
-    return categorias.map(cat => ({
-      ...cat,
-      produtos: filtrados.filter(p => p.categoriaId === cat.id),
-    }));
-  });
-
   constructor() {
     // Se a comanda falhar ao (re)carregar com algum sheet/dialog aberto, os
     // dados que a UI mostra podem já não existir mais no servidor — fecha
@@ -1018,8 +532,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.itemEmEdicao.set(null);
     this.itemParaCancelar.set(null);
     this.pedindoFechar.set(false);
-    this.quantidade.set(1);
-    this.observacao.set('');
   }
 
   // Update otimista: muta o item localmente em vez de refazer o GET da
@@ -1068,8 +580,6 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   // ===== Picker =====
 
   protected abrirPicker(): void {
-    this.busca.set('');
-    this.categoriaSelecionada.set(null);
     this.uiStep.set('picker');
     if (!this.cardapio.hasValue()) this.cardapio.reload();
   }
@@ -1077,35 +587,16 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   protected fecharPicker(): void {
     this.uiStep.set('lista');
     this.produtoSelecionado.set(null);
-    this.quantidade.set(1);
-    this.observacao.set('');
   }
 
   protected voltarParaPicker(): void {
+    this.produtoSelecionado.set(null);
     this.uiStep.set('picker');
   }
 
   protected selecionarProduto(produto: Produto): void {
     this.produtoSelecionado.set(produto);
-    this.quantidade.set(1);
-    this.observacao.set('');
     this.uiStep.set('form');
-  }
-
-  protected incrementarQtd(): void {
-    this.quantidade.update(v => v + 1);
-  }
-
-  protected decrementarQtd(): void {
-    this.quantidade.update(v => Math.max(1, v - 1));
-  }
-
-  protected setBusca(event: Event): void {
-    this.busca.set((event.target as HTMLInputElement).value);
-  }
-
-  protected setObservacao(event: Event): void {
-    this.observacao.set((event.target as HTMLTextAreaElement).value);
   }
 
   // ===== Helpers de permissão =====
@@ -1122,19 +613,15 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   protected abrirEdicao(item: ItemComanda): void {
     this.itemEmEdicao.set(item);
-    this.quantidade.set(item.quantidade);
-    this.observacao.set(item.observacao ?? '');
     this.uiStep.set('edicao');
   }
 
   protected fecharEdicao(): void {
     this.uiStep.set('lista');
     this.itemEmEdicao.set(null);
-    this.quantidade.set(1);
-    this.observacao.set('');
   }
 
-  protected async confirmarEdicao(): Promise<void> {
+  protected async confirmarEdicao(payload: ConfirmacaoItem): Promise<void> {
     const item = this.itemEmEdicao();
     if (!item || this.salvando()) return;
 
@@ -1153,8 +640,8 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.salvando.set(true);
     try {
       const itemAtualizado = await this.garcomService.editarItem(this.comandaId, item.id, {
-        quantidade: this.quantidade(),
-        observacao: this.observacao() || undefined,
+        quantidade: payload.quantidade,
+        observacao: payload.observacao,
       });
       this.toast.success('Item atualizado!');
       this.fecharEdicao();
@@ -1236,7 +723,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     }
   }
 
-  protected async confirmarAdicao(): Promise<void> {
+  protected async confirmarAdicao(payload: ConfirmacaoItem): Promise<void> {
     const produto = this.produtoSelecionado();
     if (!produto || this.adicionando()) return;
 
@@ -1244,8 +731,8 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     try {
       const novoItem = await this.garcomService.adicionarItem(this.comandaId, {
         produtoId: produto.id,
-        quantidade: this.quantidade(),
-        observacao: this.observacao() || undefined,
+        quantidade: payload.quantidade,
+        observacao: payload.observacao,
       });
       this.toast.success(`${produto.nome} adicionado!`);
       this.fecharPicker();

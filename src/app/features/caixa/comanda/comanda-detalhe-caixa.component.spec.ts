@@ -124,8 +124,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    fixture.componentInstance['incrementarDivisoes']();
-    fixture.componentInstance['incrementarDivisoes']();
+    fixture.componentInstance['onDivisoesChange'](3);
     expect(fixture.componentInstance['divisoes']()).toBe(3);
 
     await fixture.componentInstance['pedirFechamento']();
@@ -150,8 +149,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    fixture.componentInstance['incrementarDivisoes']();
-    fixture.componentInstance['incrementarDivisoes']();
+    fixture.componentInstance['onDivisoesChange'](3);
 
     await fixture.componentInstance['pedirFechamento']();
 
@@ -167,7 +165,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
     fixture.detectChanges();
     await fixture.whenStable();
 
-    fixture.componentInstance['incrementarDivisoes']();
+    fixture.componentInstance['onDivisoesChange'](2);
 
     await fixture.componentInstance['pedirFechamento']();
 
