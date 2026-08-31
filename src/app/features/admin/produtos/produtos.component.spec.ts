@@ -250,6 +250,10 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     const erro = fixture.debugElement.query(By.css('.campo-erro'));
     expect(erro).toBeTruthy();
     expect(erro.nativeElement.textContent).toContain('Não foi possível carregar as categorias.');
+    // Sem categorias carregadas, salvar seria um no-op silencioso (categoriaId
+    // nunca preenchido) — o botão fica desabilitado em vez de parecer clicável.
+    const salvarBtn = fixture.debugElement.query(By.css('.painel__acoes .b-btn-primary'));
+    expect(salvarBtn.nativeElement.disabled).toBe(true);
 
     adminServiceMock.listarCategorias.mockResolvedValueOnce([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }]);
     const retryBtn = erro.query(By.css('button'));
@@ -261,5 +265,6 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     const select = fixture.debugElement.query(By.css('#f-cat'));
     expect(select).toBeTruthy();
     expect(select.nativeElement.textContent).toContain('Lanches');
+    expect(fixture.debugElement.query(By.css('.painel__acoes .b-btn-primary')).nativeElement.disabled).toBe(false);
   });
 });

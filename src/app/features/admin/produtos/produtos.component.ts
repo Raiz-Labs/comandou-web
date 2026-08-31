@@ -198,9 +198,9 @@ type Campo = keyof ProdutoModel;
           <div class="campo">
             <label class="b-label" for="f-cat">Categoria <span class="obrigatorio">*</span></label>
             @if (categorias.error()) {
-              <div class="campo-erro">
+              <div class="campo-erro" role="alert">
                 <span class="b-error-message">Não foi possível carregar as categorias.</span>
-                <button class="b-btn-ghost" (click)="categorias.reload()">Tentar novamente</button>
+                <button type="button" class="b-btn-ghost" (click)="categorias.reload()">Tentar novamente</button>
               </div>
             } @else {
               <select id="f-cat" class="b-input"
@@ -229,7 +229,7 @@ type Campo = keyof ProdutoModel;
           <!-- Ações -->
           <div class="painel__acoes">
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
-            <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
+            <button type="button" class="b-btn-primary" [disabled]="salvando() || !!categorias.error()" (click)="salvar()">
               @if (salvando()) {
                 <lucide-icon name="loader-2" [size]="16" class="b-spin" />
                 Salvando...
@@ -325,7 +325,10 @@ export class ProdutosComponent {
   });
 
   protected readonly categorias = resource({
-    loader: () => this.adminService.listarCategorias(),
+    loader: () => this.adminService.listarCategorias().catch(err => {
+      console.error('[produtos] falha ao carregar categorias', err);
+      throw err;
+    }),
   });
 
   protected readonly produtosFiltrados = computed(() => {
