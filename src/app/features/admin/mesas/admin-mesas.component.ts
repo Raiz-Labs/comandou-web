@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,8 +12,10 @@ import { AdminService, CriarMesaPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Mesa } from '../../../shared/types';
 import { LucideAngularModule } from 'lucide-angular';
+import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface MesaModel {
   numero: string;
@@ -32,7 +35,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
 @Component({
   selector: 'app-admin-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
@@ -65,7 +68,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           <button class="filtro-tab" [class.filtro-tab--active]="filtroStatus() === 'ocupada'" (click)="filtroStatus.set('ocupada')">Ocupadas</button>
         </div>
         @if (!mesas.isLoading()) {
-          <span class="toolbar__count">{{ mesasFiltradas().length }} mesa{{ mesasFiltradas().length !== 1 ? 's' : '' }}</span>
+          <span class="toolbar__count">{{ total() }} mesa{{ total() !== 1 ? 's' : '' }}</span>
         }
       </div>
 
@@ -87,7 +90,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             <p>Erro ao carregar mesas</p>
             <button class="b-btn-secondary" (click)="mesas.reload()">Tentar novamente</button>
           </div>
-        } @else if (mesasFiltradas().length === 0) {
+        } @else if (itens().length === 0) {
           <div class="empty-state">
             <lucide-icon name="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma mesa encontrada</p>
@@ -100,7 +103,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           </div>
         } @else {
           <div class="grid">
-            @for (mesa of mesasFiltradas(); track mesa.id) {
+            @for (mesa of itens(); track mesa.id) {
               <div class="mesa-card" [class.mesa-card--ocupada]="mesa.status === 'ocupada'" [class.mesa-card--pronto]="mesa.status === 'item_pronto'">
                 <div class="mesa-card__numero">Mesa {{ mesa.numero }}</div>
                 @if (mesa.descricao) {
@@ -119,6 +122,9 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
               </div>
             }
           </div>
+          @if (totalPages() > 1) {
+            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+          }
         }
       </main>
     </div>
@@ -254,21 +260,36 @@ export class AdminMesasComponent {
   protected readonly skeletons = Array.from({ length: 8 }, (_, i) => i);
 
   protected readonly busca = signal('');
+  private readonly buscaDebounced = signal('');
   protected readonly filtroStatus = signal<Mesa['status'] | null>(null);
+  protected readonly page = signal(1);
+
+  constructor() {
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    effect((onCleanup) => {
+      const valor = this.busca();
+      debounceTimer = setTimeout(() => this.buscaDebounced.set(valor), BUSCA_DEBOUNCE_MS);
+      onCleanup(() => clearTimeout(debounceTimer));
+    });
+    effect(() => {
+      this.buscaDebounced();
+      this.filtroStatus();
+      this.page.set(1);
+    });
+  }
 
   protected readonly mesas = resource({
-    loader: () => this.adminService.listarMesas(),
+    params: () => ({
+      page: this.page(),
+      busca: this.buscaDebounced() || undefined,
+      status: this.filtroStatus() ?? undefined,
+    }),
+    loader: ({ params }) => this.adminService.listarMesas(params),
   });
 
-  protected readonly mesasFiltradas = computed(() => {
-    const lista = [...(this.mesas.hasValue() ? this.mesas.value() : [])].sort((a, b) => a.numero - b.numero);
-    const q = this.busca().toLowerCase().trim();
-    const st = this.filtroStatus();
-    return lista.filter(m =>
-      (!q || String(m.numero).includes(q) || (m.descricao ?? '').toLowerCase().includes(q)) &&
-      (st === null || m.status === st)
-    );
-  });
+  protected readonly itens = computed(() => (this.mesas.hasValue() ? this.mesas.value().items : []));
+  protected readonly total = computed(() => (this.mesas.hasValue() ? this.mesas.value().total : 0));
+  protected readonly totalPages = computed(() => (this.mesas.hasValue() ? this.mesas.value().totalPages : 1));
 
   protected statusLabel(status: Mesa['status']): string {
     return STATUS_LABEL[status];

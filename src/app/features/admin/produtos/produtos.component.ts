@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,9 +12,11 @@ import { AdminService, CriarProdutoPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { Produto } from '../../../shared/types';
 import { LucideAngularModule } from 'lucide-angular';
+import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface ProdutoModel {
   nome: string;
@@ -33,7 +36,7 @@ type Campo = keyof ProdutoModel;
 @Component({
   selector: 'app-produtos',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, CurrencyBrPipe, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
@@ -66,7 +69,7 @@ type Campo = keyof ProdutoModel;
           <button class="filtro-tab" [class.filtro-tab--active]="filtroDisp() === false"  (click)="filtroDisp.set(false)">Indisponíveis</button>
         </div>
         @if (!produtos.isLoading()) {
-          <span class="toolbar__count">{{ produtosFiltrados().length }} produto{{ produtosFiltrados().length !== 1 ? 's' : '' }}</span>
+          <span class="toolbar__count">{{ total() }} produto{{ total() !== 1 ? 's' : '' }}</span>
         }
       </div>
 
@@ -93,7 +96,7 @@ type Campo = keyof ProdutoModel;
             <p>Erro ao carregar produtos</p>
             <button class="b-btn-secondary" (click)="produtos.reload()">Tentar novamente</button>
           </div>
-        } @else if (produtosFiltrados().length === 0) {
+        } @else if (itens().length === 0) {
           <div class="empty-state">
             <lucide-icon name="package-x" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhum produto encontrado</p>
@@ -111,7 +114,7 @@ type Campo = keyof ProdutoModel;
                 <tr><th>Nome</th><th>Categoria</th><th>Preço</th><th>Estoque</th><th>Status</th><th></th></tr>
               </thead>
               <tbody>
-                @for (p of produtosFiltrados(); track p.id) {
+                @for (p of itens(); track p.id) {
                   <tr class="tabela__row">
                     <td>
                       <div class="tabela__nome">{{ p.nome }}</div>
@@ -138,6 +141,9 @@ type Campo = keyof ProdutoModel;
               </tbody>
             </table>
           </div>
+          @if (totalPages() > 1) {
+            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+          }
         }
       </main>
     </div>
@@ -202,7 +208,7 @@ type Campo = keyof ProdutoModel;
               (change)="onFieldInput($event, 'categoriaId')"
               (blur)="tocou('categoriaId')">
               <option value="">Selecione uma categoria</option>
-              @for (cat of categorias.hasValue() ? categorias.value() : []; track cat.id) {
+              @for (cat of categorias.hasValue() ? categorias.value().items : []; track cat.id) {
                 <option [value]="cat.id">{{ cat.nome }}</option>
               }
             </select>
@@ -310,24 +316,41 @@ export class ProdutosComponent {
 
   // Listagem
   protected readonly busca = signal('');
+  private readonly buscaDebounced = signal('');
   protected readonly filtroDisp = signal<boolean | null>(null);
+  protected readonly page = signal(1);
+
+  constructor() {
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    effect((onCleanup) => {
+      const valor = this.busca();
+      debounceTimer = setTimeout(() => this.buscaDebounced.set(valor), BUSCA_DEBOUNCE_MS);
+      onCleanup(() => clearTimeout(debounceTimer));
+    });
+    // Busca/filtro mudou: volta pra página 1 em vez de manter uma página que
+    // pode não existir mais no resultado filtrado.
+    effect(() => {
+      this.buscaDebounced();
+      this.filtroDisp();
+      this.page.set(1);
+    });
+  }
 
   protected readonly produtos = resource({
-    loader: () => this.adminService.listarProdutos(),
+    params: () => ({
+      page: this.page(),
+      busca: this.buscaDebounced() || undefined,
+      disponivel: this.filtroDisp() ?? undefined,
+    }),
+    loader: ({ params }) => this.adminService.listarProdutos(params),
   });
+
+  protected readonly itens = computed(() => (this.produtos.hasValue() ? this.produtos.value().items : []));
+  protected readonly total = computed(() => (this.produtos.hasValue() ? this.produtos.value().total : 0));
+  protected readonly totalPages = computed(() => (this.produtos.hasValue() ? this.produtos.value().totalPages : 1));
 
   protected readonly categorias = resource({
-    loader: () => this.adminService.listarCategorias(),
-  });
-
-  protected readonly produtosFiltrados = computed(() => {
-    const lista = this.produtos.hasValue() ? this.produtos.value() : [];
-    const q = this.busca().toLowerCase().trim();
-    const disp = this.filtroDisp();
-    return lista.filter(p =>
-      (!q || p.nome.toLowerCase().includes(q)) &&
-      (disp === null || p.disponivel === disp)
-    );
+    loader: () => this.adminService.listarCategorias({ limit: 100 }),
   });
 
   // Form state (Signal Forms manual)
@@ -450,10 +473,10 @@ export class ProdutosComponent {
           estoque: Number(m.estoque) || 0,
           disponivel: m.disponivel,
         };
-        const criado = await this.adminService.criarProduto(payload);
+        await this.adminService.criarProduto(payload);
         this.toast.success('Produto criado!');
         this.fecharPainel();
-        this.adicionarProdutoLocal(criado);
+        this.produtos.reload();
       }
     } catch (err) {
       // Categoria pode ter sido excluída por outro admin enquanto o painel
@@ -472,19 +495,6 @@ export class ProdutosComponent {
     }
   }
 
-  // Update otimista: muta a lista local em vez de refazer o GET inteiro a
-  // cada mutação bem-sucedida. Em caso de erro os catches acima continuam
-  // chamando produtos.reload() pra garantir estado autoritativo.
-  private adicionarProdutoLocal(produto: Produto): void {
-    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
-    this.produtos.update(lista => [...lista, produto]);
-  }
-
-  private removerProdutoLocal(id: string): void {
-    if (!this.produtos.hasValue()) { this.produtos.reload(); return; }
-    this.produtos.update(lista => lista.filter(p => p.id !== id));
-  }
-
   protected mensagemExclusao(): string {
     const nome = this.produtoParaExcluir()?.nome ?? '';
     return `Deseja excluir "${nome}"? Esta ação não pode ser desfeita.`;
@@ -501,18 +511,16 @@ export class ProdutosComponent {
     try {
       await this.adminService.excluirProduto(produto.id);
       this.toast.success(`"${produto.nome}" excluído.`);
-      this.removerProdutoLocal(produto.id);
     } catch (err) {
       // Já excluído por outro admin — trata como sucesso idempotente em vez
       // de assustar o usuário com um erro sobre algo que já foi resolvido.
       if (err instanceof HttpErrorResponse && err.status === 404) {
         this.toast.info(`"${produto.nome}" já tinha sido removido.`);
-        this.removerProdutoLocal(produto.id);
       } else {
         this.toast.danger('Não foi possível excluir o produto.');
-        this.produtos.reload();
       }
     }
+    this.produtos.reload();
   }
 
 }

@@ -8,6 +8,8 @@ import {
   LucideIconProvider,
   ArrowLeft,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
   PackageX,
   Pencil,
@@ -32,7 +34,9 @@ const makeProduto = (overrides: Partial<Produto> = {}): Produto => ({
   ...overrides,
 });
 
-describe('ProdutosComponent — recuperação após edição concorrente (#17)', () => {
+const pagina = <T>(items: T[]) => ({ items, total: items.length, totalPages: 1 });
+
+describe('ProdutosComponent — recuperação após edição concorrente (#17) e paginação (#19)', () => {
   let adminServiceMock: {
     listarProdutos: ReturnType<typeof vi.fn>;
     listarCategorias: ReturnType<typeof vi.fn>;
@@ -50,8 +54,8 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
 
   beforeEach(() => {
     adminServiceMock = {
-      listarProdutos: vi.fn().mockResolvedValue([makeProduto()]),
-      listarCategorias: vi.fn().mockResolvedValue([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }]),
+      listarProdutos: vi.fn().mockResolvedValue(pagina([makeProduto()])),
+      listarCategorias: vi.fn().mockResolvedValue(pagina([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }])),
       editarProduto: vi.fn(),
       criarProduto: vi.fn(),
       excluirProduto: vi.fn(),
@@ -69,7 +73,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
           provide: LUCIDE_ICONS,
           multi: true,
           useValue: new LucideIconProvider({
-            ArrowLeft, Check, Loader2, PackageX, Pencil, Plus, Search, Trash2, WifiOff, X,
+            ArrowLeft, Check, ChevronLeft, ChevronRight, Loader2, PackageX, Pencil, Plus, Search, Trash2, WifiOff, X,
           }),
         },
       ],
@@ -106,7 +110,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     expect(comp['painelAberto']()).toBe(true); // continua aberto pra reescolher a categoria
   });
 
-  it('ao excluir um produto já removido por outro admin (404), trata como sucesso idempotente', async () => {
+  it('ao excluir um produto já removido por outro admin (404), trata como sucesso idempotente e recarrega', async () => {
     const fixture = TestBed.createComponent(ProdutosComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -122,9 +126,9 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
 
     expect(toastMock.info).toHaveBeenCalledWith(expect.stringContaining('já tinha sido removido'));
     expect(toastMock.danger).not.toHaveBeenCalled();
-    // Update otimista: remove da lista local em vez de refazer o GET.
-    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
-    expect(comp['produtos'].value()).toEqual([]);
+    // Sob paginação, o total/páginas podem mudar após uma exclusão — recarrega
+    // em vez de mutar a lista local (que exigiria recalcular total/totalPages).
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
   });
 
   it('ao excluir e falhar por outro motivo, mostra erro genérico e ainda assim recarrega', async () => {
@@ -145,7 +149,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
   });
 
-  it('salvar com sucesso fecha o painel e adiciona o produto na lista local (update otimista)', async () => {
+  it('salvar com sucesso fecha o painel e recarrega a lista', async () => {
     const fixture = TestBed.createComponent(ProdutosComponent);
     fixture.detectChanges();
     await fixture.whenStable();
@@ -163,12 +167,11 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     adminServiceMock.criarProduto.mockResolvedValue(makeProduto({ id: 'novo' }));
 
     await comp['salvar']();
+    await fixture.whenStable();
 
     expect(toastMock.success).toHaveBeenCalled();
     expect(comp['painelAberto']()).toBe(false);
-    // Update otimista: o produto aparece na lista sem um novo GET.
-    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
-    expect(comp['produtos'].value()!.map((p: Produto) => p.id)).toContain('novo');
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2); // inicial + reload pós-criação
   });
 
   it('ao editar e mudar o estoque, ajusta via endpoint dedicado com o delta (#35)', async () => {
@@ -192,7 +195,6 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
       expect.not.objectContaining({ estoque: expect.anything() }),
     );
     expect(adminServiceMock.ajustarEstoque).toHaveBeenCalledWith('produto-1', 'entrada', 15);
-    // Ajuste de estoque pode mudar `disponivel` no backend — recarrega em vez de update otimista.
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
   });
 
@@ -225,12 +227,44 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     expect(retryBtn).toBeTruthy();
     expect(retryBtn.nativeElement.textContent).toContain('Tentar novamente');
 
-    adminServiceMock.listarProdutos.mockResolvedValueOnce([makeProduto()]);
+    adminServiceMock.listarProdutos.mockResolvedValueOnce(pagina([makeProduto()]));
     retryBtn.nativeElement.click();
     await fixture.whenStable();
     fixture.detectChanges();
 
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
     expect(fixture.componentInstance['produtos'].hasValue()).toBe(true);
+  });
+
+  it('busca dispara com debounce e reseta a página pra 1', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] });
+    try {
+      const fixture = TestBed.createComponent(ProdutosComponent);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      const comp = fixture.componentInstance;
+      comp['page'].set(3);
+      fixture.detectChanges();
+      await fixture.whenStable();
+      expect(comp['page']()).toBe(3);
+      adminServiceMock.listarProdutos.mockClear();
+
+      comp['busca'].set('burguer');
+      // Ainda dentro da janela de debounce: nenhuma nova chamada.
+      await vi.advanceTimersByTimeAsync(200);
+      expect(adminServiceMock.listarProdutos).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(200);
+      fixture.detectChanges();
+      await fixture.whenStable();
+
+      expect(comp['page']()).toBe(1);
+      expect(adminServiceMock.listarProdutos).toHaveBeenCalledWith(
+        expect.objectContaining({ page: 1, busca: 'burguer' }),
+      );
+    } finally {
+      vi.useRealTimers();
+    }
   });
 });
