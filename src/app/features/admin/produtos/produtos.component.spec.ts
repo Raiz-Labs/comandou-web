@@ -233,4 +233,33 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17)',
     expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(2);
     expect(fixture.componentInstance['produtos'].hasValue()).toBe(true);
   });
+
+  it('em erro ao carregar categorias, esconde o select e mostra erro com retry (#45)', async () => {
+    adminServiceMock.listarCategorias.mockRejectedValueOnce(new Error('network error'));
+    const fixture = TestBed.createComponent(ProdutosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    const comp = fixture.componentInstance;
+    comp['abrirCriar']();
+    fixture.detectChanges();
+
+    expect(comp['categorias'].error()).toBeTruthy();
+    expect(fixture.debugElement.query(By.css('#f-cat'))).toBeFalsy();
+    const erro = fixture.debugElement.query(By.css('.campo-erro'));
+    expect(erro).toBeTruthy();
+    expect(erro.nativeElement.textContent).toContain('Não foi possível carregar as categorias.');
+
+    adminServiceMock.listarCategorias.mockResolvedValueOnce([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }]);
+    const retryBtn = erro.query(By.css('button'));
+    retryBtn.nativeElement.click();
+    await fixture.whenStable();
+    fixture.detectChanges();
+
+    expect(comp['categorias'].hasValue()).toBe(true);
+    const select = fixture.debugElement.query(By.css('#f-cat'));
+    expect(select).toBeTruthy();
+    expect(select.nativeElement.textContent).toContain('Lanches');
+  });
 });

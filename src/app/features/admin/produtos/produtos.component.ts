@@ -197,16 +197,23 @@ type Campo = keyof ProdutoModel;
           <!-- Categoria -->
           <div class="campo">
             <label class="b-label" for="f-cat">Categoria <span class="obrigatorio">*</span></label>
-            <select id="f-cat" class="b-input"
-              [value]="model().categoriaId"
-              (change)="onFieldInput($event, 'categoriaId')"
-              (blur)="tocou('categoriaId')">
-              <option value="">Selecione uma categoria</option>
-              @for (cat of categorias.hasValue() ? categorias.value() : []; track cat.id) {
-                <option [value]="cat.id">{{ cat.nome }}</option>
-              }
-            </select>
-            @if (erroVisivel('categoriaId')) { <span class="b-error-message">{{ erroVisivel('categoriaId') }}</span> }
+            @if (categorias.error()) {
+              <div class="campo-erro">
+                <span class="b-error-message">Não foi possível carregar as categorias.</span>
+                <button class="b-btn-ghost" (click)="categorias.reload()">Tentar novamente</button>
+              </div>
+            } @else {
+              <select id="f-cat" class="b-input"
+                [value]="model().categoriaId"
+                (change)="onFieldInput($event, 'categoriaId')"
+                (blur)="tocou('categoriaId')">
+                <option value="">Selecione uma categoria</option>
+                @for (cat of categorias.hasValue() ? categorias.value() : []; track cat.id) {
+                  <option [value]="cat.id">{{ cat.nome }}</option>
+                }
+              </select>
+              @if (erroVisivel('categoriaId')) { <span class="b-error-message">{{ erroVisivel('categoriaId') }}</span> }
+            }
           </div>
 
           <!-- Disponível -->
@@ -292,6 +299,7 @@ type Campo = keyof ProdutoModel;
     .painel__form { flex: 1; padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-4); }
     .campo { display: flex; flex-direction: column; gap: var(--b-space-2); }
     .campo-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--b-space-3); }
+    .campo-erro { display: flex; align-items: center; gap: var(--b-space-2); flex-wrap: wrap; }
     .obrigatorio { color: var(--b-danger-500); }
     .campo--check { flex-direction: row; align-items: center; }
     .check-label { display: flex; align-items: center; gap: var(--b-space-2); font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-medium); color: var(--b-fg); cursor: pointer; }
