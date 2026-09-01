@@ -12,6 +12,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Mesa } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 
 interface MesaModel {
@@ -259,6 +260,10 @@ export class AdminMesasComponent {
   protected readonly mesas = resource({
     loader: () => this.adminService.listarMesas(),
   });
+
+  constructor() {
+    recarregarAoFocar(() => this.mesas.reload());
+  }
 
   protected readonly mesasFiltradas = computed(() => {
     const lista = [...(this.mesas.hasValue() ? this.mesas.value() : [])].sort((a, b) => a.numero - b.numero);

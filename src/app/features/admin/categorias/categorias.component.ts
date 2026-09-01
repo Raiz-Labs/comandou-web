@@ -12,6 +12,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Categoria } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 
 interface CategoriaModel {
@@ -254,6 +255,10 @@ export class CategoriasComponent {
   protected readonly categorias = resource({
     loader: () => this.adminService.listarCategorias(),
   });
+
+  constructor() {
+    recarregarAoFocar(() => this.categorias.reload());
+  }
 
   protected readonly categoriasFiltradas = computed(() => {
     const lista = [...(this.categorias.hasValue() ? this.categorias.value() : [])].sort((a, b) => a.ordem - b.ordem);
