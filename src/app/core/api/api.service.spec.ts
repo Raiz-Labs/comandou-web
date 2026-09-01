@@ -48,4 +48,25 @@ describe('ApiService', () => {
 
     await expect(promise).resolves.toEqual({ ok: true });
   });
+
+  it('getPaged combina o corpo (array) com total/totalPages dos headers', async () => {
+    const promise = firstValueFrom(service.getPaged<{ id: number }>('/itens', { page: '2' }));
+
+    const req = httpMock.expectOne((r) => r.url === `${environment.apiUrl}/itens`);
+    expect(req.request.params.get('page')).toBe('2');
+    req.flush([{ id: 1 }, { id: 2 }], {
+      headers: { 'X-Total-Count': '17', 'X-Total-Pages': '9' },
+    });
+
+    await expect(promise).resolves.toEqual({ items: [{ id: 1 }, { id: 2 }], total: 17, totalPages: 9 });
+  });
+
+  it('getPaged trata total ausente como 0 e totalPages ausente como 1', async () => {
+    const promise = firstValueFrom(service.getPaged<{ id: number }>('/itens'));
+
+    const req = httpMock.expectOne(`${environment.apiUrl}/itens`);
+    req.flush([]);
+
+    await expect(promise).resolves.toEqual({ items: [], total: 0, totalPages: 1 });
+  });
 });

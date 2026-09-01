@@ -6,6 +6,8 @@ import {
   LucideIconProvider,
   ArrowLeft,
   Check,
+  ChevronLeft,
+  ChevronRight,
   Loader2,
   Pencil,
   Plus,
@@ -19,13 +21,15 @@ import { CategoriasComponent } from './categorias.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
-describe('CategoriasComponent — recarrega ao focar a aba (#17)', () => {
+const pagina = <T>(items: T[]) => ({ items, total: items.length, totalPages: 1 });
+
+describe('CategoriasComponent — paginação e busca (#19)', () => {
   let adminServiceMock: { listarCategorias: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
-      listarCategorias: vi.fn().mockResolvedValue([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }]),
+      listarCategorias: vi.fn().mockResolvedValue(pagina([{ id: 'cat-1', nome: 'Bebidas', ordem: 1 }])),
     };
 
     TestBed.configureTestingModule({
@@ -38,11 +42,38 @@ describe('CategoriasComponent — recarrega ao focar a aba (#17)', () => {
           provide: LUCIDE_ICONS,
           multi: true,
           useValue: new LucideIconProvider({
-            ArrowLeft, Check, Loader2, Pencil, Plus, Search, Tag, Trash2, WifiOff, X,
+            ArrowLeft, Check, ChevronLeft, ChevronRight, Loader2, Pencil, Plus, Search, Tag, Trash2, WifiOff, X,
           }),
         },
       ],
     });
+  });
+
+  it('carrega a página 1 sem filtros ao montar', async () => {
+    const fixture = TestBed.createComponent(CategoriasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarCategorias).toHaveBeenCalledWith({ page: 1, busca: undefined });
+    expect(fixture.componentInstance['itens']()).toEqual([{ id: 'cat-1', nome: 'Bebidas', ordem: 1 }]);
+  });
+
+  it('busca (já debounced) reseta a página pra 1 e é enviada ao service', async () => {
+    const fixture = TestBed.createComponent(CategoriasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['page'].set(2);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    comp['buscaDebounced'].set('bebi');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(comp['page']()).toBe(1);
+    expect(adminServiceMock.listarCategorias).toHaveBeenCalledWith({ page: 1, busca: 'bebi' });
   });
 
   it('recarrega categorias quando a aba volta a ficar visível', async () => {

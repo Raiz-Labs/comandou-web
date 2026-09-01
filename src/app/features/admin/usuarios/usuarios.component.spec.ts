@@ -7,6 +7,8 @@ import {
   ArrowLeft,
   Check,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   Eye,
   EyeOff,
   Loader2,
@@ -22,15 +24,17 @@ import { UsuariosComponent } from './usuarios.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
-describe('UsuariosComponent — recarrega ao focar a aba (#17)', () => {
+const pagina = <T>(items: T[]) => ({ items, total: items.length, totalPages: 1 });
+
+describe('UsuariosComponent — paginação, busca e filtros (#19)', () => {
   let adminServiceMock: { listarUsuarios: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
-      listarUsuarios: vi.fn().mockResolvedValue([
-        { id: 'u-1', nome: 'Ana', email: 'ana@test.com', perfil: 'admin', ativo: true },
-      ]),
+      listarUsuarios: vi.fn().mockResolvedValue(
+        pagina([{ id: 'u-1', nome: 'Ana', email: 'ana@test.com', perfil: 'admin', ativo: true }]),
+      ),
     };
 
     TestBed.configureTestingModule({
@@ -43,10 +47,46 @@ describe('UsuariosComponent — recarrega ao focar a aba (#17)', () => {
           provide: LUCIDE_ICONS,
           multi: true,
           useValue: new LucideIconProvider({
-            ArrowLeft, Check, CheckCircle2, Eye, EyeOff, Loader2, Pencil, Search, UserPlus, Users, WifiOff, X, XCircle,
+            ArrowLeft, Check, CheckCircle2, ChevronLeft, ChevronRight, Eye, EyeOff, Loader2, Pencil, Search, UserPlus, Users, WifiOff, X, XCircle,
           }),
         },
       ],
+    });
+  });
+
+  it('carrega a página 1 filtrando só ativos por padrão (mostrarInativos = false)', async () => {
+    const fixture = TestBed.createComponent(UsuariosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarUsuarios).toHaveBeenCalledWith({
+      page: 1,
+      busca: undefined,
+      perfil: undefined,
+      ativo: true,
+    });
+  });
+
+  it('marcar "mostrar inativos" para de enviar o filtro ativo e reseta a página', async () => {
+    const fixture = TestBed.createComponent(UsuariosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['page'].set(2);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    comp['mostrarInativos'].set(true);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(comp['page']()).toBe(1);
+    expect(adminServiceMock.listarUsuarios).toHaveBeenCalledWith({
+      page: 1,
+      busca: undefined,
+      perfil: undefined,
+      ativo: undefined,
     });
   });
 

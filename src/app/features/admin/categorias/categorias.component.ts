@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,9 +12,11 @@ import { AdminService, CriarCategoriaPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Categoria } from '../../../shared/types';
 import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
+import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface CategoriaModel {
   nome: string;
@@ -27,7 +30,7 @@ type Campo = keyof CategoriaModel;
 @Component({
   selector: 'app-categorias',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
@@ -56,7 +59,7 @@ type Campo = keyof CategoriaModel;
         </div>
         @if (!categorias.isLoading()) {
           <span class="toolbar__count">
-            {{ categoriasFiltradas().length }} categoria{{ categoriasFiltradas().length !== 1 ? 's' : '' }}
+            {{ total() }} categoria{{ total() !== 1 ? 's' : '' }}
           </span>
         }
       </div>
@@ -84,7 +87,7 @@ type Campo = keyof CategoriaModel;
             <p>Erro ao carregar categorias</p>
             <button class="b-btn-secondary" (click)="categorias.reload()">Tentar novamente</button>
           </div>
-        } @else if (categoriasFiltradas().length === 0) {
+        } @else if (itens().length === 0) {
           <div class="empty-state">
             <lucide-icon name="tag" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma categoria encontrada</p>
@@ -102,7 +105,7 @@ type Campo = keyof CategoriaModel;
                 <tr><th class="th-ordem">Ordem</th><th>Nome</th><th></th></tr>
               </thead>
               <tbody>
-                @for (cat of categoriasFiltradas(); track cat.id) {
+                @for (cat of itens(); track cat.id) {
                   <tr class="tabela__row">
                     <td class="tabela__ordem">
                       <span class="ordem-badge">{{ cat.ordem }}</span>
@@ -121,6 +124,9 @@ type Campo = keyof CategoriaModel;
               </tbody>
             </table>
           </div>
+          @if (totalPages() > 1) {
+            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+          }
         }
       </main>
     </div>
@@ -251,20 +257,31 @@ export class CategoriasComponent {
   protected readonly skeletons = Array.from({ length: 5 }, (_, i) => i);
 
   protected readonly busca = signal('');
-
-  protected readonly categorias = resource({
-    loader: () => this.adminService.listarCategorias(),
-  });
+  private readonly buscaDebounced = signal('');
+  protected readonly page = signal(1);
 
   constructor() {
     recarregarAoFocar(() => this.categorias.reload());
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    effect((onCleanup) => {
+      const valor = this.busca();
+      debounceTimer = setTimeout(() => this.buscaDebounced.set(valor), BUSCA_DEBOUNCE_MS);
+      onCleanup(() => clearTimeout(debounceTimer));
+    });
+    effect(() => {
+      this.buscaDebounced();
+      this.page.set(1);
+    });
   }
 
-  protected readonly categoriasFiltradas = computed(() => {
-    const lista = [...(this.categorias.hasValue() ? this.categorias.value() : [])].sort((a, b) => a.ordem - b.ordem);
-    const q = this.busca().toLowerCase().trim();
-    return lista.filter(c => !q || c.nome.toLowerCase().includes(q));
+  protected readonly categorias = resource({
+    params: () => ({ page: this.page(), busca: this.buscaDebounced() || undefined }),
+    loader: ({ params }) => this.adminService.listarCategorias(params),
   });
+
+  protected readonly itens = computed(() => (this.categorias.hasValue() ? this.categorias.value().items : []));
+  protected readonly total = computed(() => (this.categorias.hasValue() ? this.categorias.value().total : 0));
+  protected readonly totalPages = computed(() => (this.categorias.hasValue() ? this.categorias.value().totalPages : 1));
 
   // Form state
   protected readonly painelAberto = signal(false);

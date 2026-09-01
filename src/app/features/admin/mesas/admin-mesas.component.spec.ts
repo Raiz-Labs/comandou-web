@@ -6,6 +6,8 @@ import {
   LucideIconProvider,
   ArrowLeft,
   Check,
+  ChevronLeft,
+  ChevronRight,
   LayoutGrid,
   Loader2,
   Pencil,
@@ -19,13 +21,15 @@ import { AdminMesasComponent } from './admin-mesas.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 
-describe('AdminMesasComponent — recarrega ao focar a aba (#17)', () => {
+const pagina = <T>(items: T[]) => ({ items, total: items.length, totalPages: 1 });
+
+describe('AdminMesasComponent — paginação, busca e filtro de status (#19)', () => {
   let adminServiceMock: { listarMesas: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
     Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
-      listarMesas: vi.fn().mockResolvedValue([{ id: 'mesa-1', numero: 1, status: 'livre' }]),
+      listarMesas: vi.fn().mockResolvedValue(pagina([{ id: 'mesa-1', numero: 1, status: 'livre' }])),
     };
 
     TestBed.configureTestingModule({
@@ -38,11 +42,37 @@ describe('AdminMesasComponent — recarrega ao focar a aba (#17)', () => {
           provide: LUCIDE_ICONS,
           multi: true,
           useValue: new LucideIconProvider({
-            ArrowLeft, Check, LayoutGrid, Loader2, Pencil, Plus, Search, Trash2, WifiOff, X,
+            ArrowLeft, Check, ChevronLeft, ChevronRight, LayoutGrid, Loader2, Pencil, Plus, Search, Trash2, WifiOff, X,
           }),
         },
       ],
     });
+  });
+
+  it('carrega a página 1 sem filtros ao montar', async () => {
+    const fixture = TestBed.createComponent(AdminMesasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarMesas).toHaveBeenCalledWith({ page: 1, busca: undefined, status: undefined });
+  });
+
+  it('trocar o filtro de status reseta a página e manda status ao service', async () => {
+    const fixture = TestBed.createComponent(AdminMesasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    const comp = fixture.componentInstance;
+    comp['page'].set(2);
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    comp['filtroStatus'].set('ocupada');
+    fixture.detectChanges();
+    await fixture.whenStable();
+
+    expect(comp['page']()).toBe(1);
+    expect(adminServiceMock.listarMesas).toHaveBeenCalledWith({ page: 1, busca: undefined, status: 'ocupada' });
   });
 
   it('recarrega mesas quando a aba volta a ficar visível', async () => {
