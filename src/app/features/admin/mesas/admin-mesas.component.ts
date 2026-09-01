@@ -14,6 +14,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Mesa } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
@@ -265,6 +266,7 @@ export class AdminMesasComponent {
   protected readonly page = signal(1);
 
   constructor() {
+    recarregarAoFocar(() => this.mesas.reload());
     let debounceTimer: ReturnType<typeof setTimeout>;
     effect((onCleanup) => {
       const valor = this.busca();

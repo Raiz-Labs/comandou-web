@@ -30,6 +30,7 @@ describe('UsuariosComponent — paginação, busca e filtros (#19)', () => {
   let adminServiceMock: { listarUsuarios: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
       listarUsuarios: vi.fn().mockResolvedValue(
         pagina([{ id: 'u-1', nome: 'Ana', email: 'ana@test.com', perfil: 'admin', ativo: true }]),
@@ -87,5 +88,22 @@ describe('UsuariosComponent — paginação, busca e filtros (#19)', () => {
       perfil: undefined,
       ativo: undefined,
     });
+  });
+
+  it('recarrega usuários quando a aba volta a ficar visível', async () => {
+    const fixture = TestBed.createComponent(UsuariosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    adminServiceMock.listarUsuarios.mockClear();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(adminServiceMock.listarUsuarios).not.toHaveBeenCalled();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarUsuarios).toHaveBeenCalledTimes(1);
   });
 });

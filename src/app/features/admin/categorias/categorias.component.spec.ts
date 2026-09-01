@@ -27,6 +27,7 @@ describe('CategoriasComponent — paginação e busca (#19)', () => {
   let adminServiceMock: { listarCategorias: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
       listarCategorias: vi.fn().mockResolvedValue(pagina([{ id: 'cat-1', nome: 'Bebidas', ordem: 1 }])),
     };
@@ -73,5 +74,22 @@ describe('CategoriasComponent — paginação e busca (#19)', () => {
 
     expect(comp['page']()).toBe(1);
     expect(adminServiceMock.listarCategorias).toHaveBeenCalledWith({ page: 1, busca: 'bebi' });
+  });
+
+  it('recarrega categorias quando a aba volta a ficar visível', async () => {
+    const fixture = TestBed.createComponent(CategoriasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    adminServiceMock.listarCategorias.mockClear();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(adminServiceMock.listarCategorias).not.toHaveBeenCalled();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarCategorias).toHaveBeenCalledTimes(1);
   });
 });

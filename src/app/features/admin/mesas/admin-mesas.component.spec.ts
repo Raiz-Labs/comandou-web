@@ -27,6 +27,7 @@ describe('AdminMesasComponent — paginação, busca e filtro de status (#19)', 
   let adminServiceMock: { listarMesas: ReturnType<typeof vi.fn> };
 
   beforeEach(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
       listarMesas: vi.fn().mockResolvedValue(pagina([{ id: 'mesa-1', numero: 1, status: 'livre' }])),
     };
@@ -72,5 +73,22 @@ describe('AdminMesasComponent — paginação, busca e filtro de status (#19)', 
 
     expect(comp['page']()).toBe(1);
     expect(adminServiceMock.listarMesas).toHaveBeenCalledWith({ page: 1, busca: undefined, status: 'ocupada' });
+  });
+
+  it('recarrega mesas quando a aba volta a ficar visível', async () => {
+    const fixture = TestBed.createComponent(AdminMesasComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    adminServiceMock.listarMesas.mockClear();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(adminServiceMock.listarMesas).not.toHaveBeenCalled();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarMesas).toHaveBeenCalledTimes(1);
   });
 });

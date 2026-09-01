@@ -15,6 +15,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { Produto } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
@@ -321,6 +322,7 @@ export class ProdutosComponent {
   protected readonly page = signal(1);
 
   constructor() {
+    recarregarAoFocar(() => this.produtos.reload());
     let debounceTimer: ReturnType<typeof setTimeout>;
     effect((onCleanup) => {
       const valor = this.busca();

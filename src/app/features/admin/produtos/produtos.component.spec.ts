@@ -53,6 +53,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17) e
   };
 
   beforeEach(() => {
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
     adminServiceMock = {
       listarProdutos: vi.fn().mockResolvedValue(pagina([makeProduto()])),
       listarCategorias: vi.fn().mockResolvedValue(pagina([{ id: 'cat-1', nome: 'Lanches', ordem: 1 }])),
@@ -266,5 +267,22 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17) e
     } finally {
       vi.useRealTimers();
     }
+  });
+
+  it('recarrega produtos quando a aba volta a ficar visível (#17)', async () => {
+    const fixture = TestBed.createComponent(ProdutosComponent);
+    fixture.detectChanges();
+    await fixture.whenStable();
+    adminServiceMock.listarProdutos.mockClear();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'hidden', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    expect(adminServiceMock.listarProdutos).not.toHaveBeenCalled();
+
+    Object.defineProperty(document, 'visibilityState', { value: 'visible', configurable: true });
+    document.dispatchEvent(new Event('visibilitychange'));
+    await fixture.whenStable();
+
+    expect(adminServiceMock.listarProdutos).toHaveBeenCalledTimes(1);
   });
 });
