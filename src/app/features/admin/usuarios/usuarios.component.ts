@@ -3,6 +3,7 @@ import {
   inject,
   signal,
   computed,
+  effect,
   resource,
 } from '@angular/core';
 import { Router } from '@angular/router';
@@ -11,8 +12,11 @@ import { AdminService, CriarUsuarioPayload } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
+import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Usuario, Perfil } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
+import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface UsuarioModel {
   nome: string;
@@ -39,7 +43,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideAngularModule],
   template: `
     <div class="layout">
       <!-- Topbar -->
@@ -77,7 +81,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           <span>Mostrar inativos</span>
         </label>
         @if (!usuarios.isLoading()) {
-          <span class="toolbar__count">{{ usuariosFiltrados().length }} usuário{{ usuariosFiltrados().length !== 1 ? 's' : '' }}</span>
+          <span class="toolbar__count">{{ total() }} usuário{{ total() !== 1 ? 's' : '' }}</span>
         }
       </div>
 
@@ -104,7 +108,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <p>Erro ao carregar usuários</p>
             <button class="b-btn-secondary" (click)="usuarios.reload()">Tentar novamente</button>
           </div>
-        } @else if (usuariosFiltrados().length === 0) {
+        } @else if (itens().length === 0) {
           <div class="empty-state">
             <lucide-icon name="users" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhum usuário encontrado</p>
@@ -122,7 +126,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 <tr><th>Nome</th><th>E-mail</th><th>Perfil</th><th>Status</th><th></th></tr>
               </thead>
               <tbody>
-                @for (u of usuariosFiltrados(); track u.id) {
+                @for (u of itens(); track u.id) {
                   <tr class="tabela__row" [class.tabela__row--inativo]="!u.ativo">
                     <td>
                       <div class="usuario-info">
@@ -155,6 +159,9 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
               </tbody>
             </table>
           </div>
+          @if (totalPages() > 1) {
+            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+          }
         }
       </main>
     </div>
@@ -344,24 +351,40 @@ export class UsuariosComponent {
   protected readonly skeletons = Array.from({ length: 6 }, (_, i) => i);
 
   protected readonly busca = signal('');
+  private readonly buscaDebounced = signal('');
   protected readonly filtroPerfil = signal<Perfil | null>(null);
   protected readonly mostrarInativos = signal(false);
+  protected readonly page = signal(1);
+
+  constructor() {
+    recarregarAoFocar(() => this.usuarios.reload());
+    let debounceTimer: ReturnType<typeof setTimeout>;
+    effect((onCleanup) => {
+      const valor = this.busca();
+      debounceTimer = setTimeout(() => this.buscaDebounced.set(valor), BUSCA_DEBOUNCE_MS);
+      onCleanup(() => clearTimeout(debounceTimer));
+    });
+    effect(() => {
+      this.buscaDebounced();
+      this.filtroPerfil();
+      this.mostrarInativos();
+      this.page.set(1);
+    });
+  }
 
   protected readonly usuarios = resource({
-    loader: () => this.adminService.listarUsuarios(),
+    params: () => ({
+      page: this.page(),
+      busca: this.buscaDebounced() || undefined,
+      perfil: this.filtroPerfil() ?? undefined,
+      ativo: this.mostrarInativos() ? undefined : true,
+    }),
+    loader: ({ params }) => this.adminService.listarUsuarios(params),
   });
 
-  protected readonly usuariosFiltrados = computed(() => {
-    const lista = [...(this.usuarios.hasValue() ? this.usuarios.value() : [])].sort((a, b) => a.nome.localeCompare(b.nome));
-    const q = this.busca().toLowerCase().trim();
-    const p = this.filtroPerfil();
-    const ativos = this.mostrarInativos();
-    return lista.filter(u =>
-      (ativos || u.ativo) &&
-      (!q || u.nome.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)) &&
-      (p === null || u.perfil === p)
-    );
-  });
+  protected readonly itens = computed(() => (this.usuarios.hasValue() ? this.usuarios.value().items : []));
+  protected readonly total = computed(() => (this.usuarios.hasValue() ? this.usuarios.value().total : 0));
+  protected readonly totalPages = computed(() => (this.usuarios.hasValue() ? this.usuarios.value().totalPages : 1));
 
   protected perfilLabel(p: Perfil): string {
     return PERFIL_LABEL[p];

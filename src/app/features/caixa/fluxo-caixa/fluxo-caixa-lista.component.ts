@@ -102,7 +102,7 @@ import { LucideAngularModule } from 'lucide-angular';
           <input class="b-input" type="text" placeholder="Forma de pagamento" (input)="onFiltroTexto('formaPagamento', $event)" />
           <select class="b-input" (change)="onFiltroImediato('usuarioId', $event)" aria-label="Usuário">
             <option value="">Usuário</option>
-            @for (u of usuarios.value() ?? []; track u.id) {
+            @for (u of usuarios.hasValue() ? usuarios.value().items : []; track u.id) {
               <option [value]="u.id">{{ u.nome }}</option>
             }
           </select>
@@ -264,7 +264,10 @@ export class FluxoCaixaListaComponent {
   // GET /usuarios é restrito a admin na API — perfil caixa não pode listar
   // usuários, então o dropdown fica sem opções pra ele em vez de quebrar.
   protected readonly usuarios = resource({
-    loader: () => (userPerfil() === 'admin' ? this.adminService.listarUsuarios() : Promise.resolve([])),
+    loader: () =>
+      userPerfil() === 'admin'
+        ? this.adminService.listarUsuarios({ limit: 100 })
+        : Promise.resolve({ items: [], total: 0, totalPages: 1 }),
   });
 
   protected readonly novaMovimentacaoModel = signal({
