@@ -204,16 +204,23 @@ type Campo = keyof ProdutoModel;
           <!-- Categoria -->
           <div class="campo">
             <label class="b-label" for="f-cat">Categoria <span class="obrigatorio">*</span></label>
-            <select id="f-cat" class="b-input"
-              [value]="model().categoriaId"
-              (change)="onFieldInput($event, 'categoriaId')"
-              (blur)="tocou('categoriaId')">
-              <option value="">Selecione uma categoria</option>
-              @for (cat of categorias.hasValue() ? categorias.value().items : []; track cat.id) {
-                <option [value]="cat.id">{{ cat.nome }}</option>
-              }
-            </select>
-            @if (erroVisivel('categoriaId')) { <span class="b-error-message">{{ erroVisivel('categoriaId') }}</span> }
+            @if (categorias.error()) {
+              <div class="campo-erro" role="alert">
+                <span class="b-error-message">Não foi possível carregar as categorias.</span>
+                <button type="button" class="b-btn-ghost" (click)="categorias.reload()">Tentar novamente</button>
+              </div>
+            } @else {
+              <select id="f-cat" class="b-input"
+                [value]="model().categoriaId"
+                (change)="onFieldInput($event, 'categoriaId')"
+                (blur)="tocou('categoriaId')">
+                <option value="">Selecione uma categoria</option>
+                @for (cat of categorias.hasValue() ? categorias.value().items : []; track cat.id) {
+                  <option [value]="cat.id">{{ cat.nome }}</option>
+                }
+              </select>
+              @if (erroVisivel('categoriaId')) { <span class="b-error-message">{{ erroVisivel('categoriaId') }}</span> }
+            }
           </div>
 
           <!-- Disponível -->
@@ -229,7 +236,7 @@ type Campo = keyof ProdutoModel;
           <!-- Ações -->
           <div class="painel__acoes">
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
-            <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
+            <button type="button" class="b-btn-primary" [disabled]="salvando() || !!categorias.error()" (click)="salvar()">
               @if (salvando()) {
                 <lucide-icon name="loader-2" [size]="16" class="b-spin" />
                 Salvando...
@@ -299,6 +306,7 @@ type Campo = keyof ProdutoModel;
     .painel__form { flex: 1; padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-4); }
     .campo { display: flex; flex-direction: column; gap: var(--b-space-2); }
     .campo-row { display: grid; grid-template-columns: 1fr 1fr; gap: var(--b-space-3); }
+    .campo-erro { display: flex; align-items: center; gap: var(--b-space-2); flex-wrap: wrap; }
     .obrigatorio { color: var(--b-danger-500); }
     .campo--check { flex-direction: row; align-items: center; }
     .check-label { display: flex; align-items: center; gap: var(--b-space-2); font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-medium); color: var(--b-fg); cursor: pointer; }
@@ -352,7 +360,10 @@ export class ProdutosComponent {
   protected readonly totalPages = computed(() => (this.produtos.hasValue() ? this.produtos.value().totalPages : 1));
 
   protected readonly categorias = resource({
-    loader: () => this.adminService.listarCategorias({ limit: 100 }),
+    loader: () => this.adminService.listarCategorias({ limit: 100 }).catch((err: unknown) => {
+      console.error('[produtos] falha ao carregar categorias', err);
+      throw err;
+    }),
   });
 
   // Form state (Signal Forms manual)
