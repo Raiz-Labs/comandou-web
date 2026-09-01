@@ -13,6 +13,7 @@ import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialo
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { Produto } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 
 interface ProdutoModel {
@@ -315,6 +316,10 @@ export class ProdutosComponent {
   protected readonly produtos = resource({
     loader: () => this.adminService.listarProdutos(),
   });
+
+  constructor() {
+    recarregarAoFocar(() => this.produtos.reload());
+  }
 
   protected readonly categorias = resource({
     loader: () => this.adminService.listarCategorias(),

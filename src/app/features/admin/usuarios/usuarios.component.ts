@@ -12,6 +12,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { Usuario, Perfil } from '../../../shared/types';
+import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
 import { LucideAngularModule } from 'lucide-angular';
 
 interface UsuarioModel {
@@ -350,6 +351,10 @@ export class UsuariosComponent {
   protected readonly usuarios = resource({
     loader: () => this.adminService.listarUsuarios(),
   });
+
+  constructor() {
+    recarregarAoFocar(() => this.usuarios.reload());
+  }
 
   protected readonly usuariosFiltrados = computed(() => {
     const lista = [...(this.usuarios.hasValue() ? this.usuarios.value() : [])].sort((a, b) => a.nome.localeCompare(b.nome));
