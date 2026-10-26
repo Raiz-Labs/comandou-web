@@ -4,16 +4,17 @@ import { LucideAngularModule } from 'lucide-angular';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 import { masterAuthState } from '../../../core/master/master-auth.signal';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
+import { MarcaComponent } from '../marca/marca.component';
 
 @Component({
   selector: 'app-master-shell',
   standalone: true,
-  imports: [RouterOutlet, LucideAngularModule, ThemeToggleComponent],
+  imports: [RouterOutlet, LucideAngularModule, ThemeToggleComponent, MarcaComponent],
   template: `
     <div class="master-layout">
       <header class="master-header">
         <div class="master-header__brand">
-          <lucide-icon name="zap" [size]="18" color="var(--b-primary-500)" />
+          <app-marca variante="simbolo" [tamanho]="24" />
           <span>Comandou <strong>Master</strong></span>
         </div>
         <div class="master-header__right">
