@@ -14,7 +14,7 @@ import { MarcaComponent } from '../marca/marca.component';
     <div class="master-layout">
       <header class="master-header">
         <div class="master-header__brand">
-          <app-marca variante="simbolo" [tamanho]="24" />
+          <app-marca variante="simbolo" [tamanho]="24" decorativa />
           <span>Comandou <strong>Master</strong></span>
         </div>
         <div class="master-header__right">
