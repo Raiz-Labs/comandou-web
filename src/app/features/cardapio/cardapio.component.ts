@@ -10,6 +10,7 @@ import { ApiService } from '../../core/api/api.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../shared/pipes/currency-br.pipe';
 import { LucideAngularModule } from 'lucide-angular';
+import { MarcaComponent } from '../../shared/components/marca/marca.component';
 
 // GET /cardapio é um endpoint público dedicado (sem autenticação) — devolve só
 // os campos necessários pra vitrine, já filtrados por disponível+estoque>0 e
@@ -37,7 +38,7 @@ interface CardapioResponse {
 @Component({
   selector: 'app-cardapio',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule, MarcaComponent],
   template: `
     <div class="layout">
       <!-- Header -->
@@ -178,7 +179,7 @@ interface CardapioResponse {
 
       <!-- Footer -->
       <footer class="footer">
-        <p>Cardápio digital · Comandou</p>
+        <p class="footer__assinatura">Cardápio digital · <app-marca variante="horizontal" [tamanho]="18" /></p>
       </footer>
     </div>
   `,
@@ -234,6 +235,7 @@ interface CardapioResponse {
 
     /* Footer */
     .footer { padding: var(--b-space-6) var(--b-space-4); text-align: center; font-size: var(--b-font-size-xs); color: var(--b-fg-subtle); border-top: 1px solid var(--b-neutral-100); }
+    .footer__assinatura { display: inline-flex; align-items: center; gap: var(--b-space-1); }
   `],
 })
 export class CardapioComponent {

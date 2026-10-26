@@ -1,6 +1,7 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { LucideAngularModule } from 'lucide-angular';
+import { MarcaComponent } from '../marca/marca.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { currentUser, userPerfil } from '../../../core/auth/auth.signal';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
@@ -44,7 +45,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, ThemeToggleComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, ThemeToggleComponent, MarcaComponent],
   template: `
     <div class="shell">
 
@@ -60,8 +61,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
       <nav class="sidebar" [class.sidebar--open]="drawerOpen()" aria-label="Navegação principal">
 
         <div class="sidebar__brand">
-          <lucide-icon name="utensils" [size]="22" color="var(--b-primary-500)" />
-          <span>Comandou</span>
+          <app-marca variante="horizontal" [tamanho]="28" />
         </div>
 
         <button
@@ -139,8 +139,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
             <lucide-icon name="menu" [size]="22" />
           </button>
           <div class="topbar__brand">
-            <lucide-icon name="utensils" [size]="18" color="var(--b-primary-500)" />
-            <span>Comandou</span>
+            <app-marca variante="horizontal" [tamanho]="22" />
           </div>
         </header>
 
@@ -216,9 +215,6 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
       gap: var(--b-space-2);
       padding: var(--b-space-5) var(--b-space-4) var(--b-space-4);
       border-bottom: 1px solid var(--b-neutral-100);
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
       flex-shrink: 0;
     }
 
@@ -404,10 +400,6 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
     .topbar__brand {
       display: flex;
       align-items: center;
-      gap: var(--b-space-2);
-      font-size: var(--b-font-size-lg);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
     }
 
     /* ===== IMPERSONATION BANNER ===== */

@@ -1,17 +1,18 @@
 import { Component, inject, signal } from '@angular/core';
 import { LucideAngularModule } from 'lucide-angular';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
+import { MarcaComponent } from '../../../shared/components/marca/marca.component';
 
 @Component({
   selector: 'app-master-login',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideAngularModule, MarcaComponent],
   template: `
     <div class="page">
       <div class="card">
         <div class="card__header">
           <div class="card__icon">
-            <lucide-icon name="zap" [size]="24" color="var(--b-primary-500)" />
+            <app-marca variante="simbolo" [tamanho]="32" />
           </div>
           <h1 class="card__title">Acesso master</h1>
           <p class="card__sub">Restrito ao administrador da plataforma</p>

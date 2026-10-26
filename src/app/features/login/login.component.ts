@@ -3,17 +3,18 @@ import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { environment } from '../../../environments/environment';
 import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme-toggle.component';
+import { MarcaComponent } from '../../shared/components/marca/marca.component';
 
 @Component({
   selector: 'app-login',
   standalone: true,
-  imports: [FormsModule, ThemeToggleComponent],
+  imports: [FormsModule, ThemeToggleComponent, MarcaComponent],
   template: `
     <div class="login-page">
       <app-theme-toggle class="login-page__theme-toggle" />
       <div class="login-card b-card">
         <div class="login-card__header">
-          <h1 class="login-card__title">Comandou</h1>
+          <h1 class="login-card__title"><app-marca variante="empilhada" [tamanho]="96" /></h1>
           <p class="login-card__subtitle b-text-muted">{{ tenantSlug }}</p>
         </div>
 
@@ -95,9 +96,9 @@ import { ThemeToggleComponent } from '../../shared/components/theme-toggle/theme
     }
 
     .login-card__title {
-      font-size: var(--b-font-size-3xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-primary-500);
+      display: flex;
+      justify-content: center;
+      margin-bottom: var(--b-space-2);
     }
 
     .login-card__subtitle {
