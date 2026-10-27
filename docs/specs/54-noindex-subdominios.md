@@ -35,7 +35,7 @@ Resultado: o Google pode indexar `/login`, `/master/login` e telas de restaurant
 
 ## Abordagem
 
-Só configuração, sem código: um bloco `headers` no `vercel.json`, com duas regras. A Vercel aplica `headers` pelo caminho da requisição original, antes do `rewrite` para `/index.html`. Por isso `/cardapio` continua sem o cabeçalho mesmo sendo servido pelo mesmo `index.html`. Quando várias regras casam, os cabeçalhos se somam, e a do host `demo` garante o noindex no cardápio de exemplo.
+Só configuração, sem código: um bloco `headers` no `vercel.json`, com duas regras. A Vercel aplica `headers` pelo caminho da requisição original, antes do `rewrite` para `/index.html`. Por isso `/cardapio` continua sem o cabeçalho mesmo sendo servido pelo mesmo `index.html`. Quando várias regras definem a mesma chave, a última prevalece. Aqui as duas dão o mesmo valor, e a do host `demo` garante o noindex no cardápio de exemplo.
 
 ```json
 "headers": [
@@ -55,7 +55,7 @@ Os assets (`*.js`, `*.css`, `icons/*`) também recebem noindex. Isso não afeta 
 
 ## Critério de aceite
 
-Validar no deploy de preview do PR (trocando o host pelo do preview quando fizer sentido) e repetir em produção depois do merge:
+Os cabeçalhos só podem ser validados **em produção, depois do merge**. A Vercel coloca `x-robots-tag: noindex` em todo deploy de preview sem domínio de produção, e o preview fica atrás do login da Vercel. No preview, confira só que o build passa e que o app funciona.
 
 - [ ] `curl -sI https://master.comandou.app.br/master/login` retorna `x-robots-tag: noindex`.
 - [ ] `curl -sI https://<slug-de-restaurante-real>.comandou.app.br/login` retorna `x-robots-tag: noindex`.
@@ -69,4 +69,6 @@ Validar no deploy de preview do PR (trocando o host pelo do preview quando fizer
 ## Riscos / perguntas em aberto
 
 - Se um restaurante usar o slug `demo`, o cardápio dele não será indexado. Hoje não existem slugs reservados (a validação fica em `comandou-api/src/modules/master/master.schemas.ts`). Isso é tratado à parte, na lista de slugs reservados.
+- `/cardapio` continua indexável em `master.comandou.app.br` e em `comandou-web.vercel.app`, onde não há tenant real. O impacto é baixo, porque são telas vazias sem links apontando para elas. Se aparecerem no Search Console, adicionar regras `has` de host como a do `demo`.
+- O padrão `/((?!cardapio).*)` também deixa de fora caminhos como `/cardapiox`. Esses caminhos caem no `**` e redirecionam para login no cliente, então o impacto é desprezível.
 - Se no futuro o cardápio ganhar sub-rotas (`/cardapio/...`), elas continuam indexáveis pelo mesmo padrão. Se surgir outra página pública que deva ser indexada, ela precisa entrar na exceção do `source`.
