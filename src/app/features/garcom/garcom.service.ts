@@ -7,8 +7,11 @@ import { Categoria, Comanda, Mesa, AdicionarItemPayload, ItemComanda, Produto } 
 export class GarcomService {
   private readonly api = inject(ApiService);
 
+  // limit: '100' (o máximo aceito pelo backend) — sem isso, o default de
+  // paginação (50) cortaria mesas/categorias silenciosamente em tenants
+  // maiores, exatamente o bug que a paginação do admin (#19) corrigiu lá.
   listarMesas(): Promise<Mesa[]> {
-    return firstValueFrom(this.api.get<Mesa[]>('/mesas'));
+    return firstValueFrom(this.api.get<Mesa[]>('/mesas', { limit: '100' }));
   }
 
   buscarMesa(id: string): Promise<Mesa> {
@@ -30,11 +33,13 @@ export class GarcomService {
   }
 
   listarCategorias(): Promise<Categoria[]> {
-    return firstValueFrom(this.api.get<Categoria[]>('/categorias'));
+    return firstValueFrom(this.api.get<Categoria[]>('/categorias', { limit: '100' }));
   }
 
   listarProdutosDisponiveis(): Promise<Produto[]> {
-    return firstValueFrom(this.api.get<Produto[]>('/produtos?disponivel=true'));
+    return firstValueFrom(
+      this.api.get<Produto[]>('/produtos', { disponivel: 'true', limit: '100' }),
+    );
   }
 
   adicionarItem(comandaId: string, payload: AdicionarItemPayload): Promise<ItemComanda> {

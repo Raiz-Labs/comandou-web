@@ -1,9 +1,15 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { Observable, timeout } from 'rxjs';
+import { Observable, timeout, map } from 'rxjs';
 import { environment } from '../../../environments/environment';
 
 export const API_TIMEOUT_MS = 15_000;
+
+export interface Pagina<T> {
+  items: T[];
+  total: number;
+  totalPages: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
@@ -15,6 +21,23 @@ export class ApiService {
     return this.http
       .get<T>(`${this.base}${path}`, { params: httpParams })
       .pipe(timeout(API_TIMEOUT_MS));
+  }
+
+  // Variante de get() pras 4 listagens paginadas do admin: lê o total do
+  // header X-Total-Count em vez do corpo, que continua sendo o array puro
+  // (contrato que o backend já usa em parsePagination/setPaginationHeaders).
+  getPaged<T>(path: string, params?: Record<string, string>): Observable<Pagina<T>> {
+    const httpParams = params ? new HttpParams({ fromObject: params }) : undefined;
+    return this.http
+      .get<T[]>(`${this.base}${path}`, { params: httpParams, observe: 'response' })
+      .pipe(
+        timeout(API_TIMEOUT_MS),
+        map((res) => ({
+          items: res.body ?? [],
+          total: Number(res.headers.get('X-Total-Count') ?? 0),
+          totalPages: Number(res.headers.get('X-Total-Pages') ?? 1),
+        })),
+      );
   }
 
   post<T>(path: string, body: unknown = {}): Observable<T> {

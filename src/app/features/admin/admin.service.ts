@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
-import { ApiService } from '../../core/api/api.service';
+import { ApiService, Pagina } from '../../core/api/api.service';
 import {
   Categoria,
   Mesa,
@@ -8,7 +8,48 @@ import {
   RelatorioVendas,
   Usuario,
   Comanda,
+  Perfil,
+  StatusMesa,
 } from '../../shared/types';
+
+// Descarta undefined/vazio antes de virar query param — evita mandar
+// ?categoriaId=undefined ou ?busca= pro backend.
+const toQueryParams = (params: object): Record<string, string> => {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(params)) {
+    if (value !== undefined && value !== null && value !== '') out[key] = String(value);
+  }
+  return out;
+};
+
+export interface ListarProdutosParams {
+  page?: number;
+  limit?: number;
+  busca?: string;
+  categoriaId?: string;
+  disponivel?: boolean;
+}
+
+export interface ListarCategoriasParams {
+  page?: number;
+  limit?: number;
+  busca?: string;
+}
+
+export interface ListarMesasParams {
+  page?: number;
+  limit?: number;
+  busca?: string;
+  status?: StatusMesa;
+}
+
+export interface ListarUsuariosParams {
+  page?: number;
+  limit?: number;
+  busca?: string;
+  perfil?: Perfil;
+  ativo?: boolean;
+}
 
 export interface DashboardResumo {
   relatorio: RelatorioVendas;
@@ -56,8 +97,8 @@ export class AdminService {
   }
 
   // ===== Produtos =====
-  listarProdutos(): Promise<Produto[]> {
-    return firstValueFrom(this.api.get<Produto[]>('/produtos'));
+  listarProdutos(params: ListarProdutosParams = {}): Promise<Pagina<Produto>> {
+    return firstValueFrom(this.api.getPaged<Produto>('/produtos', toQueryParams(params)));
   }
 
   criarProduto(payload: CriarProdutoPayload): Promise<Produto> {
@@ -83,8 +124,8 @@ export class AdminService {
   }
 
   // ===== Categorias =====
-  listarCategorias(): Promise<Categoria[]> {
-    return firstValueFrom(this.api.get<Categoria[]>('/categorias'));
+  listarCategorias(params: ListarCategoriasParams = {}): Promise<Pagina<Categoria>> {
+    return firstValueFrom(this.api.getPaged<Categoria>('/categorias', toQueryParams(params)));
   }
 
   criarCategoria(payload: CriarCategoriaPayload): Promise<Categoria> {
@@ -100,8 +141,8 @@ export class AdminService {
   }
 
   // ===== Mesas =====
-  listarMesas(): Promise<Mesa[]> {
-    return firstValueFrom(this.api.get<Mesa[]>('/mesas'));
+  listarMesas(params: ListarMesasParams = {}): Promise<Pagina<Mesa>> {
+    return firstValueFrom(this.api.getPaged<Mesa>('/mesas', toQueryParams(params)));
   }
 
   criarMesa(payload: CriarMesaPayload): Promise<Mesa> {
@@ -117,8 +158,8 @@ export class AdminService {
   }
 
   // ===== Usuários =====
-  listarUsuarios(): Promise<Usuario[]> {
-    return firstValueFrom(this.api.get<Usuario[]>('/usuarios'));
+  listarUsuarios(params: ListarUsuariosParams = {}): Promise<Pagina<Usuario>> {
+    return firstValueFrom(this.api.getPaged<Usuario>('/usuarios', toQueryParams(params)));
   }
 
   criarUsuario(payload: CriarUsuarioPayload): Promise<Usuario> {

@@ -81,3 +81,50 @@ describe('GarcomService — abrirComanda', () => {
     await promise;
   });
 });
+
+describe('GarcomService — limit explícito nas listagens paginadas (#19)', () => {
+  let service: GarcomService;
+  let httpMock: HttpTestingController;
+
+  beforeEach(() => {
+    TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
+      providers: [GarcomService, ApiService],
+    });
+    service = TestBed.inject(GarcomService);
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
+    TestBed.resetTestingModule();
+  });
+
+  // Sem limit explícito, o default de paginação do backend (50) cortaria
+  // mesas/categorias/produtos silenciosamente em tenants maiores — mesmo
+  // bug que a paginação do admin (#19) corrigiu do outro lado.
+  it('listarMesas manda limit=100', async () => {
+    const promise = service.listarMesas();
+    const req = httpMock.expectOne((r) => r.url.includes('/mesas'));
+    expect(req.request.params.get('limit')).toBe('100');
+    req.flush([]);
+    await promise;
+  });
+
+  it('listarCategorias manda limit=100', async () => {
+    const promise = service.listarCategorias();
+    const req = httpMock.expectOne((r) => r.url.includes('/categorias'));
+    expect(req.request.params.get('limit')).toBe('100');
+    req.flush([]);
+    await promise;
+  });
+
+  it('listarProdutosDisponiveis manda disponivel=true e limit=100', async () => {
+    const promise = service.listarProdutosDisponiveis();
+    const req = httpMock.expectOne((r) => r.url.includes('/produtos'));
+    expect(req.request.params.get('disponivel')).toBe('true');
+    expect(req.request.params.get('limit')).toBe('100');
+    req.flush([]);
+    await promise;
+  });
+});
