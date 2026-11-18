@@ -309,3 +309,21 @@ ngOnInit() {
 - ❌ Criar módulos NgModule (projeto é 100% standalone)
 - ❌ Usar `any` no TypeScript (strict: true ativado)
 - ❌ Adicionar lógica de negócio em componentes (extrair para services)
+- ❌ Commitar direto na `main` ou na `dev` (sempre PR, seguindo o Gitflow abaixo)
+
+---
+
+## 11. Fluxo de branches (Gitflow) — obrigatório
+
+| Branch | Sai de | PR para | Uso |
+|---|---|---|---|
+| `main` | — | — | Produção. Merge aqui publica na Vercel |
+| `dev` | `main` | — | Integração. Todo trabalho novo entra aqui |
+| `feature/<issue>-<slug>` | `dev` | `dev` | Funcionalidade nova |
+| `fix/<issue>-<slug>` | `dev` | `dev` | Correção que pode esperar o próximo release |
+| `docs/…`, `chore/…` | `dev` | `dev` | Documentação e manutenção |
+| `hotfix/<issue>-<slug>` | `main` | `main` | Só bug em produção que não pode esperar; depois do merge, levar a `main` de volta para a `dev` |
+
+- **Release:** PR `dev` → `main` com título `release: …`. É o único caminho normal para a `main`.
+- **Em caso de dúvida entre `fix` e `hotfix`:** usar `fix` (para a `dev`) e perguntar.
+- **Antes de abrir PR:** atualizar a branch com a base (`dev` ou `main`).
