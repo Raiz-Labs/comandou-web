@@ -1,0 +1,28 @@
+version: 2
+updates:
+  # cooldown: não adota release publicada há menos de 5 dias — janela para um
+  # pacote/action comprometido ser detectado e retirado antes de entrar aqui.
+  - package-ecosystem: npm
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 5
+    groups:
+      # Framework e tooling do Angular sobem juntos (versões misturadas quebram o build).
+      angular:
+        patterns: ['@angular/*', '@angular-eslint/*']
+      minor-e-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directory: /
+    target-branch: dev
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 5
+    groups:
+      actions:
+        patterns: ['*']
