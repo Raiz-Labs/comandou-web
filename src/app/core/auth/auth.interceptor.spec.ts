@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { HttpClient, provideHttpClient, withInterceptors } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse, provideHttpClient, withInterceptors } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { Router } from '@angular/router';
 import { authInterceptor } from './auth.interceptor';
@@ -92,6 +92,28 @@ describe('authInterceptor', () => {
     expect(await erro).toBeTruthy();
     expect(authState().isAuthenticated).toBe(false);
     expect(router.navigateByUrl).toHaveBeenCalledWith('/login');
+  });
+
+  it('refresh retorna 429 → mantém a sessão e não redireciona para /login', async () => {
+    setAuth('token-velho', usuario);
+
+    const promise = new Promise<unknown>((resolve, reject) => {
+      http.get(`${environment.apiUrl}/produtos`).subscribe({ next: resolve, error: reject });
+    });
+    const erro = promise.catch((e) => e);
+
+    httpMock
+      .expectOne((r) => r.url.includes('/produtos'))
+      .flush({}, { status: 401, statusText: 'Unauthorized' });
+
+    httpMock
+      .expectOne((r) => r.url.includes('/auth/refresh'))
+      .flush({}, { status: 429, statusText: 'Too Many Requests' });
+    await flushPromises();
+
+    expect((await erro) as HttpErrorResponse).toMatchObject({ status: 429 });
+    expect(authState().isAuthenticated).toBe(true);
+    expect(router.navigateByUrl).not.toHaveBeenCalled();
   });
 
   it('duas requisições com 401 simultâneo disparam apenas UM refresh', async () => {

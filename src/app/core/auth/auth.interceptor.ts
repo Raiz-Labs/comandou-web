@@ -80,6 +80,11 @@ export const authInterceptor: HttpInterceptorFn = (
             return next(retryReq);
           }),
           catchError((refreshErr) => {
+            // 429 = muitas abas/aparelhos renovando pelo mesmo IP, não sessão
+            // inválida: falha só esta requisição e mantém o usuário logado.
+            if (refreshErr?.status === 429) {
+              return throwError(() => refreshErr);
+            }
             // Token de tenant expirou em meio a uma impersonação: não deixa
             // o master com "impersonating" órfão apontando pra uma sessão morta.
             if (masterAuthState().impersonating) {
