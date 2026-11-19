@@ -1,4 +1,4 @@
-import { effect, Injectable, signal } from '@angular/core';
+import { effect, inject, Injectable, InjectionToken, signal } from '@angular/core';
 import { Observable, share } from 'rxjs';
 import { io, Socket } from 'socket.io-client';
 import { environment } from '../../../environments/environment';
@@ -7,8 +7,17 @@ import { WsEvent } from '../../shared/types';
 
 export type ConnectionStatus = 'connected' | 'disconnected' | 'reconnecting';
 
+// Fábrica do socket por DI: os testes trocam por um fake via provider, sem depender
+// de mock de módulo (vi.mock falhava quando outro spec já tinha carregado o
+// socket.io-client no mesmo worker — o que acontece no runner do CI, com 2 CPUs).
+export const SOCKET_IO = new InjectionToken<typeof io>('SOCKET_IO', {
+  providedIn: 'root',
+  factory: () => io,
+});
+
 @Injectable({ providedIn: 'root' })
 export class SocketService {
+  private readonly criarSocket = inject(SOCKET_IO);
   private socket: Socket | null = null;
   // Um Observable compartilhado por evento — evita registrar um handler novo
   // no socket a cada subscriber e garante que cancelar UM subscriber nunca
@@ -32,7 +41,7 @@ export class SocketService {
   private connect(token: string): void {
     if (this.socket?.connected) return;
 
-    this.socket = io(environment.wsUrl, {
+    this.socket = this.criarSocket(environment.wsUrl, {
       auth: { token },
       transports: ['websocket'],
       reconnection: true,

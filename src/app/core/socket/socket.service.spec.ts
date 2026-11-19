@@ -1,7 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { io } from 'socket.io-client';
-import { SocketService } from './socket.service';
+import { SOCKET_IO, SocketService } from './socket.service';
 import { authState, clearAuth, setAuth } from '../auth/auth.signal';
 import { Usuario } from '../../shared/types';
 
@@ -42,19 +41,22 @@ class FakeSocket {
 
 let fakeSocket: FakeSocket;
 
-vi.mock('socket.io-client', () => ({
-  io: vi.fn(() => {
-    fakeSocket = new FakeSocket();
-    return fakeSocket;
-  }),
-}));
+// Injetado via SOCKET_IO (não vi.mock): o mock de módulo não vale quando outro spec
+// já carregou o socket.io-client no mesmo worker.
+const io = vi.fn((..._args: unknown[]) => {
+  fakeSocket = new FakeSocket();
+  return fakeSocket;
+});
 
 describe('SocketService', () => {
   let service: SocketService;
 
   beforeEach(() => {
     clearAuth();
-    TestBed.configureTestingModule({ providers: [SocketService] });
+    io.mockClear();
+    TestBed.configureTestingModule({
+      providers: [SocketService, { provide: SOCKET_IO, useValue: io }],
+    });
     service = TestBed.inject(SocketService);
   });
 
