@@ -1,7 +1,12 @@
 version: 2
 updates:
-  # cooldown: não adota release publicada há menos de 5 dias — janela para um
-  # pacote/action comprometido ser detectado e retirado antes de entrar aqui.
+  # cooldown: não adota release recém-publicada (janela para um pacote/action
+  # comprometido ser detectado e retirado). Majors esperam mais.
+  #
+  # Grupos: cada dependência entra no PRIMEIRO grupo que casar, na ordem abaixo.
+  # Majors não são ignorados — vêm agrupados para virar um PR visível por semana;
+  # se o CI falhar, o PR é o lembrete do upgrade, feito numa branch feature/upgrade-*
+  # (no Angular, com `ng update`, que aplica as migrações).
   - package-ecosystem: npm
     directory: /
     target-branch: dev
@@ -9,10 +14,16 @@ updates:
       interval: weekly
     cooldown:
       default-days: 5
+      semver-major-days: 14
     groups:
-      # Framework e tooling do Angular sobem juntos (versões misturadas quebram o build).
+      # Framework e tooling do Angular sobem juntos, inclusive em major
       angular:
         patterns: ['@angular/*', '@angular-eslint/*']
+      # vitest e @vitest/* exigem a mesma versão entre si (peer)
+      vitest:
+        patterns: ['vitest', '@vitest/*']
+      majors:
+        update-types: [major]
       minor-e-patch:
         update-types: [minor, patch]
 

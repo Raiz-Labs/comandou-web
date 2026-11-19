@@ -15,40 +15,161 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Estágios: quality ‖ test ‖ security → build.
+# Os nomes dos jobs são estáveis: a Vercel (Deployment Checks) exige checks pelo nome.
 jobs:
-  ci:
-    name: Lint · Typecheck · Build
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 10
     steps:
       # Actions de terceiros pinadas por SHA de commit (tags são mutáveis); o
       # Dependabot (github-actions) mantém o SHA e o comentário de versão em dia.
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Node 22
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # Sem --omit=dev: no Angular quase tudo é build-time e acaba no bundle.
-      - name: Auditoria de dependências
-        run: |
-          npm audit --audit-level=high
-          npm audit signatures
-
+      - uses: ./.github/actions/setup
       - name: Lint
         run: npm run lint
-
       - name: Typecheck
         run: npm run typecheck
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      pull-requests: write # comentário de cobertura no PR
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Cobertura com mínimo ("catraca" em angular.json → test.options.coverageThresholds).
+      # --output-file vale para o primeiro reporter, por isso o junit vem antes.
+      - name: Testes unitários com cobertura
+        run: npx ng test --watch=false --coverage --reporters=junit --reporters=default --output-file=reports/junit.xml
+      - name: Comentário de cobertura no PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: davelosert/vitest-coverage-report-action@74c2d9210b4fc44c84d8213f61d7ec99837b7aa0 # v2.13.2
+        with:
+          name: comandou-web
+          json-summary-path: coverage/comandou-web/coverage-summary.json
+          json-final-path: coverage/comandou-web/coverage-final.json
+      - name: Guardar junit e cobertura
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: test-results-web
+          path: |
+            reports/junit.xml
+            coverage/comandou-web/coverage-summary.json
+          retention-days: 7
+          if-no-files-found: warn
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Sem --omit=dev: no Angular quase tudo é build-time e acaba no bundle.
+      - name: Auditoria de vulnerabilidades
+        run: npm audit --audit-level=high
+      # A verificação de attestations já falhou de forma intermitente na api (um
+      # pacote diferente a cada vez, passando no run seguinte). Um pacote
+      # adulterado de verdade falha sempre — por isso repete até 3 vezes.
+      - name: Assinaturas e attestations
+        run: |
+          for tentativa in 1 2 3; do
+            if npm audit signatures; then exit 0; fi
+            echo "::warning::npm audit signatures falhou (tentativa $tentativa/3)"
+            sleep 15
+          done
+          exit 1
+
+  build:
+    needs: [quality, test, security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Budgets do angular.json (maximumError) fazem o build falhar se o bundle estourar
       - name: Build
         run: npm run build
+
+  # Roda sempre: consolida os estágios num job summary, num comentário fixo no PR e
+  # no check dos testes, e falha se algum estágio falhou. É o check exigido pela
+  # Vercel (Deployment Checks) para promover a produção.
+  report:
+    needs: [quality, test, security, build]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      actions: read
+      checks: write # check com o resultado dos testes (junit)
+      pull-requests: write # comentário fixo do relatório
+    steps:
+      - name: Baixar resultados dos testes
+        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        continue-on-error: true
+        with:
+          name: test-results-web
+          path: artifacts
+      - name: Publicar testes como check
+        if: ${{ hashFiles('artifacts/reports/junit.xml') != '' }}
+        uses: mikepenz/action-junit-report@a16be3a69023e9bd7e748ede768b3282ea7b30ce # v6.7.1
+        with:
+          report_paths: artifacts/reports/junit.xml
+          check_name: Testes (junit)
+          comment: false
+      - name: Montar relatório
+        env:
+          QUALITY: ${{ needs.quality.result }}
+          TEST: ${{ needs.test.result }}
+          SECURITY: ${{ needs.security.result }}
+          BUILD: ${{ needs.build.result }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # Em PR, mostra a branch e o commit do PR, não o ref/commit de merge sintético
+          REF: ${{ github.head_ref || github.ref_name }}
+          SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          icone() { case "$1" in success) echo "✅";; skipped) echo "⏭️";; cancelled) echo "⚪";; *) echo "❌";; esac; }
+          resumo=artifacts/coverage/comandou-web/coverage-summary.json
+          cobertura=""
+          if [ -f "$resumo" ]; then
+            cobertura=$(node -e 'const t=require("./'"$resumo"'").total; console.log(`linhas ${t.lines.pct}% · statements ${t.statements.pct}% · funções ${t.functions.pct}% · branches ${t.branches.pct}%`)')
+          fi
+          {
+            echo "## Relatório do CI — comandou-web"
+            echo
+            echo "Commit \`${SHA::7}\` · \`${REF}\`"
+            echo
+            echo "| Estágio | Resultado |"
+            echo "|---|---|"
+            echo "| Qualidade (lint, typecheck) | $(icone "$QUALITY") $QUALITY |"
+            echo "| Testes | $(icone "$TEST") $TEST |"
+            echo "| Segurança (audit, assinaturas) | $(icone "$SECURITY") $SECURITY |"
+            echo "| Build (ng build, budgets) | $(icone "$BUILD") $BUILD |"
+            [ -n "$cobertura" ] && { echo; echo "**Cobertura:** $cobertura"; }
+            echo
+            echo "[Detalhes do run]($RUN_URL)"
+          } > relatorio.md
+          cat relatorio.md >> "$GITHUB_STEP_SUMMARY"
+      - name: Comentário fixo no PR
+        if: ${{ github.event_name == 'pull_request' }}
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: ci-report
+          path: relatorio.md
+      - name: Falhar se algum estágio falhou
+        if: ${{ contains(needs.*.result, 'failure') || contains(needs.*.result, 'cancelled') }}
+        run: |
+          echo "::error::Algum estágio do pipeline falhou ou foi cancelado — ver a tabela do relatório."
+          exit 1
