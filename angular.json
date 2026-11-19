@@ -77,7 +77,26 @@
           "defaultConfiguration": "development"
         },
         "test": {
-          "builder": "@angular/build:unit-test"
+          "builder": "@angular/build:unit-test",
+          "options": {
+            "coverageInclude": [
+              "src/**/*.ts"
+            ],
+            "coverageExclude": [
+              "src/**/*.spec.ts"
+            ],
+            "coverageReporters": [
+              "text-summary",
+              "json-summary",
+              "json"
+            ],
+            "coverageThresholds": {
+              "statements": 56,
+              "branches": 61,
+              "functions": 38,
+              "lines": 58
+            }
+          }
         }
       }
     }

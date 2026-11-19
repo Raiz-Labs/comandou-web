@@ -1,7 +1,7 @@
 # CI fase 1: pipeline em estágios com testes, cobertura e relatório
 
 - **Issue:** #68 — https://github.com/Raiz-Labs/comandou-web/issues/68
-- **Status:** In progress (PR 1: estágios)
+- **Status:** In progress (PR 1: #79, PR 2: este; falta a troca do check na Vercel, no release)
 - **Repo:** Raiz-Labs/comandou-web
 - **Plano:** `docs/PLANO-PIPELINES-CI.md` (fase 1)
 - **Par na api:** Raiz-Labs/comandou-api#71
@@ -91,3 +91,28 @@ Cada PR sai da `dev` e volta por PR para a `dev`.
   - **Como importar o check:** "Add Checks" → GitHub → "Select checks to add" → "Show All Checks". O painel lista os checks do último commit da `main`; hoje aparece só "Lint · Typecheck · Build".
   - **Quando configurar:** o check provisório "Lint · Typecheck · Build" foi configurado em 19/11/2026. A troca para `report` segue o passo 3 da sequência de PRs. Se o check exigido não existir (job renomeado ou ainda não criado), a promoção de produção fica parada esperando um check que nunca chega.
   - **O que não usar:** o step `vercel/repository-dispatch/actions/status` que o painel sugere não é necessário, porque o check do GitHub Actions é importado direto. Evita mais uma action de terceiros.
+
+## Resultado da implementação
+
+- **PR 1 (#79): estágios.**
+  - `quality` ‖ `test` ‖ `security` → `build`, com uma composite action `.github/actions/setup`. O `npm audit signatures` tenta até 3 vezes.
+  - **Os 159 testes passaram a rodar no CI.**
+  - **Problema que já existia, exposto no primeiro run:**
+    - **Sintoma:** os 9 testes do `socket.service.spec` falhavam no runner (2 CPUs) e passavam em máquina com mais CPUs.
+    - **Causa:** o `vi.mock('socket.io-client')` não vale quando outro spec já carregou o módulo real no mesmo worker.
+    - **Reprodução:** `docker run --cpuset-cpus=0,1 node:22`.
+    - **Correção:** o `SocketService` passou a receber o `io` pelo `InjectionToken` `SOCKET_IO` (por padrão, o `io` real), e o spec injeta o fake via provider.
+- **PR 2 (este): cobertura e relatório.**
+  - **Dependência nova:** `@vitest/coverage-v8` 4.1.12, a mesma versão do `vitest`.
+  - **`angular.json` (`test.options`):**
+    - `coverageInclude: src/**/*.ts`;
+    - `coverageExclude: src/**/*.spec.ts`;
+    - `coverageReporters`: `text-summary`, `json-summary` e `json`;
+    - **catraca medida em 19/11/2026:** statements 56, branches 61, functions 38, lines 58.
+  - **Por que a catraca fica nos números atuais:** a cobertura do web é bem menor que a da api (funções em 38,83%), porque há muitos componentes sem teste. A catraca só impede que ela caia; aumentar é trabalho de outras issues.
+  - **Gate validado:** com `lines: 99` num teste local temporário, o `ng test --coverage` termina com código 1.
+  - **CI:**
+    - `ng test --watch=false --coverage --reporters=junit --reporters=default --output-file=reports/junit.xml`. O `--output-file` vale para o primeiro reporter, por isso o junit vem antes.
+    - Comentário de cobertura (`davelosert`, apontando para `coverage/comandou-web/`) e artefato `test-results-web` de 7 dias.
+    - Job `report` igual ao da api#71, sem a linha de deploy.
+    - O `report` é o check que a Vercel vai exigir.
