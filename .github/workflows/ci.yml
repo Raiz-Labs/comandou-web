@@ -15,40 +15,67 @@ concurrency:
   group: ci-${{ github.event.pull_request.number || github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
+# Estágios: quality ‖ test ‖ security → build.
+# Os nomes dos jobs são estáveis: a Vercel (Deployment Checks) exige checks pelo nome.
 jobs:
-  ci:
-    name: Lint · Typecheck · Build
+  quality:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-
+    timeout-minutes: 10
     steps:
       # Actions de terceiros pinadas por SHA de commit (tags são mutáveis); o
       # Dependabot (github-actions) mantém o SHA e o comentário de versão em dia.
-      - name: Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-
-      - name: Setup Node 22
-        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      # Sem --omit=dev: no Angular quase tudo é build-time e acaba no bundle.
-      - name: Auditoria de dependências
-        run: |
-          npm audit --audit-level=high
-          npm audit signatures
-
+      - uses: ./.github/actions/setup
       - name: Lint
         run: npm run lint
-
       - name: Typecheck
         run: npm run typecheck
 
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      - name: Testes unitários
+        run: npx ng test --watch=false
+
+  security:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Sem --omit=dev: no Angular quase tudo é build-time e acaba no bundle.
+      - name: Auditoria de vulnerabilidades
+        run: npm audit --audit-level=high
+      # A verificação de attestations já falhou de forma intermitente na api (um
+      # pacote diferente a cada vez, passando no run seguinte). Um pacote
+      # adulterado de verdade falha sempre — por isso repete até 3 vezes.
+      - name: Assinaturas e attestations
+        run: |
+          for tentativa in 1 2 3; do
+            if npm audit signatures; then exit 0; fi
+            echo "::warning::npm audit signatures falhou (tentativa $tentativa/3)"
+            sleep 15
+          done
+          exit 1
+
+  build:
+    needs: [quality, test, security]
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: ./.github/actions/setup
+      # Budgets do angular.json (maximumError) fazem o build falhar se o bundle estourar
       - name: Build
         run: npm run build
