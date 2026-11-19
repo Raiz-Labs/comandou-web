@@ -1,7 +1,7 @@
 # CI fase 1: pipeline em estágios com testes, cobertura e relatório
 
 - **Issue:** #68 — https://github.com/Raiz-Labs/comandou-web/issues/68
-- **Status:** In progress (PR 1: #79, PR 2: este; falta a troca do check na Vercel, no release)
+- **Status:** Implemented (PRs #79 e #80; em produção pelo release #82, 19/11/2026)
 - **Repo:** Raiz-Labs/comandou-web
 - **Plano:** `docs/PLANO-PIPELINES-CI.md` (fase 1)
 - **Par na api:** Raiz-Labs/comandou-api#71
@@ -72,17 +72,34 @@ Cada PR sai da `dev` e volta por PR para a `dev`.
 
 ## Critério de aceite
 
-- [ ] Um PR para a `dev` mostra os checks `quality`, `test`, `security`, `build` e `report`.
-- [ ] O job `test` roda o `ng test`, e um teste que falha propositalmente deixa `test` e `report` vermelhos. Validar num commit temporário, revertido antes do merge.
-- [ ] O PR recebe **um** comentário fixo do relatório, editado a cada push, e um comentário de cobertura.
-- [ ] Subir um `coverageThresholds` para 99 num commit temporário faz o `test` falhar. O commit é revertido antes do merge.
-- [ ] Um budget estourado (ex.: `initial` com `maximumError: 1kB` num commit temporário) faz o `build` falhar.
-- [ ] **Vercel:**
-  - o check exigido é `report`, e "Lint · Typecheck · Build" foi removido;
-  - um release com o `report` vermelho **não** promove o deploy de produção;
-  - com o `report` verde, promove.
-  - Registrar com print no PR 2.
-- [ ] O artefato `coverage-web` fica disponível no run por 7 dias.
+- [x] Um PR para a `dev` mostra os checks `quality`, `test`, `security`, `build` e `report`.
+- [x] O job `test` roda o `ng test`, e um teste que falha propositalmente deixa `test` e `report` vermelhos. Validar num commit temporário, revertido antes do merge.
+- [x] O PR recebe **um** comentário fixo do relatório, editado a cada push, e um comentário de cobertura.
+- [x] Subir um `coverageThresholds` para 99 num commit temporário faz o `test` falhar. O commit é revertido antes do merge.
+- [x] Um budget estourado (ex.: `initial` com `maximumError: 1kB` num commit temporário) faz o `build` falhar.
+- [x] **Vercel:**
+  - [x] o check exigido é `report`, e "Lint · Typecheck · Build" foi removido (painel conferido depois de recarregar, em 19/11/2026);
+  - [x] com o `report` verde, promove;
+  - [~] um release com o `report` vermelho **não** promove o deploy de produção. **Verificado de forma indireta:** no release #82 o status da Vercel passou por "Waiting for checks to complete" e só concluiu 3 s depois de o CI terminar. Testar com `report` vermelho exigiria mandar um release quebrado para a `main`;
+  - ~~Registrar com print no PR 2~~ registrado pelo histórico de status do commit `494a229` (ver "Evidências").
+- [x] ~~O artefato `coverage-web`~~ O artefato **`test-results-web`** (junit + resumo de cobertura) fica disponível no run por 7 dias. Ver "Desvios".
+
+### Evidências da validação (19/11/2026)
+- **Checks, comentários e artefato:** #80, com 1 comentário de relatório, 1 de cobertura e o artefato `test-results-web` expirando em 26/11.
+- **Teste quebrado:** PR temporário #81 (fechado sem merge). `test`, "Testes (junit)" e `report` ❌, `build` pulado.
+- **Mínimo de cobertura:** PR temporário #85 (`lines: 99`, fechado sem merge). `test` ❌ e `report` ❌, `build` pulado.
+- **Budget:** PR temporário #86 (`maximumError: 1kB`, fechado sem merge). `build` ❌ e `report` ❌.
+- **Vercel no release #82** (commit `494a229`):
+  | Horário | Status |
+  |---|---|
+  | 14:13:22 | "deploying your app" |
+  | 14:13:56 | "Waiting for checks to complete" |
+  | 14:14:34 | CI da `main` verde |
+  | 14:14:37 | "Deployment has completed" |
+
+### Desvios da spec
+- **Um artefato em vez de `coverage-web`.** Foi implementado `test-results-web`, com junit e resumo de cobertura. O job `report` baixa um único artefato.
+- **Sem cache de `.angular/cache` no `build`.** O `ng build` leva cerca de 6 s, então o cache não compensa a configuração e a chave a manter. Fica descartado até o build ficar lento de verdade.
 
 ## Questões em aberto
 
