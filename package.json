@@ -31,7 +31,7 @@
     "@angular-eslint/eslint-plugin": "^21.3.1",
     "@angular-eslint/eslint-plugin-template": "^21.3.1",
     "@angular-eslint/template-parser": "^21.3.1",
-    "@angular/build": "^21.2.30",
+    "@angular/build": "^22.2.7",
     "@angular/cli": "^21.2.30",
     "@angular/compiler-cli": "^21.2.26",
     "@eslint/js": "^10.0.1",
