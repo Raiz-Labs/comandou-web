@@ -144,6 +144,8 @@ jobs:
           resumo=artifacts/coverage/comandou-web/coverage-summary.json
           cobertura=""
           if [ -f "$resumo" ]; then
+            # ${...} é template literal do JavaScript, não variável do shell
+            # shellcheck disable=SC2016
             cobertura=$(node -e 'const t=require("./'"$resumo"'").total; console.log(`linhas ${t.lines.pct}% · statements ${t.statements.pct}% · funções ${t.functions.pct}% · branches ${t.branches.pct}%`)')
           fi
           {
