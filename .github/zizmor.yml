@@ -1,0 +1,6 @@
+# Configuração do zizmor (spec 69). Toda exceção leva motivo e data.
+rules:
+  # 24/11/2026: a sintaxe `$/...` para actions do próprio repo é recente. O `./...` continua
+  # suportado e é o que o actionlint e o Dependabot entendem. Reavaliar quando ela for padrão.
+  self-repository:
+    disable: true

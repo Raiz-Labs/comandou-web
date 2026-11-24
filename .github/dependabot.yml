@@ -13,7 +13,7 @@ updates:
     schedule:
       interval: weekly
     cooldown:
-      default-days: 5
+      default-days: 7
       semver-major-days: 14
     groups:
       # Framework e tooling do Angular sobem juntos, inclusive em major
@@ -33,7 +33,7 @@ updates:
     schedule:
       interval: weekly
     cooldown:
-      default-days: 5
+      default-days: 7
     groups:
       actions:
         patterns: ['*']
