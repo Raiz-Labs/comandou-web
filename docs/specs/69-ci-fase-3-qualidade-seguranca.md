@@ -43,7 +43,7 @@ Os dois entram num **único PR**: a linha de base do web é trivial, e as ferram
 
 ## Escopo
 
-**Dentro.** Itens em ordem, **um PR por item**:
+**Dentro.** Itens em ordem. Os itens 3 a 7 estão **adiados**, e os itens 1 e 2 entraram num único PR (ver "Escopo reduzido"):
 
 | # | Item | Estágio | Entra como | Vira bloqueio quando |
 |---|---|---|---|---|
@@ -58,7 +58,7 @@ Os dois entram num **único PR**: a linha de base do web é trivial, e as ferram
 Para cada item:
 - o resultado vai para o job summary;
 - os relatórios brutos ficam como artefato por 7 dias;
-- o job `report` da #68 passa a citar o item.
+- ~~o job `report` da #68 passa a citar o item~~ (ajustado: as ferramentas são steps do estágio `security`, que já aparece na tabela).
 
 **Fora:**
 - Trivy e Docker: o web não gera imagem, porque o deploy é pela Vercel.
@@ -70,12 +70,13 @@ Para cada item:
 
 ### Regras
 São as mesmas da api#74.
-- **Um PR por ferramenta:** branch `ci/fase-3-<ferramenta>` saindo da `dev`.
+- **Um PR por ferramenta** (exceção: os itens 1 e 2, ver "Escopo reduzido"): branch `ci/fase-3-<ferramenta>` saindo da `dev`.
 - **Linha de base:** a contagem de achados por severidade fica registrada na descrição do PR.
 - **Exceções:** ficam versionadas no arquivo de configuração da ferramenta, com motivo e data. Nunca com `|| true`.
 - **Execução:** binário ou imagem pinada por digest. Nada de action de terceiros sem SHA.
 
 ### Comandos de referência
+Os comandos efetivos do gitleaks e do actionlint + zizmor são os do job `security` no `ci.yml`, com as imagens pinadas por digest e o gitleaks com `--exit-code 2`. Os comandos abaixo ficam como referência para os itens adiados.
 Conferir as flags na primeira execução:
 ```bash
 docker run --rm -v "$PWD:/repo" zricethezav/gitleaks@sha256:<digest> git /repo --redact --exit-code 1
