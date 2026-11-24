@@ -26,6 +26,12 @@ updates:
         update-types: [major]
       minor-e-patch:
         update-types: [minor, patch]
+    # typescript: o Angular fixa a faixa (21 pede >=5.9 <6.0; 22 pede >=6.0 <6.1). Major do TS
+    # só junto com um `ng update` que o aceite; sozinho, o Dependabot propõe o TS 7, que quebra
+    # o `npm ci`.
+    ignore:
+      - dependency-name: typescript
+        update-types: ['version-update:semver-major']
 
   - package-ecosystem: github-actions
     directory: /
