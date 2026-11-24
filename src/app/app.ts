@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, ChangeDetectionStrategy } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
 import { ToastComponent } from './shared/components/toast/toast.component';
 
@@ -10,8 +10,14 @@ import { ToastComponent } from './shared/components/toast/toast.component';
     <router-outlet />
     <app-toast />
   `,
-  styles: [`
-    :host { display: block; min-height: 100vh; }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: block;
+        min-height: 100vh;
+      }
+    `,
+  ],
 })
 export class AppComponent {}

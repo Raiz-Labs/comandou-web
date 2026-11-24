@@ -1,4 +1,4 @@
-import { Component, input, output, computed } from '@angular/core';
+import { Component, input, output, computed, ChangeDetectionStrategy } from '@angular/core';
 import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
@@ -37,31 +37,46 @@ import { LucideDynamicIcon } from '@lucide/angular';
       </button>
     </nav>
   `,
-  styles: [`
-    .paginacao { display: flex; align-items: center; gap: var(--b-space-1); justify-content: center; padding: var(--b-space-4) 0; }
-    .paginacao__seta, .paginacao__num {
-      min-width: 44px;
-      min-height: 44px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-      background: transparent;
-      color: var(--b-fg);
-      font-family: var(--b-font-sans);
-      font-size: var(--b-font-size-sm);
-      cursor: pointer;
-      &:hover:not(:disabled) { background-color: var(--b-bg-sunken); }
-      &:disabled { opacity: 0.4; cursor: not-allowed; }
-    }
-    .paginacao__num--ativo {
-      background-color: var(--b-primary-500);
-      border-color: var(--b-primary-500);
-      color: var(--b-fg-inverted);
-      font-weight: var(--b-font-weight-semibold);
-    }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .paginacao {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        justify-content: center;
+        padding: var(--b-space-4) 0;
+      }
+      .paginacao__seta,
+      .paginacao__num {
+        min-width: 44px;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        background: transparent;
+        color: var(--b-fg);
+        font-family: var(--b-font-sans);
+        font-size: var(--b-font-size-sm);
+        cursor: pointer;
+        &:hover:not(:disabled) {
+          background-color: var(--b-bg-sunken);
+        }
+        &:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+      }
+      .paginacao__num--ativo {
+        background-color: var(--b-primary-500);
+        border-color: var(--b-primary-500);
+        color: var(--b-fg-inverted);
+        font-weight: var(--b-font-weight-semibold);
+      }
+    `,
+  ],
 })
 export class PaginationComponent {
   readonly page = input.required<number>();

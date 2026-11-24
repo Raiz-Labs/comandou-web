@@ -7,6 +7,7 @@ import {
   OnInit,
   OnDestroy,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -196,7 +197,11 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
     @if (pedindoFechar()) {
       <app-confirm-dialog
         title="Fechar com itens pendentes?"
-        [message]="'Há ' + qtdBloqueantes() + ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'"
+        [message]="
+          'Há ' +
+          qtdBloqueantes() +
+          ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'
+        "
         confirmLabel="Sim, fechar mesmo assim"
         cancelLabel="Cancelar"
         [confirmDanger]="true"
@@ -209,7 +214,11 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
     @if (itemParaCancelar()) {
       <app-confirm-dialog
         title="Cancelar item?"
-        [message]="'Deseja cancelar ' + (itemParaCancelar()!.produto?.nome ?? 'este item') + '? Esta ação não pode ser desfeita.'"
+        [message]="
+          'Deseja cancelar ' +
+          (itemParaCancelar()!.produto?.nome ?? 'este item') +
+          '? Esta ação não pode ser desfeita.'
+        "
         confirmLabel="Sim, cancelar"
         cancelLabel="Voltar"
         [confirmDanger]="true"
@@ -255,210 +264,212 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
       />
     }
   `,
-  styles: [`
-    /* ===== LAYOUT ===== */
-    .layout {
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
-      background-color: var(--b-bg);
-      font-family: var(--b-font-sans);
-      padding-bottom: 140px;
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-3) var(--b-space-4);
-      background-color: var(--b-bg-elevated);
-      border-bottom: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      min-height: 64px;
-    }
-
-    .header__info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .header__title {
-      font-size: var(--b-font-size-lg);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
-      margin: 0;
-      font-family: monospace;
-      line-height: var(--b-line-height-tight);
-    }
-
-    .header__sub {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-    }
-
-    .header__total {
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-primary-600);
-      flex-shrink: 0;
-    }
-
-    /* ===== CONTENT ===== */
-    .content {
-      flex: 1;
-      padding: var(--b-space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-3);
-    }
-
-    /* ===== ITEM CARD ===== */
-    .item-card {
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-md);
-      border: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      padding: var(--b-space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-
-      &--cancelado {
-        opacity: 0.55;
-        background-color: var(--b-bg-sunken);
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      /* ===== LAYOUT ===== */
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+        padding-bottom: 140px;
       }
 
-      &--skeleton {
+      /* ===== HEADER ===== */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-3) var(--b-space-4);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        min-height: 64px;
+      }
+
+      .header__info {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .header__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+        font-family: monospace;
+        line-height: var(--b-line-height-tight);
+      }
+
+      .header__sub {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
+
+      .header__total {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-primary-600);
+        flex-shrink: 0;
+      }
+
+      /* ===== CONTENT ===== */
+      .content {
+        flex: 1;
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
         gap: var(--b-space-3);
       }
-    }
 
-    .item-card__top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--b-space-2);
-    }
+      /* ===== ITEM CARD ===== */
+      .item-card {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
 
-    .item-card__nome {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-      flex: 1;
-    }
-
-    .item-card__obs {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-      font-style: italic;
-      margin: 0;
-    }
-
-    .item-card__actions {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      flex-shrink: 0;
-    }
-
-    .item-action {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      min-width: 32px;
-      min-height: 32px;
-      border-radius: var(--b-radius-sm);
-      border: 1px solid transparent;
-      background-color: transparent;
-
-      &--edit {
-        color: var(--b-fg-muted);
-        border-color: var(--b-neutral-200);
-
-        &:hover {
+        &--cancelado {
+          opacity: 0.55;
           background-color: var(--b-bg-sunken);
-          color: var(--b-fg);
+        }
+
+        &--skeleton {
+          gap: var(--b-space-3);
         }
       }
 
-      &--cancel {
-        color: var(--b-danger-500);
-        border-color: var(--b-danger-100);
+      .item-card__top {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--b-space-2);
+      }
 
-        &:hover {
-          background-color: var(--b-danger-50);
-          border-color: var(--b-danger-300);
+      .item-card__nome {
+        font-size: var(--b-font-size-md);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        flex: 1;
+      }
+
+      .item-card__obs {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+        font-style: italic;
+        margin: 0;
+      }
+
+      .item-card__actions {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        flex-shrink: 0;
+      }
+
+      .item-action {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: var(--b-radius-sm);
+        border: 1px solid transparent;
+        background-color: transparent;
+
+        &--edit {
+          color: var(--b-fg-muted);
+          border-color: var(--b-neutral-200);
+
+          &:hover {
+            background-color: var(--b-bg-sunken);
+            color: var(--b-fg);
+          }
+        }
+
+        &--cancel {
+          color: var(--b-danger-500);
+          border-color: var(--b-danger-100);
+
+          &:hover {
+            background-color: var(--b-danger-50);
+            border-color: var(--b-danger-300);
+          }
         }
       }
-    }
 
-    .item-card__bottom {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+      .item-card__bottom {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
 
-    .item-card__qtd {
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg-muted);
-    }
+      .item-card__qtd {
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg-muted);
+      }
 
-    .item-card__total {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
+      .item-card__total {
+        font-size: var(--b-font-size-md);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
 
-      &--riscado {
-        text-decoration: line-through;
+        &--riscado {
+          text-decoration: line-through;
+          color: var(--b-fg-subtle);
+        }
+      }
+
+      .cancelados-label {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-semibold);
         color: var(--b-fg-subtle);
+        padding: var(--b-space-1) 0;
+        margin-top: var(--b-space-2);
       }
-    }
 
-    .cancelados-label {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg-subtle);
-      padding: var(--b-space-1) 0;
-      margin-top: var(--b-space-2);
-    }
+      /* ===== FAB ===== */
+      .fab-area {
+        position: fixed;
+        bottom: var(--b-space-5);
+        left: var(--b-space-4);
+        right: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-2);
+      }
 
-    /* ===== FAB ===== */
-    .fab-area {
-      position: fixed;
-      bottom: var(--b-space-5);
-      left: var(--b-space-4);
-      right: var(--b-space-4);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--b-space-2);
-    }
+      .fab {
+        width: 100%;
+        max-width: 400px;
+        min-height: 52px;
+        box-shadow: var(--b-shadow-3);
+      }
 
-    .fab {
-      width: 100%;
-      max-width: 400px;
-      min-height: 52px;
-      box-shadow: var(--b-shadow-3);
-    }
-
-    .fab-fechar {
-      width: 100%;
-      max-width: 400px;
-      min-height: 44px;
-      border: 1px solid var(--b-neutral-300);
-    }
-
-  `],
+      .fab-fechar {
+        width: 100%;
+        max-width: 400px;
+        min-height: 44px;
+        border: 1px solid var(--b-neutral-300);
+      }
+    `,
+  ],
 })
 export class ComandaDetalheComponent implements OnInit, OnDestroy {
   private readonly garcomService = inject(GarcomService);
@@ -503,16 +514,20 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   });
 
   // Computed
-  protected readonly itensAtivos = computed(
-    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status !== 'cancelado')
+  protected readonly itensAtivos = computed(() =>
+    (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
+      (i) => i.status !== 'cancelado',
+    ),
   );
 
-  protected readonly itensCancelados = computed(
-    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status === 'cancelado')
+  protected readonly itensCancelados = computed(() =>
+    (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
+      (i) => i.status === 'cancelado',
+    ),
   );
 
-  protected readonly totalAtivo = computed(
-    () => this.itensAtivos().reduce((sum, i) => sum + i.total, 0)
+  protected readonly totalAtivo = computed(() =>
+    this.itensAtivos().reduce((sum, i) => sum + i.total, 0),
   );
 
   constructor() {
@@ -543,15 +558,15 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
       this.comanda.reload();
       return;
     }
-    this.comanda.update(c => ({
+    this.comanda.update((c) => ({
       ...c,
-      itens: c.itens.map(i => (i.id === itemId ? atualizar(i) : i)),
+      itens: c.itens.map((i) => (i.id === itemId ? atualizar(i) : i)),
     }));
   }
 
   ngOnInit(): void {
     this.subs.push(
-      this.socketService.on<ItemComanda>('item:novo').subscribe(item => {
+      this.socketService.on<ItemComanda>('item:novo').subscribe((item) => {
         if (this.comanda.hasValue() && this.comanda.value().id === item.id) return;
         this.comanda.reload();
       }),
@@ -565,7 +580,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.subs.forEach((s) => s.unsubscribe());
   }
 
   protected voltar(): void {
@@ -629,7 +644,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     // de edição estava aberto — reconfere contra o estado atual antes de
     // mandar pro servidor, em vez de editar contra dado morto.
     const atual = this.comanda.hasValue()
-      ? this.comanda.value().itens.find(i => i.id === item.id)
+      ? this.comanda.value().itens.find((i) => i.id === item.id)
       : undefined;
     if (!atual || !this.podeEditar(atual.status)) {
       this.toast.danger('Este item não pode mais ser editado.');
@@ -670,7 +685,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
     this.itemParaCancelar.set(null);
 
     const atual = this.comanda.hasValue()
-      ? this.comanda.value().itens.find(i => i.id === item.id)
+      ? this.comanda.value().itens.find((i) => i.id === item.id)
       : undefined;
     if (!atual || !this.podeCancelar(atual.status)) {
       this.toast.danger('Este item não pode mais ser cancelado.');
@@ -693,9 +708,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
 
   protected pedirFechamento(): void {
     const itens = this.comanda.hasValue() ? this.comanda.value().itens : [];
-    const bloqueantes = itens.filter(
-      (i) => i.status === 'pendente' || i.status === 'em_preparo'
-    );
+    const bloqueantes = itens.filter((i) => i.status === 'pendente' || i.status === 'em_preparo');
     if (bloqueantes.length > 0) {
       this.qtdBloqueantes.set(bloqueantes.length);
       this.pedindoFechar.set(true);
@@ -737,7 +750,7 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
       this.toast.success(`${produto.nome} adicionado!`);
       this.fecharPicker();
       if (this.comanda.hasValue()) {
-        this.comanda.update(c => ({ ...c, itens: [...c.itens, novoItem] }));
+        this.comanda.update((c) => ({ ...c, itens: [...c.itens, novoItem] }));
       } else {
         this.comanda.reload();
       }
@@ -747,5 +760,4 @@ export class ComandaDetalheComponent implements OnInit, OnDestroy {
       this.adicionando.set(false);
     }
   }
-
 }

@@ -1,4 +1,4 @@
-import { Component, inject, signal, resource } from '@angular/core';
+import { Component, inject, signal, resource, ChangeDetectionStrategy } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { LucideDynamicIcon } from '@lucide/angular';
@@ -25,7 +25,9 @@ interface TenantInfo {
       <div class="page__header">
         <div>
           <h1 class="page__title">Tenants</h1>
-          <p class="page__sub">{{ tenants.hasValue() ? tenants.value().length : 0 }} restaurante(s) cadastrado(s)</p>
+          <p class="page__sub">
+            {{ tenants.hasValue() ? tenants.value().length : 0 }} restaurante(s) cadastrado(s)
+          </p>
         </div>
         <button class="b-btn-primary" (click)="abrirModalCriar()">
           <svg lucideIcon="plus" [size]="16" />
@@ -63,7 +65,11 @@ interface TenantInfo {
                   <span class="badge" [class.badge--pro]="tenant.plano === 'pro'">
                     {{ tenant.plano }}
                   </span>
-                  <span class="badge" [class.badge--ativo]="tenant.ativo" [class.badge--inativo]="!tenant.ativo">
+                  <span
+                    class="badge"
+                    [class.badge--ativo]="tenant.ativo"
+                    [class.badge--inativo]="!tenant.ativo"
+                  >
                     {{ tenant.ativo ? 'ativo' : 'inativo' }}
                   </span>
                 </div>
@@ -124,20 +130,29 @@ interface TenantInfo {
             <div class="field-row">
               <div class="field">
                 <label class="b-label">Nome do restaurante</label>
-                <input class="b-input" type="text" placeholder="Burguer House"
-                  [value]="criar.nome()" (input)="onNomeInputEvent($event)" />
+                <input
+                  class="b-input"
+                  type="text"
+                  placeholder="Burguer House"
+                  [value]="criar.nome()"
+                  (input)="onNomeInputEvent($event)"
+                />
               </div>
               <div class="field">
                 <label class="b-label">Slug (subdomínio)</label>
-                <input class="b-input" type="text" placeholder="burguer-house"
-                  [value]="criar.slug()" (input)="onCriarSlugInput($event)" />
+                <input
+                  class="b-input"
+                  type="text"
+                  placeholder="burguer-house"
+                  [value]="criar.slug()"
+                  (input)="onCriarSlugInput($event)"
+                />
               </div>
             </div>
 
             <div class="field">
               <label class="b-label">Plano</label>
-              <select class="b-input" [value]="criar.plano()"
-                (change)="onCriarPlanoChange($event)">
+              <select class="b-input" [value]="criar.plano()" (change)="onCriarPlanoChange($event)">
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
               </select>
@@ -148,20 +163,35 @@ interface TenantInfo {
             <div class="field-row">
               <div class="field">
                 <label class="b-label">Nome</label>
-                <input class="b-input" type="text" placeholder="João Silva"
-                  [value]="criar.adminNome()" (input)="onCriarAdminNomeInput($event)" />
+                <input
+                  class="b-input"
+                  type="text"
+                  placeholder="João Silva"
+                  [value]="criar.adminNome()"
+                  (input)="onCriarAdminNomeInput($event)"
+                />
               </div>
               <div class="field">
                 <label class="b-label">E-mail</label>
-                <input class="b-input" type="email" placeholder="admin@burguer.com"
-                  [value]="criar.adminEmail()" (input)="onCriarAdminEmailInput($event)" />
+                <input
+                  class="b-input"
+                  type="email"
+                  placeholder="admin@burguer.com"
+                  [value]="criar.adminEmail()"
+                  (input)="onCriarAdminEmailInput($event)"
+                />
               </div>
             </div>
 
             <div class="field">
               <label class="b-label">Senha</label>
-              <input class="b-input" type="password" placeholder="mínimo 6 caracteres"
-                [value]="criar.adminSenha()" (input)="onCriarAdminSenhaInput($event)" />
+              <input
+                class="b-input"
+                type="password"
+                placeholder="mínimo 6 caracteres"
+                [value]="criar.adminSenha()"
+                (input)="onCriarAdminSenhaInput($event)"
+              />
             </div>
 
             @if (erroModal()) {
@@ -169,7 +199,9 @@ interface TenantInfo {
             }
 
             <div class="modal__footer">
-              <button type="button" class="b-btn-ghost" (click)="fecharModalCriar()">Cancelar</button>
+              <button type="button" class="b-btn-ghost" (click)="fecharModalCriar()">
+                Cancelar
+              </button>
               <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
                   <svg lucideIcon="loader-2" [size]="14" class="b-spin" />
@@ -198,8 +230,12 @@ interface TenantInfo {
           <form class="modal__form" (submit)="atualizarTenant($event)" novalidate>
             <div class="field">
               <label class="b-label">Nome do restaurante</label>
-              <input class="b-input" type="text"
-                [value]="editar.nome()" (input)="onEditarNomeInput($event)" />
+              <input
+                class="b-input"
+                type="text"
+                [value]="editar.nome()"
+                (input)="onEditarNomeInput($event)"
+              />
             </div>
 
             <div class="field">
@@ -210,8 +246,11 @@ interface TenantInfo {
 
             <div class="field">
               <label class="b-label">Plano</label>
-              <select class="b-input" [value]="editar.plano()"
-                (change)="onEditarPlanoChange($event)">
+              <select
+                class="b-input"
+                [value]="editar.plano()"
+                (change)="onEditarPlanoChange($event)"
+              >
                 <option value="basic">Basic</option>
                 <option value="pro">Pro</option>
               </select>
@@ -235,7 +274,9 @@ interface TenantInfo {
             }
 
             <div class="modal__footer">
-              <button type="button" class="b-btn-ghost" (click)="fecharModalEditar()">Cancelar</button>
+              <button type="button" class="b-btn-ghost" (click)="fecharModalEditar()">
+                Cancelar
+              </button>
               <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
                   <svg lucideIcon="loader-2" [size]="14" class="b-spin" />
@@ -250,316 +291,345 @@ interface TenantInfo {
       </div>
     }
   `,
-  styles: [`
-    :host { display: block; }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: block;
+      }
 
-    .page {
-      padding: var(--b-space-6);
-      max-width: 1100px;
-      margin: 0 auto;
-      font-family: var(--b-font-sans);
+      .page {
+        padding: var(--b-space-6);
+        max-width: 1100px;
+        margin: 0 auto;
+        font-family: var(--b-font-sans);
 
-      @media (max-width: 767px) { padding: var(--b-space-4); }
-    }
+        @media (max-width: 767px) {
+          padding: var(--b-space-4);
+        }
+      }
 
-    .page__header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--b-space-4);
-      margin-bottom: var(--b-space-6);
-    }
+      .page__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--b-space-4);
+        margin-bottom: var(--b-space-6);
+      }
 
-    .page__title {
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-      margin: 0;
-    }
+      .page__title {
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-    .page__sub {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-      margin: var(--b-space-1) 0 0;
-    }
+      .page__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: var(--b-space-1) 0 0;
+      }
 
-    /* ===== GRID ===== */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
-      gap: var(--b-space-4);
-    }
+      /* ===== GRID ===== */
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: var(--b-space-4);
+      }
 
-    /* ===== TENANT CARD ===== */
-    .tenant-card {
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-md);
-      border: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      padding: var(--b-space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-3);
-      transition: box-shadow 0.15s;
+      /* ===== TENANT CARD ===== */
+      .tenant-card {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-3);
+        transition: box-shadow 0.15s;
 
-      &:hover { box-shadow: var(--b-shadow-2); }
-      &--inativo { opacity: 0.65; }
-    }
+        &:hover {
+          box-shadow: var(--b-shadow-2);
+        }
+        &--inativo {
+          opacity: 0.65;
+        }
+      }
 
-    .tenant-card__header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: var(--b-space-2);
-    }
+      .tenant-card__header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: var(--b-space-2);
+      }
 
-    .tenant-card__info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      min-width: 0;
-    }
+      .tenant-card__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+      }
 
-    .tenant-card__nome {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
+      .tenant-card__nome {
+        font-size: var(--b-font-size-md);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
 
-    .tenant-card__slug {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-subtle);
-      font-family: monospace;
-    }
+      .tenant-card__slug {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-subtle);
+        font-family: monospace;
+      }
 
-    .tenant-card__badges {
-      display: flex;
-      gap: var(--b-space-1);
-      flex-shrink: 0;
-    }
+      .tenant-card__badges {
+        display: flex;
+        gap: var(--b-space-1);
+        flex-shrink: 0;
+      }
 
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 2px var(--b-space-2);
-      border-radius: var(--b-radius-sm);
-      font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-semibold);
-      text-transform: capitalize;
-      background-color: var(--b-neutral-100);
-      color: var(--b-fg-muted);
+      .badge {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px var(--b-space-2);
+        border-radius: var(--b-radius-sm);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-semibold);
+        text-transform: capitalize;
+        background-color: var(--b-neutral-100);
+        color: var(--b-fg-muted);
 
-      &--pro { background-color: var(--b-primary-100); color: var(--b-primary-700); }
-      &--ativo { background-color: var(--b-success-100); color: var(--b-success-700); }
-      &--inativo { background-color: var(--b-danger-100); color: var(--b-danger-700); }
-    }
+        &--pro {
+          background-color: var(--b-primary-100);
+          color: var(--b-primary-700);
+        }
+        &--ativo {
+          background-color: var(--b-success-100);
+          color: var(--b-success-700);
+        }
+        &--inativo {
+          background-color: var(--b-danger-100);
+          color: var(--b-danger-700);
+        }
+      }
 
-    .tenant-card__stats {
-      display: flex;
-      flex-wrap: wrap;
-      gap: var(--b-space-3);
-      padding: var(--b-space-3) 0;
-      border-top: 1px solid var(--b-neutral-100);
-      border-bottom: 1px solid var(--b-neutral-100);
-    }
+      .tenant-card__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--b-space-3);
+        padding: var(--b-space-3) 0;
+        border-top: 1px solid var(--b-neutral-100);
+        border-bottom: 1px solid var(--b-neutral-100);
+      }
 
-    .stat {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-    }
+      .stat {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
 
-    .tenant-card__actions {
-      display: flex;
-      gap: var(--b-space-2);
-    }
+      .tenant-card__actions {
+        display: flex;
+        gap: var(--b-space-2);
+      }
 
-    /* ===== BOTÕES DE CARD (tamanho compacto) ===== */
-    .btn-acessar {
-      flex: 1;
-      font-size: var(--b-font-size-xs);
-      min-height: 36px;
-    }
+      /* ===== BOTÕES DE CARD (tamanho compacto) ===== */
+      .btn-acessar {
+        flex: 1;
+        font-size: var(--b-font-size-xs);
+        min-height: 36px;
+      }
 
-    .btn-editar {
-      font-size: var(--b-font-size-xs);
-      min-height: 36px;
-    }
+      .btn-editar {
+        font-size: var(--b-font-size-xs);
+        min-height: 36px;
+      }
 
-    /* ===== LOADING / EMPTY ===== */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--b-space-10) 0;
-      color: var(--b-fg-muted);
-    }
+      /* ===== LOADING / EMPTY ===== */
+      .loading {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--b-space-10) 0;
+        color: var(--b-fg-muted);
+      }
 
-    .estado-vazio {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-10) 0;
-      color: var(--b-fg-muted);
-      font-size: var(--b-font-size-sm);
-      text-align: center;
-
-      p { margin: 0; }
-    }
-
-    /* ===== MODAL ===== */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background-color: rgba(0, 0, 0, 0.45);
-      z-index: 300;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--b-space-4);
-    }
-
-    .modal {
-      width: 100%;
-      max-width: 560px;
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-lg);
-      box-shadow: var(--b-shadow-3);
-      max-height: 90dvh;
-      overflow-y: auto;
-    }
-
-    .modal__header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: var(--b-space-5) var(--b-space-5) 0;
-    }
-
-    .modal__title {
-      font-size: var(--b-font-size-lg);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
-      margin: 0;
-    }
-
-    .modal__close {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 36px;
-      height: 36px;
-      border: none;
-      background: transparent;
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      border-radius: var(--b-radius-sm);
-
-      &:hover { background-color: var(--b-bg-sunken); }
-    }
-
-    .modal__form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-4);
-      padding: var(--b-space-5);
-    }
-
-    .modal__footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: var(--b-space-2);
-      padding-top: var(--b-space-2);
-      border-top: 1px solid var(--b-neutral-100);
-    }
-
-    /* ===== FORM ===== */
-    .field-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--b-space-3);
-
-      @media (max-width: 480px) { grid-template-columns: 1fr; }
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-1);
-
-      &--toggle {
-        flex-direction: row;
+      .estado-vazio {
+        display: flex;
+        flex-direction: column;
         align-items: center;
         gap: var(--b-space-3);
+        padding: var(--b-space-10) 0;
+        color: var(--b-fg-muted);
+        font-size: var(--b-font-size-sm);
+        text-align: center;
+
+        p {
+          margin: 0;
+        }
       }
-    }
 
-    .field-group-label {
-      font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      padding-bottom: var(--b-space-1);
-      border-bottom: 1px solid var(--b-neutral-100);
-    }
+      /* ===== MODAL ===== */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(0, 0, 0, 0.45);
+        z-index: 300;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--b-space-4);
+      }
 
-    .field__hint {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-subtle);
-    }
+      .modal {
+        width: 100%;
+        max-width: 560px;
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-lg);
+        box-shadow: var(--b-shadow-3);
+        max-height: 90dvh;
+        overflow-y: auto;
+      }
 
-    .erro {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-danger-600);
-      background-color: var(--b-danger-50);
-      border: 1px solid var(--b-danger-200);
-      border-radius: var(--b-radius-sm);
-      padding: var(--b-space-2) var(--b-space-3);
-      margin: 0;
-    }
+      .modal__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--b-space-5) var(--b-space-5) 0;
+      }
 
-    /* ===== TOGGLE ===== */
-    .toggle {
-      position: relative;
-      width: 44px;
-      height: 24px;
-      border: none;
-      border-radius: 12px;
-      background-color: var(--b-neutral-300);
-      cursor: pointer;
-      transition: background-color 0.2s;
-      flex-shrink: 0;
-      padding: 0;
+      .modal__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-      &--ativo { background-color: var(--b-success-500); }
-    }
+      .modal__close {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        border-radius: var(--b-radius-sm);
 
-    .toggle__thumb {
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 18px;
-      height: 18px;
-      border-radius: 50%;
-      background-color: white;
-      transition: transform 0.2s;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+      }
 
-      .toggle--ativo & { transform: translateX(20px); }
-    }
+      .modal__form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+        padding: var(--b-space-5);
+      }
 
-    .toggle__label {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-    }
+      .modal__footer {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--b-space-2);
+        padding-top: var(--b-space-2);
+        border-top: 1px solid var(--b-neutral-100);
+      }
 
-  `],
+      /* ===== FORM ===== */
+      .field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: var(--b-space-3);
+
+        @media (max-width: 480px) {
+          grid-template-columns: 1fr;
+        }
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-1);
+
+        &--toggle {
+          flex-direction: row;
+          align-items: center;
+          gap: var(--b-space-3);
+        }
+      }
+
+      .field-group-label {
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding-bottom: var(--b-space-1);
+        border-bottom: 1px solid var(--b-neutral-100);
+      }
+
+      .field__hint {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-subtle);
+      }
+
+      .erro {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-danger-600);
+        background-color: var(--b-danger-50);
+        border: 1px solid var(--b-danger-200);
+        border-radius: var(--b-radius-sm);
+        padding: var(--b-space-2) var(--b-space-3);
+        margin: 0;
+      }
+
+      /* ===== TOGGLE ===== */
+      .toggle {
+        position: relative;
+        width: 44px;
+        height: 24px;
+        border: none;
+        border-radius: 12px;
+        background-color: var(--b-neutral-300);
+        cursor: pointer;
+        transition: background-color 0.2s;
+        flex-shrink: 0;
+        padding: 0;
+
+        &--ativo {
+          background-color: var(--b-success-500);
+        }
+      }
+
+      .toggle__thumb {
+        position: absolute;
+        top: 3px;
+        left: 3px;
+        width: 18px;
+        height: 18px;
+        border-radius: 50%;
+        background-color: white;
+        transition: transform 0.2s;
+
+        .toggle--ativo & {
+          transform: translateX(20px);
+        }
+      }
+
+      .toggle__label {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
+    `,
+  ],
 })
 export class TenantsComponent {
   private readonly http = inject(HttpClient);
@@ -590,9 +660,7 @@ export class TenantsComponent {
 
   protected readonly tenants = resource({
     loader: () =>
-      firstValueFrom(
-        this.http.get<TenantInfo[]>(`${environment.apiUrl}/master/tenants`)
-      ),
+      firstValueFrom(this.http.get<TenantInfo[]>(`${environment.apiUrl}/master/tenants`)),
   });
 
   protected onNomeInputEvent(event: Event): void {
@@ -677,22 +745,21 @@ export class TenantsComponent {
     this.salvando.set(true);
     try {
       await firstValueFrom(
-        this.http.post(
-          `${environment.apiUrl}/master/tenants`,
-          {
-            nome: nome(),
-            slug: slug(),
-            plano: plano(),
-            adminNome: adminNome(),
-            adminEmail: adminEmail(),
-            adminSenha: adminSenha(),
-          }
-        )
+        this.http.post(`${environment.apiUrl}/master/tenants`, {
+          nome: nome(),
+          slug: slug(),
+          plano: plano(),
+          adminNome: adminNome(),
+          adminEmail: adminEmail(),
+          adminSenha: adminSenha(),
+        }),
       );
       this.fecharModalCriar();
       this.tenants.reload();
     } catch (err: unknown) {
-      const msg = (err as { error?: { error?: { message?: string } } })?.error?.error?.message ?? 'Erro ao criar tenant';
+      const msg =
+        (err as { error?: { error?: { message?: string } } })?.error?.error?.message ??
+        'Erro ao criar tenant';
       this.erroModal.set(msg);
     } finally {
       this.salvando.set(false);
@@ -707,19 +774,18 @@ export class TenantsComponent {
     this.salvando.set(true);
     try {
       await firstValueFrom(
-        this.http.patch(
-          `${environment.apiUrl}/master/tenants/${tenant.id}`,
-          {
-            nome: this.editar.nome(),
-            plano: this.editar.plano(),
-            ativo: this.editar.ativo(),
-          }
-        )
+        this.http.patch(`${environment.apiUrl}/master/tenants/${tenant.id}`, {
+          nome: this.editar.nome(),
+          plano: this.editar.plano(),
+          ativo: this.editar.ativo(),
+        }),
       );
       this.fecharModalEditar();
       this.tenants.reload();
     } catch (err: unknown) {
-      const msg = (err as { error?: { error?: { message?: string } } })?.error?.error?.message ?? 'Erro ao atualizar tenant';
+      const msg =
+        (err as { error?: { error?: { message?: string } } })?.error?.error?.message ??
+        'Erro ao atualizar tenant';
       this.erroModal.set(msg);
     } finally {
       this.salvando.set(false);

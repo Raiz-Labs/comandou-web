@@ -1,4 +1,11 @@
-import { Component, booleanAttribute, computed, input, numberAttribute } from '@angular/core';
+import {
+  Component,
+  booleanAttribute,
+  computed,
+  input,
+  numberAttribute,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { NOME, SINO, SINO_PEQUENO } from './marca.paths';
 
 export type VarianteMarca = 'horizontal' | 'simbolo' | 'empilhada';
@@ -16,37 +23,77 @@ export type VarianteMarca = 'horizontal' | 'simbolo' | 'empilhada';
   template: `
     @switch (variante()) {
       @case ('simbolo') {
-        <svg viewBox="0 0 256 256" [attr.role]="rotulo() && 'img'" [attr.aria-label]="rotulo()" [attr.aria-hidden]="decorativa() || null" [attr.height]="tamanho()">
+        <svg
+          viewBox="0 0 256 256"
+          [attr.role]="rotulo() && 'img'"
+          [attr.aria-label]="rotulo()"
+          [attr.aria-hidden]="decorativa() || null"
+          [attr.height]="tamanho()"
+        >
           <path class="sino" fill-rule="evenodd" [attr.d]="sino().domo" />
           <path class="sino" [attr.d]="sino().base" />
         </svg>
       }
       @case ('empilhada') {
-        <svg viewBox="0 0 330.5 231" [attr.role]="rotulo() && 'img'" [attr.aria-label]="rotulo()" [attr.aria-hidden]="decorativa() || null" [attr.height]="tamanho()">
+        <svg
+          viewBox="0 0 330.5 231"
+          [attr.role]="rotulo() && 'img'"
+          [attr.aria-label]="rotulo()"
+          [attr.aria-hidden]="decorativa() || null"
+          [attr.height]="tamanho()"
+        >
           <g transform="translate(37.3 -50)">
             <path class="sino" fill-rule="evenodd" [attr.d]="SINO.domo" />
             <path class="sino" [attr.d]="SINO.base" />
           </g>
-          <path class="nome" fill-rule="evenodd" transform="translate(-2.4 230.2) scale(0.55)" [attr.d]="NOME" />
+          <path
+            class="nome"
+            fill-rule="evenodd"
+            transform="translate(-2.4 230.2) scale(0.55)"
+            [attr.d]="NOME"
+          />
         </svg>
       }
       @default {
-        <svg viewBox="0 0 833 148" [attr.role]="rotulo() && 'img'" [attr.aria-label]="rotulo()" [attr.aria-hidden]="decorativa() || null" [attr.height]="tamanho()">
+        <svg
+          viewBox="0 0 833 148"
+          [attr.role]="rotulo() && 'img'"
+          [attr.aria-label]="rotulo()"
+          [attr.aria-hidden]="decorativa() || null"
+          [attr.height]="tamanho()"
+        >
           <g transform="translate(-32 -50)">
             <path class="sino" fill-rule="evenodd" [attr.d]="SINO.domo" />
             <path class="sino" [attr.d]="SINO.base" />
-            <path class="nome" fill-rule="evenodd" transform="translate(259.7 198)" [attr.d]="NOME" />
+            <path
+              class="nome"
+              fill-rule="evenodd"
+              transform="translate(259.7 198)"
+              [attr.d]="NOME"
+            />
           </g>
         </svg>
       }
     }
   `,
-  styles: [`
-    :host { display: inline-flex; line-height: 0; }
-    svg { width: auto; }
-    .sino { fill: var(--b-primary-500); }
-    .nome { fill: var(--b-fg); }
-  `],
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      :host {
+        display: inline-flex;
+        line-height: 0;
+      }
+      svg {
+        width: auto;
+      }
+      .sino {
+        fill: var(--b-primary-500);
+      }
+      .nome {
+        fill: var(--b-fg);
+      }
+    `,
+  ],
 })
 export class MarcaComponent {
   readonly variante = input<VarianteMarca>('horizontal');

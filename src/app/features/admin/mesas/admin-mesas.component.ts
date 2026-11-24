@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -41,7 +42,11 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
-        <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
+        <button
+          class="b-btn-back"
+          (click)="router.navigateByUrl('/admin/dashboard')"
+          aria-label="Voltar"
+        >
           <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Mesas</h1>
@@ -55,8 +60,14 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
       <div class="toolbar">
         <div class="search-box">
           <svg lucideIcon="search" [size]="15" color="var(--b-fg-subtle)" />
-          <input class="search-input" type="search" placeholder="Buscar por número ou descrição..."
-            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
+          <input
+            class="search-input"
+            type="search"
+            placeholder="Buscar por número ou descrição..."
+            [value]="busca()"
+            (input)="onBuscaInput($event)"
+            autocomplete="off"
+          />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <svg lucideIcon="x" [size]="13" />
@@ -64,9 +75,27 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           }
         </div>
         <div class="filtro-tabs">
-          <button class="filtro-tab" [class.filtro-tab--active]="filtroStatus() === null" (click)="filtroStatus.set(null)">Todas</button>
-          <button class="filtro-tab" [class.filtro-tab--active]="filtroStatus() === 'livre'" (click)="filtroStatus.set('livre')">Livres</button>
-          <button class="filtro-tab" [class.filtro-tab--active]="filtroStatus() === 'ocupada'" (click)="filtroStatus.set('ocupada')">Ocupadas</button>
+          <button
+            class="filtro-tab"
+            [class.filtro-tab--active]="filtroStatus() === null"
+            (click)="filtroStatus.set(null)"
+          >
+            Todas
+          </button>
+          <button
+            class="filtro-tab"
+            [class.filtro-tab--active]="filtroStatus() === 'livre'"
+            (click)="filtroStatus.set('livre')"
+          >
+            Livres
+          </button>
+          <button
+            class="filtro-tab"
+            [class.filtro-tab--active]="filtroStatus() === 'ocupada'"
+            (click)="filtroStatus.set('ocupada')"
+          >
+            Ocupadas
+          </button>
         </div>
         @if (!mesas.isLoading()) {
           <span class="toolbar__count">{{ total() }} mesa{{ total() !== 1 ? 's' : '' }}</span>
@@ -105,18 +134,32 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
         } @else {
           <div class="grid">
             @for (mesa of itens(); track mesa.id) {
-              <div class="mesa-card" [class.mesa-card--ocupada]="mesa.status === 'ocupada'" [class.mesa-card--pronto]="mesa.status === 'item_pronto'">
+              <div
+                class="mesa-card"
+                [class.mesa-card--ocupada]="mesa.status === 'ocupada'"
+                [class.mesa-card--pronto]="mesa.status === 'item_pronto'"
+              >
                 <div class="mesa-card__numero">Mesa {{ mesa.numero }}</div>
                 @if (mesa.descricao) {
                   <div class="mesa-card__desc">{{ mesa.descricao }}</div>
                 }
-                <span class="status-pill status-pill--{{ mesa.status }}">{{ statusLabel(mesa.status) }}</span>
+                <span class="status-pill status-pill--{{ mesa.status }}">{{
+                  statusLabel(mesa.status)
+                }}</span>
                 <div class="mesa-card__acoes">
-                  <button class="acao-btn acao-btn--edit" (click)="abrirEditar(mesa)" aria-label="Editar">
+                  <button
+                    class="acao-btn acao-btn--edit"
+                    (click)="abrirEditar(mesa)"
+                    aria-label="Editar"
+                  >
                     <svg lucideIcon="pencil" [size]="14" />
                   </button>
-                  <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(mesa)" aria-label="Excluir"
-                    [disabled]="mesa.status !== 'livre'">
+                  <button
+                    class="acao-btn acao-btn--delete"
+                    (click)="pedirExclusao(mesa)"
+                    aria-label="Excluir"
+                    [disabled]="mesa.status !== 'livre'"
+                  >
                     <svg lucideIcon="trash-2" [size]="14" />
                   </button>
                 </div>
@@ -124,7 +167,11 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             }
           </div>
           @if (totalPages() > 1) {
-            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+            <app-pagination
+              [page]="page()"
+              [totalPages]="totalPages()"
+              (pageChange)="page.set($event)"
+            />
           }
         }
       </main>
@@ -144,12 +191,19 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
         <div class="painel__form">
           <!-- Número -->
           <div class="campo">
-            <label class="b-label" for="f-numero">Número da mesa <span class="obrigatorio">*</span></label>
-            <input id="f-numero" class="b-input" type="number" min="1"
+            <label class="b-label" for="f-numero"
+              >Número da mesa <span class="obrigatorio">*</span></label
+            >
+            <input
+              id="f-numero"
+              class="b-input"
+              type="number"
+              min="1"
               [value]="model().numero"
               (input)="onFieldInput($event, 'numero')"
               (blur)="tocou('numero')"
-              placeholder="1" />
+              placeholder="1"
+            />
             @if (erroVisivel('numero')) {
               <span class="b-error-message">{{ erroVisivel('numero') }}</span>
             }
@@ -158,10 +212,14 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           <!-- Descrição -->
           <div class="campo">
             <label class="b-label" for="f-desc">Descrição (opcional)</label>
-            <input id="f-desc" class="b-input" type="text"
+            <input
+              id="f-desc"
+              class="b-input"
+              type="text"
               [value]="model().descricao"
               (input)="onFieldInput($event, 'descricao')"
-              placeholder="Ex: Varanda, Térreo, Salão..." />
+              placeholder="Ex: Varanda, Térreo, Salão..."
+            />
           </div>
 
           <!-- Ações -->
@@ -185,73 +243,351 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
       <app-confirm-dialog
         title="Excluir mesa?"
         [message]="mensagemExclusao()"
-        confirmLabel="Excluir" cancelLabel="Cancelar" [confirmDanger]="true"
-        (confirmed)="confirmarExclusao()" (cancelled)="mesaParaExcluir.set(null)" />
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        [confirmDanger]="true"
+        (confirmed)="confirmarExclusao()"
+        (cancelled)="mesaParaExcluir.set(null)"
+      />
     }
   `,
-  styles: [`
-    .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+      }
 
-    .topbar { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-4) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); }
-    .topbar__title { flex: 1; font-size: var(--b-font-size-2xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
-    .btn-novo { display: flex; align-items: center; gap: var(--b-space-2); min-height: 44px; white-space: nowrap; }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-4) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+      }
+      .topbar__title {
+        flex: 1;
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .btn-novo {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        min-height: 44px;
+        white-space: nowrap;
+      }
 
-    .toolbar { display: flex; align-items: center; gap: var(--b-space-3); flex-wrap: wrap; padding: var(--b-space-3) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); }
-    .search-box { display: flex; align-items: center; gap: var(--b-space-2); padding: var(--b-space-2) var(--b-space-3); background-color: var(--b-bg-sunken); border: 1px solid var(--b-neutral-200); border-radius: var(--b-radius-sm); width: 280px; max-width: 100%; }
-    .search-input { flex: 1; border: none; background: transparent; font-size: var(--b-font-size-sm); color: var(--b-fg); outline: none; font-family: var(--b-font-sans); &::placeholder { color: var(--b-fg-subtle); } }
-    .search-clear { display: flex; align-items: center; border: none; background: transparent; color: var(--b-fg-muted); cursor: pointer; padding: 2px; &:hover { color: var(--b-fg); } }
-    .filtro-tabs { display: flex; gap: var(--b-space-1); }
-    .filtro-tab { padding: var(--b-space-1) var(--b-space-3); border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); background: transparent; font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-medium); color: var(--b-fg-muted); cursor: pointer; font-family: var(--b-font-sans); min-height: 36px; &:hover { background-color: var(--b-bg-sunken); } &--active { background-color: var(--b-primary-500); border-color: var(--b-primary-500); color: var(--b-fg-inverted); font-weight: var(--b-font-weight-semibold); } }
-    .toolbar__count { margin-left: auto; font-size: var(--b-font-size-sm); color: var(--b-fg-muted); }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        flex-wrap: wrap;
+        padding: var(--b-space-3) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+      }
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        padding: var(--b-space-2) var(--b-space-3);
+        background-color: var(--b-bg-sunken);
+        border: 1px solid var(--b-neutral-200);
+        border-radius: var(--b-radius-sm);
+        width: 280px;
+        max-width: 100%;
+      }
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg);
+        outline: none;
+        font-family: var(--b-font-sans);
+        &::placeholder {
+          color: var(--b-fg-subtle);
+        }
+      }
+      .search-clear {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        padding: 2px;
+        &:hover {
+          color: var(--b-fg);
+        }
+      }
+      .filtro-tabs {
+        display: flex;
+        gap: var(--b-space-1);
+      }
+      .filtro-tab {
+        padding: var(--b-space-1) var(--b-space-3);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-medium);
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        font-family: var(--b-font-sans);
+        min-height: 36px;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+        &--active {
+          background-color: var(--b-primary-500);
+          border-color: var(--b-primary-500);
+          color: var(--b-fg-inverted);
+          font-weight: var(--b-font-weight-semibold);
+        }
+      }
+      .toolbar__count {
+        margin-left: auto;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
 
-    .content { flex: 1; padding: var(--b-space-6); }
-    @media (max-width: 767px) {
-      .topbar { padding: var(--b-space-4) var(--b-space-4); }
-      .toolbar { padding: var(--b-space-3) var(--b-space-4); }
-      .search-box { width: 100%; }
-      .content { padding: var(--b-space-4); }
-    }
+      .content {
+        flex: 1;
+        padding: var(--b-space-6);
+      }
+      @media (max-width: 767px) {
+        .topbar {
+          padding: var(--b-space-4) var(--b-space-4);
+        }
+        .toolbar {
+          padding: var(--b-space-3) var(--b-space-4);
+        }
+        .search-box {
+          width: 100%;
+        }
+        .content {
+          padding: var(--b-space-4);
+        }
+      }
 
-    .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: var(--b-space-4); }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+        gap: var(--b-space-4);
+      }
 
-    .mesa-card { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); padding: var(--b-space-4); display: flex; flex-direction: column; gap: var(--b-space-2); transition: box-shadow 0.15s;
-      &:hover { box-shadow: var(--b-shadow-2); }
-      &--ocupada { border-color: var(--b-secondary-200); background-color: var(--b-secondary-50); }
-      &--pronto { border-color: var(--b-success-300); background-color: var(--b-success-50); }
-    }
-    .mesa-card-skeleton { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); padding: var(--b-space-4); display: flex; flex-direction: column; gap: var(--b-space-3); }
-    .mesa-card__numero { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); }
-    .mesa-card__desc { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); }
-    .mesa-card__acoes { display: flex; gap: var(--b-space-1); margin-top: var(--b-space-1); }
+      .mesa-card {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+        transition: box-shadow 0.15s;
+        &:hover {
+          box-shadow: var(--b-shadow-2);
+        }
+        &--ocupada {
+          border-color: var(--b-secondary-200);
+          background-color: var(--b-secondary-50);
+        }
+        &--pronto {
+          border-color: var(--b-success-300);
+          background-color: var(--b-success-50);
+        }
+      }
+      .mesa-card-skeleton {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-3);
+      }
+      .mesa-card__numero {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+      }
+      .mesa-card__desc {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
+      .mesa-card__acoes {
+        display: flex;
+        gap: var(--b-space-1);
+        margin-top: var(--b-space-1);
+      }
 
-    .status-pill { display: inline-flex; align-items: center; padding: 2px var(--b-space-2); border-radius: var(--b-radius-sm); font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-semibold);
-      &--livre { background: var(--b-neutral-100); color: var(--b-neutral-600); }
-      &--ocupada { background: var(--b-secondary-100); color: var(--b-secondary-700); }
-      &--item_pronto { background: var(--b-success-100); color: var(--b-success-700); }
-    }
+      .status-pill {
+        display: inline-flex;
+        align-items: center;
+        padding: 2px var(--b-space-2);
+        border-radius: var(--b-radius-sm);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-semibold);
+        &--livre {
+          background: var(--b-neutral-100);
+          color: var(--b-neutral-600);
+        }
+        &--ocupada {
+          background: var(--b-secondary-100);
+          color: var(--b-secondary-700);
+        }
+        &--item_pronto {
+          background: var(--b-success-100);
+          color: var(--b-success-700);
+        }
+      }
 
-    .acao-btn { display: flex; align-items: center; justify-content: center; min-width: 32px; min-height: 32px; border-radius: var(--b-radius-sm); border: 1px solid transparent; background: transparent; cursor: pointer;
-      &--edit { color: var(--b-fg-muted); &:hover { background: var(--b-bg-sunken); color: var(--b-fg); border-color: var(--b-neutral-200); } }
-      &--delete { color: var(--b-danger-400); &:hover:not(:disabled) { background: var(--b-danger-50); border-color: var(--b-danger-200); color: var(--b-danger-600); } &:disabled { opacity: 0.3; cursor: not-allowed; } }
-    }
+      .acao-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 32px;
+        min-height: 32px;
+        border-radius: var(--b-radius-sm);
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        &--edit {
+          color: var(--b-fg-muted);
+          &:hover {
+            background: var(--b-bg-sunken);
+            color: var(--b-fg);
+            border-color: var(--b-neutral-200);
+          }
+        }
+        &--delete {
+          color: var(--b-danger-400);
+          &:hover:not(:disabled) {
+            background: var(--b-danger-50);
+            border-color: var(--b-danger-200);
+            color: var(--b-danger-600);
+          }
+          &:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+          }
+        }
+      }
 
-    .empty-state { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-3); padding: var(--b-space-16) var(--b-space-4); text-align: center; color: var(--b-fg-muted); font-size: var(--b-font-size-sm); }
-    .empty-state__title { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-semibold); color: var(--b-fg); margin: 0; }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+        color: var(--b-fg-muted);
+        font-size: var(--b-font-size-sm);
+      }
+      .empty-state__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-    /* Painel */
-    .painel-backdrop { position: fixed; inset: 0; background-color: rgba(44,26,14,0.4); backdrop-filter: blur(2px); z-index: 100; }
-    .painel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 420px; background-color: var(--b-bg-elevated); box-shadow: var(--b-shadow-4); z-index: 101; display: flex; flex-direction: column; overflow-y: auto; }
-    .painel__header { display: flex; align-items: center; justify-content: space-between; padding: var(--b-space-5); border-bottom: 1px solid var(--b-neutral-100); flex-shrink: 0; }
-    .painel__titulo { font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; }
-    .painel__fechar { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border-radius: var(--b-radius-sm); border: none; background: transparent; color: var(--b-fg-muted); cursor: pointer; &:hover { background-color: var(--b-bg-sunken); } }
-    .painel__form { flex: 1; padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .campo { display: flex; flex-direction: column; gap: var(--b-space-2); }
-    .obrigatorio { color: var(--b-danger-500); }
-    .painel__acoes { display: flex; justify-content: flex-end; gap: var(--b-space-3); padding-top: var(--b-space-4); border-top: 1px solid var(--b-neutral-100); margin-top: auto;
-      button { min-height: 44px; display: flex; align-items: center; gap: var(--b-space-2); &:disabled { opacity: 0.6; cursor: not-allowed; } }
-    }
-
-  `],
+      /* Painel */
+      .painel-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(44, 26, 14, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 100;
+      }
+      .painel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 420px;
+        background-color: var(--b-bg-elevated);
+        box-shadow: var(--b-shadow-4);
+        z-index: 101;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .painel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--b-space-5);
+        border-bottom: 1px solid var(--b-neutral-100);
+        flex-shrink: 0;
+      }
+      .painel__titulo {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .painel__fechar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: var(--b-radius-sm);
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+      }
+      .painel__form {
+        flex: 1;
+        padding: var(--b-space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .campo {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+      }
+      .obrigatorio {
+        color: var(--b-danger-500);
+      }
+      .painel__acoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--b-space-3);
+        padding-top: var(--b-space-4);
+        border-top: 1px solid var(--b-neutral-100);
+        margin-top: auto;
+        button {
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          gap: var(--b-space-2);
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    `,
+  ],
 })
 export class AdminMesasComponent {
   protected readonly router = inject(Router);
@@ -289,9 +625,13 @@ export class AdminMesasComponent {
     loader: ({ params }) => this.adminService.listarMesas(params),
   });
 
-  protected readonly itens = computed(() => (this.mesas.hasValue() ? this.mesas.value().items : []));
+  protected readonly itens = computed(() =>
+    this.mesas.hasValue() ? this.mesas.value().items : [],
+  );
   protected readonly total = computed(() => (this.mesas.hasValue() ? this.mesas.value().total : 0));
-  protected readonly totalPages = computed(() => (this.mesas.hasValue() ? this.mesas.value().totalPages : 1));
+  protected readonly totalPages = computed(() =>
+    this.mesas.hasValue() ? this.mesas.value().totalPages : 1,
+  );
 
   protected statusLabel(status: Mesa['status']): string {
     return STATUS_LABEL[status];
@@ -316,7 +656,7 @@ export class AdminMesasComponent {
   protected readonly formValido = computed(() => Object.keys(this.erros()).length === 0);
 
   protected setField(campo: Campo, value: unknown): void {
-    this.model.update(m => ({ ...m, [campo]: value }));
+    this.model.update((m) => ({ ...m, [campo]: value }));
   }
 
   protected onBuscaInput(event: Event): void {
@@ -328,7 +668,7 @@ export class AdminMesasComponent {
   }
 
   protected tocou(campo: Campo): void {
-    this._tocados.update(s => new Set([...s, campo]));
+    this._tocados.update((s) => new Set([...s, campo]));
   }
 
   protected erroVisivel(campo: Campo): string | null {
@@ -424,5 +764,4 @@ export class AdminMesasComponent {
       this.mesas.reload();
     }
   }
-
 }

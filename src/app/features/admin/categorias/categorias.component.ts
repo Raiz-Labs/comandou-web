@@ -5,6 +5,7 @@ import {
   computed,
   effect,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
@@ -35,7 +36,11 @@ type Campo = keyof CategoriaModel;
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
-        <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
+        <button
+          class="b-btn-back"
+          (click)="router.navigateByUrl('/admin/dashboard')"
+          aria-label="Voltar"
+        >
           <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Categorias</h1>
@@ -49,8 +54,14 @@ type Campo = keyof CategoriaModel;
       <div class="toolbar">
         <div class="search-box">
           <svg lucideIcon="search" [size]="15" color="var(--b-fg-subtle)" />
-          <input class="search-input" type="search" placeholder="Buscar por nome..."
-            [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
+          <input
+            class="search-input"
+            type="search"
+            placeholder="Buscar por nome..."
+            [value]="busca()"
+            (input)="onBuscaInput($event)"
+            autocomplete="off"
+          />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <svg lucideIcon="x" [size]="13" />
@@ -69,7 +80,13 @@ type Campo = keyof CategoriaModel;
         @if (categorias.isLoading()) {
           <div class="table-wrap">
             <table class="tabela">
-              <thead><tr><th>Ordem</th><th>Nome</th><th></th></tr></thead>
+              <thead>
+                <tr>
+                  <th>Ordem</th>
+                  <th>Nome</th>
+                  <th></th>
+                </tr>
+              </thead>
               <tbody>
                 @for (i of skeletons; track i) {
                   <tr>
@@ -102,7 +119,11 @@ type Campo = keyof CategoriaModel;
           <div class="table-wrap">
             <table class="tabela">
               <thead>
-                <tr><th class="th-ordem">Ordem</th><th>Nome</th><th></th></tr>
+                <tr>
+                  <th class="th-ordem">Ordem</th>
+                  <th>Nome</th>
+                  <th></th>
+                </tr>
               </thead>
               <tbody>
                 @for (cat of itens(); track cat.id) {
@@ -112,10 +133,18 @@ type Campo = keyof CategoriaModel;
                     </td>
                     <td class="tabela__nome">{{ cat.nome }}</td>
                     <td class="tabela__acoes">
-                      <button class="acao-btn acao-btn--edit" (click)="abrirEditar(cat)" aria-label="Editar">
+                      <button
+                        class="acao-btn acao-btn--edit"
+                        (click)="abrirEditar(cat)"
+                        aria-label="Editar"
+                      >
                         <svg lucideIcon="pencil" [size]="15" />
                       </button>
-                      <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(cat)" aria-label="Excluir">
+                      <button
+                        class="acao-btn acao-btn--delete"
+                        (click)="pedirExclusao(cat)"
+                        aria-label="Excluir"
+                      >
                         <svg lucideIcon="trash-2" [size]="15" />
                       </button>
                     </td>
@@ -125,7 +154,11 @@ type Campo = keyof CategoriaModel;
             </table>
           </div>
           @if (totalPages() > 1) {
-            <app-pagination [page]="page()" [totalPages]="totalPages()" (pageChange)="page.set($event)" />
+            <app-pagination
+              [page]="page()"
+              [totalPages]="totalPages()"
+              (pageChange)="page.set($event)"
+            />
           }
         }
       </main>
@@ -146,11 +179,15 @@ type Campo = keyof CategoriaModel;
           <!-- Nome -->
           <div class="campo">
             <label class="b-label" for="f-nome">Nome <span class="obrigatorio">*</span></label>
-            <input id="f-nome" class="b-input" type="text"
+            <input
+              id="f-nome"
+              class="b-input"
+              type="text"
               [value]="model().nome"
               (input)="onFieldInput($event, 'nome')"
               (blur)="tocou('nome')"
-              placeholder="Ex: Pratos Principais" />
+              placeholder="Ex: Pratos Principais"
+            />
             @if (erroVisivel('nome')) {
               <span class="b-error-message">{{ erroVisivel('nome') }}</span>
             }
@@ -158,16 +195,25 @@ type Campo = keyof CategoriaModel;
 
           <!-- Ordem -->
           <div class="campo">
-            <label class="b-label" for="f-ordem">Ordem de exibição <span class="obrigatorio">*</span></label>
-            <input id="f-ordem" class="b-input" type="number" min="1"
+            <label class="b-label" for="f-ordem"
+              >Ordem de exibição <span class="obrigatorio">*</span></label
+            >
+            <input
+              id="f-ordem"
+              class="b-input"
+              type="number"
+              min="1"
               [value]="model().ordem"
               (input)="onFieldInput($event, 'ordem')"
               (blur)="tocou('ordem')"
-              placeholder="1" />
+              placeholder="1"
+            />
             @if (erroVisivel('ordem')) {
               <span class="b-error-message">{{ erroVisivel('ordem') }}</span>
             }
-            <span class="campo__hint">Categorias com menor número aparecem primeiro no cardápio.</span>
+            <span class="campo__hint"
+              >Categorias com menor número aparecem primeiro no cardápio.</span
+            >
           </div>
 
           <!-- Ações -->
@@ -191,63 +237,321 @@ type Campo = keyof CategoriaModel;
       <app-confirm-dialog
         title="Excluir categoria?"
         [message]="mensagemExclusao()"
-        confirmLabel="Excluir" cancelLabel="Cancelar" [confirmDanger]="true"
-        (confirmed)="confirmarExclusao()" (cancelled)="categoriaParaExcluir.set(null)" />
+        confirmLabel="Excluir"
+        cancelLabel="Cancelar"
+        [confirmDanger]="true"
+        (confirmed)="confirmarExclusao()"
+        (cancelled)="categoriaParaExcluir.set(null)"
+      />
     }
   `,
-  styles: [`
-    .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+      }
 
-    .topbar { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-4) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); }
-    .topbar__title { flex: 1; font-size: var(--b-font-size-2xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
-    .btn-novo { display: flex; align-items: center; gap: var(--b-space-2); min-height: 44px; white-space: nowrap; }
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-4) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+      }
+      .topbar__title {
+        flex: 1;
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .btn-novo {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        min-height: 44px;
+        white-space: nowrap;
+      }
 
-    .toolbar { display: flex; align-items: center; gap: var(--b-space-3); flex-wrap: wrap; padding: var(--b-space-3) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); }
-    .search-box { display: flex; align-items: center; gap: var(--b-space-2); padding: var(--b-space-2) var(--b-space-3); background-color: var(--b-bg-sunken); border: 1px solid var(--b-neutral-200); border-radius: var(--b-radius-sm); width: 260px; max-width: 100%; }
-    .search-input { flex: 1; border: none; background: transparent; font-size: var(--b-font-size-sm); color: var(--b-fg); outline: none; font-family: var(--b-font-sans); &::placeholder { color: var(--b-fg-subtle); } }
-    .search-clear { display: flex; align-items: center; border: none; background: transparent; color: var(--b-fg-muted); cursor: pointer; padding: 2px; &:hover { color: var(--b-fg); } }
-    .toolbar__count { margin-left: auto; font-size: var(--b-font-size-sm); color: var(--b-fg-muted); }
+      .toolbar {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        flex-wrap: wrap;
+        padding: var(--b-space-3) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+      }
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        padding: var(--b-space-2) var(--b-space-3);
+        background-color: var(--b-bg-sunken);
+        border: 1px solid var(--b-neutral-200);
+        border-radius: var(--b-radius-sm);
+        width: 260px;
+        max-width: 100%;
+      }
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg);
+        outline: none;
+        font-family: var(--b-font-sans);
+        &::placeholder {
+          color: var(--b-fg-subtle);
+        }
+      }
+      .search-clear {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        padding: 2px;
+        &:hover {
+          color: var(--b-fg);
+        }
+      }
+      .toolbar__count {
+        margin-left: auto;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
 
-    .content { flex: 1; padding: var(--b-space-6); }
-    @media (max-width: 767px) {
-      .topbar { padding: var(--b-space-4) var(--b-space-4); }
-      .toolbar { padding: var(--b-space-3) var(--b-space-4); }
-      .search-box { width: 100%; }
-      .content { padding: var(--b-space-4); }
-    }
+      .content {
+        flex: 1;
+        padding: var(--b-space-6);
+      }
+      @media (max-width: 767px) {
+        .topbar {
+          padding: var(--b-space-4) var(--b-space-4);
+        }
+        .toolbar {
+          padding: var(--b-space-3) var(--b-space-4);
+        }
+        .search-box {
+          width: 100%;
+        }
+        .content {
+          padding: var(--b-space-4);
+        }
+      }
 
-    .table-wrap { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); overflow: auto; }
-    .tabela { width: 100%; border-collapse: collapse; font-size: var(--b-font-size-sm); font-family: var(--b-font-sans);
-      th { text-align: left; padding: var(--b-space-3) var(--b-space-4); font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-bold); color: var(--b-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; background-color: var(--b-bg-sunken); border-bottom: 1px solid var(--b-neutral-100); }
-      td { padding: var(--b-space-3) var(--b-space-4); border-bottom: 1px solid var(--b-neutral-100); vertical-align: middle; }
-    }
-    .th-ordem { width: 80px; text-align: center; }
-    .tabela__row { transition: background-color 0.1s; &:hover { background-color: var(--b-bg-sunken); } &:last-child td { border-bottom: none; } }
-    .tabela__ordem { text-align: center; }
-    .ordem-badge { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; border-radius: var(--b-radius-sm); background-color: var(--b-bg-sunken); border: 1px solid var(--b-neutral-200); font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-bold); color: var(--b-fg-muted); }
-    .tabela__nome { font-weight: var(--b-font-weight-semibold); color: var(--b-fg); }
-    .tabela__acoes { display: flex; gap: var(--b-space-1); justify-content: flex-end; }
+      .table-wrap {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        overflow: auto;
+      }
+      .tabela {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--b-font-size-sm);
+        font-family: var(--b-font-sans);
+        th {
+          text-align: left;
+          padding: var(--b-space-3) var(--b-space-4);
+          font-size: var(--b-font-size-xs);
+          font-weight: var(--b-font-weight-bold);
+          color: var(--b-fg-muted);
+          text-transform: uppercase;
+          letter-spacing: 0.04em;
+          background-color: var(--b-bg-sunken);
+          border-bottom: 1px solid var(--b-neutral-100);
+        }
+        td {
+          padding: var(--b-space-3) var(--b-space-4);
+          border-bottom: 1px solid var(--b-neutral-100);
+          vertical-align: middle;
+        }
+      }
+      .th-ordem {
+        width: 80px;
+        text-align: center;
+      }
+      .tabela__row {
+        transition: background-color 0.1s;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+        &:last-child td {
+          border-bottom: none;
+        }
+      }
+      .tabela__ordem {
+        text-align: center;
+      }
+      .ordem-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: var(--b-radius-sm);
+        background-color: var(--b-bg-sunken);
+        border: 1px solid var(--b-neutral-200);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg-muted);
+      }
+      .tabela__nome {
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+      }
+      .tabela__acoes {
+        display: flex;
+        gap: var(--b-space-1);
+        justify-content: flex-end;
+      }
 
-    .acao-btn { display: flex; align-items: center; justify-content: center; min-width: 36px; min-height: 36px; border-radius: var(--b-radius-sm); border: 1px solid transparent; background: transparent; cursor: pointer; &--edit { color: var(--b-fg-muted); &:hover { background: var(--b-bg-sunken); color: var(--b-fg); border-color: var(--b-neutral-200); } } &--delete { color: var(--b-danger-400); &:hover { background: var(--b-danger-50); border-color: var(--b-danger-200); color: var(--b-danger-600); } } }
+      .acao-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 36px;
+        min-height: 36px;
+        border-radius: var(--b-radius-sm);
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        &--edit {
+          color: var(--b-fg-muted);
+          &:hover {
+            background: var(--b-bg-sunken);
+            color: var(--b-fg);
+            border-color: var(--b-neutral-200);
+          }
+        }
+        &--delete {
+          color: var(--b-danger-400);
+          &:hover {
+            background: var(--b-danger-50);
+            border-color: var(--b-danger-200);
+            color: var(--b-danger-600);
+          }
+        }
+      }
 
-    .empty-state { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-3); padding: var(--b-space-16) var(--b-space-4); text-align: center; color: var(--b-fg-muted); font-size: var(--b-font-size-sm); }
-    .empty-state__title { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-semibold); color: var(--b-fg); margin: 0; }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+        color: var(--b-fg-muted);
+        font-size: var(--b-font-size-sm);
+      }
+      .empty-state__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-    /* Painel */
-    .painel-backdrop { position: fixed; inset: 0; background-color: rgba(44,26,14,0.4); backdrop-filter: blur(2px); z-index: 100; }
-    .painel { position: fixed; top: 0; right: 0; bottom: 0; width: 100%; max-width: 440px; background-color: var(--b-bg-elevated); box-shadow: var(--b-shadow-4); z-index: 101; display: flex; flex-direction: column; overflow-y: auto; }
-    .painel__header { display: flex; align-items: center; justify-content: space-between; padding: var(--b-space-5); border-bottom: 1px solid var(--b-neutral-100); flex-shrink: 0; }
-    .painel__titulo { font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; }
-    .painel__fechar { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border-radius: var(--b-radius-sm); border: none; background: transparent; color: var(--b-fg-muted); cursor: pointer; &:hover { background-color: var(--b-bg-sunken); } }
-    .painel__form { flex: 1; padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .campo { display: flex; flex-direction: column; gap: var(--b-space-2); }
-    .obrigatorio { color: var(--b-danger-500); }
-    .campo__hint { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); }
-    .painel__acoes { display: flex; justify-content: flex-end; gap: var(--b-space-3); padding-top: var(--b-space-4); border-top: 1px solid var(--b-neutral-100); margin-top: auto;
-      button { min-height: 44px; display: flex; align-items: center; gap: var(--b-space-2); &:disabled { opacity: 0.6; cursor: not-allowed; } }
-    }
-
-  `],
+      /* Painel */
+      .painel-backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(44, 26, 14, 0.4);
+        backdrop-filter: blur(2px);
+        z-index: 100;
+      }
+      .painel {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        max-width: 440px;
+        background-color: var(--b-bg-elevated);
+        box-shadow: var(--b-shadow-4);
+        z-index: 101;
+        display: flex;
+        flex-direction: column;
+        overflow-y: auto;
+      }
+      .painel__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--b-space-5);
+        border-bottom: 1px solid var(--b-neutral-100);
+        flex-shrink: 0;
+      }
+      .painel__titulo {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .painel__fechar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: var(--b-radius-sm);
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+      }
+      .painel__form {
+        flex: 1;
+        padding: var(--b-space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .campo {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+      }
+      .obrigatorio {
+        color: var(--b-danger-500);
+      }
+      .campo__hint {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
+      .painel__acoes {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--b-space-3);
+        padding-top: var(--b-space-4);
+        border-top: 1px solid var(--b-neutral-100);
+        margin-top: auto;
+        button {
+          min-height: 44px;
+          display: flex;
+          align-items: center;
+          gap: var(--b-space-2);
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    `,
+  ],
 })
 export class CategoriasComponent {
   protected readonly router = inject(Router);
@@ -279,9 +583,15 @@ export class CategoriasComponent {
     loader: ({ params }) => this.adminService.listarCategorias(params),
   });
 
-  protected readonly itens = computed(() => (this.categorias.hasValue() ? this.categorias.value().items : []));
-  protected readonly total = computed(() => (this.categorias.hasValue() ? this.categorias.value().total : 0));
-  protected readonly totalPages = computed(() => (this.categorias.hasValue() ? this.categorias.value().totalPages : 1));
+  protected readonly itens = computed(() =>
+    this.categorias.hasValue() ? this.categorias.value().items : [],
+  );
+  protected readonly total = computed(() =>
+    this.categorias.hasValue() ? this.categorias.value().total : 0,
+  );
+  protected readonly totalPages = computed(() =>
+    this.categorias.hasValue() ? this.categorias.value().totalPages : 1,
+  );
 
   // Form state
   protected readonly painelAberto = signal(false);
@@ -295,7 +605,8 @@ export class CategoriasComponent {
   protected readonly erros = computed(() => {
     const m = this.model();
     const e: Partial<Record<Campo, string>> = {};
-    if (!m.nome.trim() || m.nome.trim().length < 2) e.nome = 'Nome é obrigatório (mín. 2 caracteres)';
+    if (!m.nome.trim() || m.nome.trim().length < 2)
+      e.nome = 'Nome é obrigatório (mín. 2 caracteres)';
     if (!m.ordem || Number(m.ordem) < 1) e.ordem = 'Ordem deve ser um número maior que zero';
     return e;
   });
@@ -303,7 +614,7 @@ export class CategoriasComponent {
   protected readonly formValido = computed(() => Object.keys(this.erros()).length === 0);
 
   protected setField(campo: Campo, value: unknown): void {
-    this.model.update(m => ({ ...m, [campo]: value }));
+    this.model.update((m) => ({ ...m, [campo]: value }));
   }
 
   protected onBuscaInput(event: Event): void {
@@ -315,7 +626,7 @@ export class CategoriasComponent {
   }
 
   protected tocou(campo: Campo): void {
-    this._tocados.update(s => new Set([...s, campo]));
+    this._tocados.update((s) => new Set([...s, campo]));
   }
 
   protected erroVisivel(campo: Campo): string | null {
@@ -403,7 +714,9 @@ export class CategoriasComponent {
       if (err instanceof HttpErrorResponse && err.status === 404) {
         this.toast.info(`"${cat.nome}" já tinha sido removida.`);
       } else if (err instanceof HttpErrorResponse && err.status === 422) {
-        this.toast.danger('Categoria possui produtos vinculados. Remova os produtos antes de excluir.');
+        this.toast.danger(
+          'Categoria possui produtos vinculados. Remova os produtos antes de excluir.',
+        );
       } else {
         this.toast.danger('Não foi possível excluir a categoria.');
       }
@@ -411,5 +724,4 @@ export class CategoriasComponent {
       this.categorias.reload();
     }
   }
-
 }

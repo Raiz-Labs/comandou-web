@@ -6,6 +6,7 @@ import {
   OnInit,
   OnDestroy,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -227,7 +228,11 @@ import { DivisaoContaComponent } from './divisao-conta.component';
     @if (confirmandoPendentes()) {
       <app-confirm-dialog
         title="Há itens pendentes"
-        [message]="'Há ' + qtdBloqueantes() + ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'"
+        [message]="
+          'Há ' +
+          qtdBloqueantes() +
+          ' item(ns) ainda em preparo. Deseja fechar a comanda mesmo assim?'
+        "
         confirmLabel="Sim, fechar mesmo assim"
         cancelLabel="Cancelar"
         [confirmDanger]="true"
@@ -236,327 +241,343 @@ import { DivisaoContaComponent } from './divisao-conta.component';
       />
     }
   `,
-  styles: [`
-    .layout {
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
-      background-color: var(--b-bg);
-      font-family: var(--b-font-sans);
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-4);
-      padding: var(--b-space-4) var(--b-space-6);
-      background-color: var(--b-bg-elevated);
-      border-bottom: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      min-height: 72px;
-    }
-
-    .header__info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 3px;
-    }
-
-    .header__title {
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-      margin: 0;
-      display: flex;
-      align-items: baseline;
-      gap: var(--b-space-2);
-    }
-
-    .header__id {
-      font-family: monospace;
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-subtle);
-      font-weight: var(--b-font-weight-regular);
-    }
-
-    .header__sub {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-    }
-
-    .header__total {
-      text-align: right;
-      flex-shrink: 0;
-    }
-
-    .header__total-label {
-      display: block;
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-      font-weight: var(--b-font-weight-medium);
-    }
-
-    .header__total-valor {
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-primary-600);
-    }
-
-    /* ===== PAGE LAYOUT ===== */
-    .page {
-      flex: 1;
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--b-space-4);
-      padding: var(--b-space-4);
-      align-items: start;
-
-      @media (min-width: 768px) {
-        grid-template-columns: 1fr 340px;
-        padding: var(--b-space-6);
-        gap: var(--b-space-6);
-      }
-
-      @media (min-width: 1024px) {
-        grid-template-columns: 1fr 380px;
-      }
-    }
-
-    /* ===== SECTION TITLE ===== */
-    .section-title {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg-muted);
-      text-transform: uppercase;
-      letter-spacing: 0.04em;
-      margin: 0 0 var(--b-space-3);
-    }
-
-    /* ===== ITENS ===== */
-    .itens-section {
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-md);
-      border: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      padding: var(--b-space-5);
-    }
-
-    .item-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: var(--b-space-3);
-      padding: var(--b-space-3) 0;
-      border-bottom: 1px solid var(--b-neutral-100);
-
-      &:last-of-type { border-bottom: none; }
-
-      &--skeleton {
-        gap: var(--b-space-4);
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
         flex-direction: column;
-        align-items: flex-start;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
       }
 
-      &--cancelado {
-        opacity: 0.5;
+      /* ===== HEADER ===== */
+      .header {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-4);
+        padding: var(--b-space-4) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        min-height: 72px;
       }
-    }
 
-    .item-row__info {
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-      flex: 1;
-      min-width: 0;
-    }
-
-    .item-row__nome {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-    }
-
-    .item-row__obs {
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-      font-style: italic;
-    }
-
-    .item-row__right {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-      flex-shrink: 0;
-    }
-
-    .item-row__qtd {
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg-muted);
-      min-width: 28px;
-      text-align: center;
-    }
-
-    .item-row__total {
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-fg);
-      min-width: 80px;
-      text-align: right;
-
-      &--riscado {
-        text-decoration: line-through;
-        color: var(--b-fg-subtle);
-      }
-    }
-
-    .cancelados-sep {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-subtle);
-      font-weight: var(--b-font-weight-semibold);
-      padding: var(--b-space-3) 0 var(--b-space-1);
-
-      &::before, &::after {
-        content: '';
+      .header__info {
         flex: 1;
-        height: 1px;
-        background-color: var(--b-neutral-200);
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
       }
-    }
 
-    /* Totalizador */
-    .total-box {
-      margin-top: var(--b-space-4);
-      border-top: 2px solid var(--b-neutral-200);
-      padding-top: var(--b-space-3);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-    }
-
-    .total-box__row {
-      display: flex;
-      justify-content: space-between;
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-
-      &--muted { color: var(--b-fg-subtle); }
-
-      &--total {
-        font-size: var(--b-font-size-lg);
+      .header__title {
+        font-size: var(--b-font-size-2xl);
         font-weight: var(--b-font-weight-extrabold);
         color: var(--b-fg);
-        padding-top: var(--b-space-2);
-        border-top: 1px solid var(--b-neutral-200);
-        margin-top: var(--b-space-1);
+        margin: 0;
+        display: flex;
+        align-items: baseline;
+        gap: var(--b-space-2);
       }
-    }
 
-    /* ===== FECHAMENTO ===== */
-    .fechamento-section {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-4);
-    }
+      .header__id {
+        font-family: monospace;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-subtle);
+        font-weight: var(--b-font-weight-regular);
+      }
 
-    /* Resumo */
-    .resumo-card {
-      background-color: var(--b-bg-sunken);
-      border-radius: var(--b-radius-md);
-      padding: var(--b-space-4);
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-    }
+      .header__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
 
-    .resumo-card__linha {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
+      .header__total {
+        text-align: right;
+        flex-shrink: 0;
+      }
 
-      strong { color: var(--b-fg); font-weight: var(--b-font-weight-bold); }
+      .header__total-label {
+        display: block;
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+        font-weight: var(--b-font-weight-medium);
+      }
 
-      &--destaque {
+      .header__total-valor {
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-primary-600);
+      }
+
+      /* ===== PAGE LAYOUT ===== */
+      .page {
+        flex: 1;
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--b-space-4);
+        padding: var(--b-space-4);
+        align-items: start;
+
+        @media (min-width: 768px) {
+          grid-template-columns: 1fr 340px;
+          padding: var(--b-space-6);
+          gap: var(--b-space-6);
+        }
+
+        @media (min-width: 1024px) {
+          grid-template-columns: 1fr 380px;
+        }
+      }
+
+      /* ===== SECTION TITLE ===== */
+      .section-title {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        margin: 0 0 var(--b-space-3);
+      }
+
+      /* ===== ITENS ===== */
+      .itens-section {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-5);
+      }
+
+      .item-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--b-space-3);
+        padding: var(--b-space-3) 0;
+        border-bottom: 1px solid var(--b-neutral-100);
+
+        &:last-of-type {
+          border-bottom: none;
+        }
+
+        &--skeleton {
+          gap: var(--b-space-4);
+          flex-direction: column;
+          align-items: flex-start;
+        }
+
+        &--cancelado {
+          opacity: 0.5;
+        }
+      }
+
+      .item-row__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        flex: 1;
+        min-width: 0;
+      }
+
+      .item-row__nome {
         font-size: var(--b-font-size-md);
-        color: var(--b-fg);
         font-weight: var(--b-font-weight-semibold);
-        padding-top: var(--b-space-2);
-        border-top: 1px solid var(--b-neutral-200);
-        margin-top: var(--b-space-1);
-
-        strong { color: var(--b-primary-600); font-size: var(--b-font-size-lg); }
+        color: var(--b-fg);
       }
-    }
 
-    /* Botão fechar */
-    .btn-fechar {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-2);
-      width: 100%;
-      min-height: 52px;
-      font-size: var(--b-font-size-md);
-      font-weight: var(--b-font-weight-bold);
+      .item-row__obs {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+        font-style: italic;
+      }
 
-      &:disabled { opacity: 0.6; cursor: not-allowed; }
-    }
+      .item-row__right {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        flex-shrink: 0;
+      }
 
-    /* Comanda fechada */
-    .comanda-fechada {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-8) var(--b-space-4);
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-md);
-      border: 1.5px solid var(--b-success-200);
-      text-align: center;
-    }
+      .item-row__qtd {
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg-muted);
+        min-width: 28px;
+        text-align: center;
+      }
 
-    .comanda-fechada__titulo {
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-bold);
-      color: var(--b-success-700);
-      margin: 0;
-    }
+      .item-row__total {
+        font-size: var(--b-font-size-md);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        min-width: 80px;
+        text-align: right;
 
-    .comanda-fechada__sub {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-      margin: 0;
-    }
+        &--riscado {
+          text-decoration: line-through;
+          color: var(--b-fg-subtle);
+        }
+      }
 
-    .comanda-fechada__total {
-      font-size: var(--b-font-size-3xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-    }
+      .cancelados-sep {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-subtle);
+        font-weight: var(--b-font-weight-semibold);
+        padding: var(--b-space-3) 0 var(--b-space-1);
 
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-10);
-      text-align: center;
-      color: var(--b-fg-muted);
-      font-size: var(--b-font-size-sm);
-    }
+        &::before,
+        &::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background-color: var(--b-neutral-200);
+        }
+      }
 
-  `],
+      /* Totalizador */
+      .total-box {
+        margin-top: var(--b-space-4);
+        border-top: 2px solid var(--b-neutral-200);
+        padding-top: var(--b-space-3);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+      }
+
+      .total-box__row {
+        display: flex;
+        justify-content: space-between;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+
+        &--muted {
+          color: var(--b-fg-subtle);
+        }
+
+        &--total {
+          font-size: var(--b-font-size-lg);
+          font-weight: var(--b-font-weight-extrabold);
+          color: var(--b-fg);
+          padding-top: var(--b-space-2);
+          border-top: 1px solid var(--b-neutral-200);
+          margin-top: var(--b-space-1);
+        }
+      }
+
+      /* ===== FECHAMENTO ===== */
+      .fechamento-section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+
+      /* Resumo */
+      .resumo-card {
+        background-color: var(--b-bg-sunken);
+        border-radius: var(--b-radius-md);
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+      }
+
+      .resumo-card__linha {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+
+        strong {
+          color: var(--b-fg);
+          font-weight: var(--b-font-weight-bold);
+        }
+
+        &--destaque {
+          font-size: var(--b-font-size-md);
+          color: var(--b-fg);
+          font-weight: var(--b-font-weight-semibold);
+          padding-top: var(--b-space-2);
+          border-top: 1px solid var(--b-neutral-200);
+          margin-top: var(--b-space-1);
+
+          strong {
+            color: var(--b-primary-600);
+            font-size: var(--b-font-size-lg);
+          }
+        }
+      }
+
+      /* Botão fechar */
+      .btn-fechar {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--b-space-2);
+        width: 100%;
+        min-height: 52px;
+        font-size: var(--b-font-size-md);
+        font-weight: var(--b-font-weight-bold);
+
+        &:disabled {
+          opacity: 0.6;
+          cursor: not-allowed;
+        }
+      }
+
+      /* Comanda fechada */
+      .comanda-fechada {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-8) var(--b-space-4);
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1.5px solid var(--b-success-200);
+        text-align: center;
+      }
+
+      .comanda-fechada__titulo {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-success-700);
+        margin: 0;
+      }
+
+      .comanda-fechada__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: 0;
+      }
+
+      .comanda-fechada__total {
+        font-size: var(--b-font-size-3xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+      }
+
+      /* ===== EMPTY STATE ===== */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-10);
+        text-align: center;
+        color: var(--b-fg-muted);
+        font-size: var(--b-font-size-sm);
+      }
+    `,
+  ],
 })
 export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
   private readonly caixaService = inject(CaixaService);
@@ -584,24 +605,28 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
     loader: () => this.caixaService.buscarComanda(this.comandaId),
   });
 
-  protected readonly itensAtivos = computed(
-    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status !== 'cancelado')
+  protected readonly itensAtivos = computed(() =>
+    (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
+      (i) => i.status !== 'cancelado',
+    ),
   );
 
-  protected readonly itensCancelados = computed(
-    () => (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(i => i.status === 'cancelado')
+  protected readonly itensCancelados = computed(() =>
+    (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
+      (i) => i.status === 'cancelado',
+    ),
   );
 
-  protected readonly totalAtivo = computed(
-    () => this.itensAtivos().reduce((s, i) => s + i.total, 0)
+  protected readonly totalAtivo = computed(() =>
+    this.itensAtivos().reduce((s, i) => s + i.total, 0),
   );
 
-  protected readonly totalCancelado = computed(
-    () => this.itensCancelados().reduce((s, i) => s + i.total, 0)
+  protected readonly totalCancelado = computed(() =>
+    this.itensCancelados().reduce((s, i) => s + i.total, 0),
   );
 
-  protected readonly valorPorPessoa = computed(
-    () => this.divisoes() > 1 ? this.totalAtivo() / this.divisoes() : this.totalAtivo()
+  protected readonly valorPorPessoa = computed(() =>
+    this.divisoes() > 1 ? this.totalAtivo() / this.divisoes() : this.totalAtivo(),
   );
 
   protected readonly mensagemConfirmacao = computed(() => {
@@ -626,11 +651,10 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
         this.comanda.reload();
       }),
     );
-
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.subs.forEach((s) => s.unsubscribe());
   }
 
   protected voltar(): void {
@@ -671,7 +695,7 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
   protected confirmarFechamento(): void {
     this.confirmandoFechamento.set(false);
     const bloqueantes = (this.comanda.hasValue() ? this.comanda.value().itens : []).filter(
-      (i) => i.status === 'pendente' || i.status === 'em_preparo'
+      (i) => i.status === 'pendente' || i.status === 'em_preparo',
     );
     if (bloqueantes.length > 0) {
       this.qtdBloqueantes.set(bloqueantes.length);
@@ -715,9 +739,11 @@ export class ComandaDetalheCaixaComponent implements OnInit, OnDestroy {
 
   protected formatarData(data: string): string {
     return new Date(data).toLocaleString('pt-BR', {
-      day: '2-digit', month: '2-digit', year: 'numeric',
-      hour: '2-digit', minute: '2-digit',
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
     });
   }
-
 }

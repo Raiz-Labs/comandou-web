@@ -6,6 +6,7 @@ import {
   OnInit,
   OnDestroy,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { Subscription } from 'rxjs';
@@ -126,9 +127,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
           <div class="grid">
             @for (comanda of comandasFiltradas(); track comanda.id) {
               <button class="comanda-card" (click)="abrirComanda(comanda)">
-                <div class="comanda-card__mesa">
-                  Mesa {{ comanda.mesa?.numero ?? '—' }}
-                </div>
+                <div class="comanda-card__mesa">Mesa {{ comanda.mesa?.numero ?? '—' }}</div>
                 <div class="comanda-card__meta">
                   <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
                   <span class="comanda-card__tempo">
@@ -161,290 +160,307 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
       </main>
     </div>
   `,
-  styles: [`
-    .layout {
-      display: flex;
-      flex-direction: column;
-      min-height: 100dvh;
-      background-color: var(--b-bg);
-      font-family: var(--b-font-sans);
-    }
-
-    /* ===== HEADER ===== */
-    .header {
-      background-color: var(--b-bg-elevated);
-      border-bottom: 1px solid var(--b-neutral-100);
-      box-shadow: var(--b-shadow-1);
-      padding: var(--b-space-4) var(--b-space-4) 0;
-
-      @media (min-width: 768px) {
-        padding: var(--b-space-5) var(--b-space-6) 0;
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
       }
-    }
 
-    .header__top {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-3);
-      padding-bottom: var(--b-space-4);
+      /* ===== HEADER ===== */
+      .header {
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-4) var(--b-space-4) 0;
 
-      @media (min-width: 768px) {
-        flex-direction: row;
+        @media (min-width: 768px) {
+          padding: var(--b-space-5) var(--b-space-6) 0;
+        }
+      }
+
+      .header__top {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-3);
+        padding-bottom: var(--b-space-4);
+
+        @media (min-width: 768px) {
+          flex-direction: row;
+          align-items: center;
+          justify-content: space-between;
+        }
+      }
+
+      .header__info {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+      }
+
+      .header__title {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+
+      .header__badge {
+        padding: var(--b-space-1) var(--b-space-3);
+        background-color: var(--b-primary-100);
+        color: var(--b-primary-700);
+        border-radius: var(--b-radius-sm);
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-bold);
+      }
+
+      /* Busca */
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        padding: var(--b-space-2) var(--b-space-3);
+        background-color: var(--b-bg-sunken);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+
+        @media (min-width: 768px) {
+          width: 280px;
+        }
+      }
+
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg);
+        outline: none;
+        font-family: var(--b-font-sans);
+
+        &::placeholder {
+          color: var(--b-fg-subtle);
+        }
+      }
+
+      .search-clear {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        padding: 2px;
+
+        &:hover {
+          color: var(--b-fg);
+        }
+      }
+
+      /* Ordenação tabs */
+      .sort-tabs {
+        display: flex;
+        gap: 0;
+        border-top: 1px solid var(--b-neutral-100);
+      }
+
+      .sort-tab {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        padding: var(--b-space-2) var(--b-space-4);
+        border: none;
+        border-bottom: 2px solid transparent;
+        background-color: transparent;
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-medium);
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        font-family: var(--b-font-sans);
+        min-height: 44px;
+        transition: color 0.1s;
+
+        &:hover {
+          color: var(--b-fg);
+        }
+
+        &--active {
+          color: var(--b-primary-600);
+          border-bottom-color: var(--b-primary-500);
+          font-weight: var(--b-font-weight-bold);
+        }
+      }
+
+      /* ===== CONTENT ===== */
+      .content {
+        flex: 1;
+        padding: var(--b-space-4);
+
+        @media (min-width: 768px) {
+          padding: var(--b-space-6);
+        }
+      }
+
+      /* ===== GRID ===== */
+      .grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--b-space-3);
+
+        @media (min-width: 640px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (min-width: 1024px) {
+          grid-template-columns: repeat(3, 1fr);
+          gap: var(--b-space-4);
+        }
+
+        @media (min-width: 1280px) {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+
+      /* ===== COMANDA CARD ===== */
+      .comanda-card {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+        padding: var(--b-space-4) var(--b-space-4) var(--b-space-3);
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1.5px solid var(--b-neutral-200);
+        box-shadow: var(--b-shadow-1);
+        cursor: pointer;
+        text-align: left;
+        font-family: var(--b-font-sans);
+        position: relative;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.15s ease;
+
+        &:hover {
+          transform: translateY(-2px);
+          box-shadow: var(--b-shadow-2);
+          border-color: var(--b-primary-300);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        &--skeleton {
+          cursor: default;
+          gap: var(--b-space-3);
+
+          &:hover {
+            transform: none;
+            box-shadow: var(--b-shadow-1);
+            border-color: var(--b-neutral-200);
+          }
+        }
+      }
+
+      .comanda-card__mesa {
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        line-height: 1;
+      }
+
+      .comanda-card__meta {
+        display: flex;
         align-items: center;
         justify-content: space-between;
       }
-    }
 
-    .header__info {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-    }
-
-    .header__title {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-      margin: 0;
-    }
-
-    .header__badge {
-      padding: var(--b-space-1) var(--b-space-3);
-      background-color: var(--b-primary-100);
-      color: var(--b-primary-700);
-      border-radius: var(--b-radius-sm);
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-bold);
-    }
-
-    /* Busca */
-    .search-box {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-2);
-      padding: var(--b-space-2) var(--b-space-3);
-      background-color: var(--b-bg-sunken);
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-neutral-200);
-
-      @media (min-width: 768px) {
-        width: 280px;
-      }
-    }
-
-    .search-input {
-      flex: 1;
-      border: none;
-      background: transparent;
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg);
-      outline: none;
-      font-family: var(--b-font-sans);
-
-      &::placeholder { color: var(--b-fg-subtle); }
-    }
-
-    .search-clear {
-      display: flex;
-      align-items: center;
-      border: none;
-      background: transparent;
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      padding: 2px;
-
-      &:hover { color: var(--b-fg); }
-    }
-
-    /* Ordenação tabs */
-    .sort-tabs {
-      display: flex;
-      gap: 0;
-      border-top: 1px solid var(--b-neutral-100);
-    }
-
-    .sort-tab {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      padding: var(--b-space-2) var(--b-space-4);
-      border: none;
-      border-bottom: 2px solid transparent;
-      background-color: transparent;
-      font-size: var(--b-font-size-sm);
-      font-weight: var(--b-font-weight-medium);
-      color: var(--b-fg-muted);
-      cursor: pointer;
-      font-family: var(--b-font-sans);
-      min-height: 44px;
-      transition: color 0.1s;
-
-      &:hover { color: var(--b-fg); }
-
-      &--active {
-        color: var(--b-primary-600);
-        border-bottom-color: var(--b-primary-500);
-        font-weight: var(--b-font-weight-bold);
-      }
-    }
-
-    /* ===== CONTENT ===== */
-    .content {
-      flex: 1;
-      padding: var(--b-space-4);
-
-      @media (min-width: 768px) {
-        padding: var(--b-space-6);
-      }
-    }
-
-    /* ===== GRID ===== */
-    .grid {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: var(--b-space-3);
-
-      @media (min-width: 640px) {
-        grid-template-columns: repeat(2, 1fr);
+      .comanda-card__id {
+        font-family: monospace;
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-subtle);
+        font-weight: var(--b-font-weight-semibold);
       }
 
-      @media (min-width: 1024px) {
-        grid-template-columns: repeat(3, 1fr);
-        gap: var(--b-space-4);
+      .comanda-card__tempo {
+        display: flex;
+        align-items: center;
+        gap: 3px;
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
       }
 
-      @media (min-width: 1280px) {
-        grid-template-columns: repeat(4, 1fr);
-      }
-    }
-
-    /* ===== COMANDA CARD ===== */
-    .comanda-card {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-2);
-      padding: var(--b-space-4) var(--b-space-4) var(--b-space-3);
-      background-color: var(--b-bg-elevated);
-      border-radius: var(--b-radius-md);
-      border: 1.5px solid var(--b-neutral-200);
-      box-shadow: var(--b-shadow-1);
-      cursor: pointer;
-      text-align: left;
-      font-family: var(--b-font-sans);
-      position: relative;
-      transition: transform 0.15s ease, box-shadow 0.15s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: var(--b-shadow-2);
-        border-color: var(--b-primary-300);
-      }
-
-      &:active { transform: translateY(0); }
-
-      &--skeleton {
-        cursor: default;
+      .comanda-card__itens {
+        display: flex;
+        align-items: center;
         gap: var(--b-space-3);
-
-        &:hover { transform: none; box-shadow: var(--b-shadow-1); border-color: var(--b-neutral-200); }
       }
-    }
 
-    .comanda-card__mesa {
-      font-size: var(--b-font-size-2xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-fg);
-      line-height: 1;
-    }
+      .comanda-card__count {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
 
-    .comanda-card__meta {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
+      .comanda-card__pronto {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-1);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-success-600);
+        background-color: var(--b-success-50);
+        padding: 2px var(--b-space-2);
+        border-radius: var(--b-radius-sm);
+      }
 
-    .comanda-card__id {
-      font-family: monospace;
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-subtle);
-      font-weight: var(--b-font-weight-semibold);
-    }
+      .comanda-card__total {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-primary-600);
+        margin-top: var(--b-space-1);
+      }
 
-    .comanda-card__tempo {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-      font-size: var(--b-font-size-xs);
-      color: var(--b-fg-muted);
-    }
+      .comanda-card__action {
+        position: absolute;
+        right: var(--b-space-3);
+        top: 50%;
+        transform: translateY(-50%);
+      }
 
-    .comanda-card__itens {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-3);
-    }
+      /* ===== EMPTY STATE ===== */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+      }
 
-    .comanda-card__count {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-    }
+      .empty-state__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-    .comanda-card__pronto {
-      display: flex;
-      align-items: center;
-      gap: var(--b-space-1);
-      font-size: var(--b-font-size-xs);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-success-600);
-      background-color: var(--b-success-50);
-      padding: 2px var(--b-space-2);
-      border-radius: var(--b-radius-sm);
-    }
-
-    .comanda-card__total {
-      font-size: var(--b-font-size-xl);
-      font-weight: var(--b-font-weight-extrabold);
-      color: var(--b-primary-600);
-      margin-top: var(--b-space-1);
-    }
-
-    .comanda-card__action {
-      position: absolute;
-      right: var(--b-space-3);
-      top: 50%;
-      transform: translateY(-50%);
-    }
-
-    /* ===== EMPTY STATE ===== */
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: var(--b-space-3);
-      padding: var(--b-space-16) var(--b-space-4);
-      text-align: center;
-    }
-
-    .empty-state__title {
-      font-size: var(--b-font-size-lg);
-      font-weight: var(--b-font-weight-semibold);
-      color: var(--b-fg);
-      margin: 0;
-    }
-
-    .empty-state__sub {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-fg-muted);
-      margin: 0;
-    }
-  `],
+      .empty-state__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: 0;
+      }
+    `,
+  ],
 })
 export class ComandasListaComponent implements OnInit, OnDestroy {
   private readonly caixaService = inject(CaixaService);
@@ -461,7 +477,9 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
     loader: () => this.caixaService.listarComandasAbertas(),
   });
 
-  protected readonly comandasAbertas = computed(() => (this.comandas.hasValue() ? this.comandas.value() : []));
+  protected readonly comandasAbertas = computed(() =>
+    this.comandas.hasValue() ? this.comandas.value() : [],
+  );
 
   protected readonly comandasFiltradas = computed(() => {
     const lista = this.comandasAbertas();
@@ -469,9 +487,8 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
     const ord = this.ordenacao();
 
     const filtradas = q
-      ? lista.filter(c =>
-          String(c.mesa?.numero ?? '').includes(q) ||
-          c.id.toLowerCase().includes(q)
+      ? lista.filter(
+          (c) => String(c.mesa?.numero ?? '').includes(q) || c.id.toLowerCase().includes(q),
         )
       : lista;
 
@@ -495,11 +512,10 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
         this.comandas.reload();
       }),
     );
-
   }
 
   ngOnDestroy(): void {
-    this.subs.forEach(s => s.unsubscribe());
+    this.subs.forEach((s) => s.unsubscribe());
   }
 
   protected abrirComanda(comanda: Comanda): void {
@@ -511,11 +527,11 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
   }
 
   protected itensAtivos(comanda: Comanda): number {
-    return comanda.itens.filter(i => i.status !== 'cancelado').length;
+    return comanda.itens.filter((i) => i.status !== 'cancelado').length;
   }
 
   protected temItemPronto(comanda: Comanda): boolean {
-    return comanda.itens.some(i => i.status === 'pronto');
+    return comanda.itens.some((i) => i.status === 'pronto');
   }
 
   protected tempoAberta(criadoEm: string): string {
@@ -525,5 +541,4 @@ export class ComandasListaComponent implements OnInit, OnDestroy {
     const m = diff % 60;
     return m > 0 ? `${h}h ${m}min` : `${h}h`;
   }
-
 }
