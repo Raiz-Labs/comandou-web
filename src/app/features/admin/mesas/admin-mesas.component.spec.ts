@@ -2,21 +2,20 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  LayoutGrid,
-  Loader2,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-  WifiOff,
-  X,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideLayoutGrid,
+  LucideLoader2,
+  LucidePencil,
+  LucidePlus,
+  LucideSearch,
+  LucideTrash2,
+  LucideWifiOff,
+  LucideX,
+} from '@lucide/angular';
 import { AdminMesasComponent } from './admin-mesas.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -38,13 +37,7 @@ describe('AdminMesasComponent — paginação, busca e filtro de status (#19)', 
         { provide: AdminService, useValue: adminServiceMock },
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
         { provide: ToastService, useValue: { success: vi.fn(), danger: vi.fn(), warning: vi.fn(), info: vi.fn() } },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ArrowLeft, Check, ChevronLeft, ChevronRight, LayoutGrid, Loader2, Pencil, Plus, Search, Trash2, WifiOff, X,
-          }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCheck, LucideChevronLeft, LucideChevronRight, LucideLayoutGrid, LucideLoader2, LucidePencil, LucidePlus, LucideSearch, LucideTrash2, LucideWifiOff, LucideX),
       ],
     });
   });

@@ -4,21 +4,20 @@ import { By } from '@angular/platform-browser';
 import { signal } from '@angular/core';
 import { Subject } from 'rxjs';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ChefHat,
-  RefreshCw,
-  Clock,
-  Flame,
-  CheckCircle2,
-  Table2,
-  MessageSquare,
-  Timer,
-  Loader2,
-  Play,
-  Check,
-  WifiOff,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideChefHat,
+  LucideRefreshCw,
+  LucideClock,
+  LucideFlame,
+  LucideCheckCircle2,
+  LucideTable2,
+  LucideMessageSquare,
+  LucideTimer,
+  LucideLoader2,
+  LucidePlay,
+  LucideCheck,
+  LucideWifiOff,
+} from '@lucide/angular';
 import { FilaComponent } from './fila.component';
 import { CozinhaService } from '../cozinha.service';
 import { SocketService } from '../../../core/socket/socket.service';
@@ -53,24 +52,7 @@ describe('FilaComponent — subscriptions WebSocket', () => {
         { provide: CozinhaService, useValue: cozinhaServiceMock },
         { provide: SocketService, useValue: socketMock },
         { provide: ToastService, useValue: { success: vi.fn(), danger: vi.fn() } },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ChefHat,
-            RefreshCw,
-            Clock,
-            Flame,
-            CheckCircle2,
-            Table2,
-            MessageSquare,
-            Timer,
-            Loader2,
-            Play,
-            Check,
-            WifiOff,
-          }),
-        },
+        provideLucideIcons(LucideChefHat, LucideRefreshCw, LucideClock, LucideFlame, LucideCheckCircle2, LucideTable2, LucideMessageSquare, LucideTimer, LucideLoader2, LucidePlay, LucideCheck, LucideWifiOff),
       ],
     });
   });

@@ -2,7 +2,7 @@ import { Component, computed, input, output, signal } from '@angular/core';
 import { Categoria, Produto } from '../../../shared/types';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 interface CategoriaComProdutos extends Categoria {
   produtos: Produto[];
@@ -11,20 +11,20 @@ interface CategoriaComProdutos extends Categoria {
 @Component({
   selector: 'app-seletor-produto',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="b-backdrop" (click)="fechado.emit()"></div>
     <div class="sheet" role="dialog" aria-modal="true" aria-label="Selecionar produto">
       <div class="sheet__header">
         <h2 class="sheet__title">Selecionar produto</h2>
         <button class="sheet__close" (click)="fechado.emit()" aria-label="Fechar">
-          <lucide-icon name="x" [size]="20" />
+          <svg lucideIcon="x" [size]="20" />
         </button>
       </div>
 
       <!-- Busca -->
       <div class="sheet__search">
-        <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
+        <svg lucideIcon="search" [size]="16" color="var(--b-fg-subtle)" />
         <input
           class="b-input search-input"
           type="search"

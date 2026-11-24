@@ -4,21 +4,20 @@ import { By } from '@angular/platform-browser';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Router } from '@angular/router';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Loader2,
-  PackageX,
-  Pencil,
-  Plus,
-  Search,
-  Trash2,
-  WifiOff,
-  X,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCheck,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideLoader2,
+  LucidePackageX,
+  LucidePencil,
+  LucidePlus,
+  LucideSearch,
+  LucideTrash2,
+  LucideWifiOff,
+  LucideX,
+} from '@lucide/angular';
 import { ProdutosComponent } from './produtos.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -70,13 +69,7 @@ describe('ProdutosComponent — recuperação após edição concorrente (#17) e
         { provide: AdminService, useValue: adminServiceMock },
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
         { provide: ToastService, useValue: toastMock },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ArrowLeft, Check, ChevronLeft, ChevronRight, Loader2, PackageX, Pencil, Plus, Search, Trash2, WifiOff, X,
-          }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCheck, LucideChevronLeft, LucideChevronRight, LucideLoader2, LucidePackageX, LucidePencil, LucidePlus, LucideSearch, LucideTrash2, LucideWifiOff, LucideX),
       ],
     });
   });

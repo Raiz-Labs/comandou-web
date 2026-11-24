@@ -10,7 +10,7 @@ import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-fluxo-caixa-lista',
@@ -20,7 +20,7 @@ import { LucideAngularModule } from 'lucide-angular';
     SkeletonComponent,
     ConnectionBannerComponent,
     CurrencyBrPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
   ],
   template: `
     <div class="layout">
@@ -28,21 +28,21 @@ import { LucideAngularModule } from 'lucide-angular';
 
       <header class="header">
         <button class="b-btn-back" (click)="router.navigateByUrl('/caixa/comandas')" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="20" />
+          <svg lucideIcon="arrow-left" [size]="20" />
         </button>
         <div class="header__info">
           <h1 class="header__title">
-            <lucide-icon name="wallet" [size]="22" color="var(--b-primary-500)" />
+            <svg lucideIcon="wallet" [size]="22" color="var(--b-primary-500)" />
             Fluxo de caixa
           </h1>
         </div>
         <div class="header__actions">
           <button class="b-btn-secondary" (click)="abrirFormulario('entrada')">
-            <lucide-icon name="circle-plus" [size]="16" />
+            <svg lucideIcon="circle-plus" [size]="16" />
             Entrada
           </button>
           <button class="b-btn-secondary" (click)="abrirFormulario('saida')">
-            <lucide-icon name="circle-minus" [size]="16" />
+            <svg lucideIcon="circle-minus" [size]="16" />
             Saída
           </button>
         </div>
@@ -119,13 +119,13 @@ import { LucideAngularModule } from 'lucide-angular';
           }
         } @else if (movimentacoes.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar movimentações</p>
             <button class="b-btn-secondary" (click)="movimentacoes.reload()">Tentar novamente</button>
           </div>
         } @else if ((movimentacoes.value() ?? []).length === 0) {
           <div class="empty-state">
-            <lucide-icon name="inbox" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="inbox" [size]="40" color="var(--b-fg-subtle)" />
             <p>Nenhuma movimentação encontrada</p>
           </div>
         } @else {
@@ -191,7 +191,7 @@ import { LucideAngularModule } from 'lucide-angular';
             <button type="button" class="b-btn-secondary" (click)="fecharFormulario()">Cancelar</button>
             <button type="submit" class="b-btn-primary" [disabled]="novaMovimentacaoForm().invalid() || salvando()">
               @if (salvando()) {
-                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
               }
               Confirmar
             </button>

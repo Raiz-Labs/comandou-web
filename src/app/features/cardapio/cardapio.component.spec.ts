@@ -3,16 +3,15 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { of, throwError, NEVER } from 'rxjs';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  PackageX,
-  Search,
-  SearchX,
-  Utensils,
-  UtensilsCrossed,
-  WifiOff,
-  X,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucidePackageX,
+  LucideSearch,
+  LucideSearchX,
+  LucideUtensils,
+  LucideUtensilsCrossed,
+  LucideWifiOff,
+  LucideX,
+} from '@lucide/angular';
 import { CardapioComponent } from './cardapio.component';
 import { ApiService } from '../../core/api/api.service';
 
@@ -39,13 +38,7 @@ describe('CardapioComponent — cardápio público sem login (#34)', () => {
       imports: [CardapioComponent],
       providers: [
         { provide: ApiService, useValue: apiMock },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            UtensilsCrossed, Search, X, WifiOff, SearchX, PackageX, Utensils,
-          }),
-        },
+        provideLucideIcons(LucideUtensilsCrossed, LucideSearch, LucideX, LucideWifiOff, LucideSearchX, LucidePackageX, LucideUtensils),
       ],
     });
   });

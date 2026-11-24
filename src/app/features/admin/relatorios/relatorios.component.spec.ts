@@ -3,16 +3,15 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  BarChart2,
-  DivideCircle,
-  Receipt,
-  RefreshCw,
-  TrendingUp,
-  WifiOff,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideBarChart2,
+  LucideDivideCircle,
+  LucideReceipt,
+  LucideRefreshCw,
+  LucideTrendingUp,
+  LucideWifiOff,
+} from '@lucide/angular';
 import { RelatoriosComponent } from './relatorios.component';
 import { AdminService } from '../admin.service';
 import { RelatorioVendas } from '../../../shared/types';
@@ -31,19 +30,7 @@ const makeRelatorio = (overrides: Partial<RelatorioVendas> = {}): RelatorioVenda
 });
 
 const LUCIDE_PROVIDERS = [
-  {
-    provide: LUCIDE_ICONS,
-    multi: true,
-    useValue: new LucideIconProvider({
-      ArrowLeft,
-      BarChart2,
-      DivideCircle,
-      Receipt,
-      RefreshCw,
-      TrendingUp,
-      WifiOff,
-    }),
-  },
+  provideLucideIcons(LucideArrowLeft, LucideBarChart2, LucideDivideCircle, LucideReceipt, LucideRefreshCw, LucideTrendingUp, LucideWifiOff),
 ];
 
 describe('RelatoriosComponent', () => {

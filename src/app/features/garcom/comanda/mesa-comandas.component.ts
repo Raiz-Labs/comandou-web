@@ -18,12 +18,12 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-mesa-comandas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideAngularModule, FormsModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, CurrencyBrPipe, LucideDynamicIcon, FormsModule],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -31,7 +31,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
       <header class="header">
         <button class="b-btn-back" (click)="voltar()" aria-label="Voltar para mesas">
-          <lucide-icon name="arrow-left" [size]="20" />
+          <svg lucideIcon="arrow-left" [size]="20" />
         </button>
 
         @if (dados.isLoading()) {
@@ -72,10 +72,10 @@ import { LucideAngularModule } from 'lucide-angular';
           </div>
         } @else if (dados.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar comandas</p>
             <button class="b-btn-secondary" (click)="dados.reload()">
-              <lucide-icon name="refresh-cw" [size]="16" />
+              <svg lucideIcon="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
@@ -84,7 +84,7 @@ import { LucideAngularModule } from 'lucide-angular';
           @if (comandasAbertas().length > 0) {
             <section class="section">
               <h2 class="section__title">
-                <lucide-icon name="file-text" [size]="16" />
+                <svg lucideIcon="file-text" [size]="16" />
                 Comandas abertas
               </h2>
               @for (comanda of comandasAbertas(); track comanda.id) {
@@ -92,7 +92,7 @@ import { LucideAngularModule } from 'lucide-angular';
                   <div class="comanda-card__top">
                     <span class="comanda-card__id">
                       @if (comanda.nomeCliente) {
-                        <lucide-icon name="user" [size]="13" />
+                        <svg lucideIcon="user" [size]="13" />
                         {{ comanda.nomeCliente }}
                       } @else {
                         #{{ comanda.id.slice(-6).toUpperCase() }}
@@ -102,11 +102,11 @@ import { LucideAngularModule } from 'lucide-angular';
                   </div>
                   <div class="comanda-card__bottom">
                     <span class="comanda-card__itens">
-                      <lucide-icon name="package" [size]="13" />
+                      <svg lucideIcon="package" [size]="13" />
                       {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
                     </span>
                     <span class="comanda-card__aberta">
-                      <lucide-icon name="circle-dot" [size]="13" />
+                      <svg lucideIcon="circle-dot" [size]="13" />
                       aberta
                     </span>
                   </div>
@@ -115,7 +115,7 @@ import { LucideAngularModule } from 'lucide-angular';
             </section>
           } @else {
             <div class="empty-comandas">
-              <lucide-icon name="clipboard-list" [size]="40" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="clipboard-list" [size]="40" color="var(--b-fg-subtle)" />
               <p class="empty-comandas__text">Nenhuma comanda aberta nesta mesa</p>
             </div>
           }
@@ -124,7 +124,7 @@ import { LucideAngularModule } from 'lucide-angular';
           @if (comandasFechadas().length > 0) {
             <section class="section section--muted">
               <h2 class="section__title section__title--muted">
-                <lucide-icon name="check-circle-2" [size]="16" />
+                <svg lucideIcon="check-circle-2" [size]="16" />
                 Fechadas hoje
               </h2>
               @for (comanda of comandasFechadas(); track comanda.id) {
@@ -135,11 +135,11 @@ import { LucideAngularModule } from 'lucide-angular';
                   </div>
                   <div class="comanda-card__bottom">
                     <span class="comanda-card__itens">
-                      <lucide-icon name="package" [size]="13" />
+                      <svg lucideIcon="package" [size]="13" />
                       {{ comanda.itens.length }} {{ comanda.itens.length === 1 ? 'item' : 'itens' }}
                     </span>
                     <span class="comanda-card__fechada">
-                      <lucide-icon name="check-circle-2" [size]="13" />
+                      <svg lucideIcon="check-circle-2" [size]="13" />
                       fechada
                     </span>
                   </div>
@@ -159,10 +159,10 @@ import { LucideAngularModule } from 'lucide-angular';
           aria-label="Abrir nova comanda"
         >
           @if (abrindo()) {
-            <lucide-icon name="loader-2" [size]="20" class="b-spin" />
+            <svg lucideIcon="loader-2" [size]="20" class="b-spin" />
             Abrindo...
           } @else {
-            <lucide-icon name="plus" [size]="20" />
+            <svg lucideIcon="plus" [size]="20" />
             Nova comanda
           }
         </button>
@@ -175,7 +175,7 @@ import { LucideAngularModule } from 'lucide-angular';
           <div class="modal__header">
             <h2 class="modal__titulo" id="modal-titulo">Nova comanda</h2>
             <button class="modal__fechar" (click)="fecharModalNome()" aria-label="Fechar">
-              <lucide-icon name="x" [size]="20" />
+              <svg lucideIcon="x" [size]="20" />
             </button>
           </div>
           <div class="modal__body">
@@ -198,7 +198,7 @@ import { LucideAngularModule } from 'lucide-angular';
             <button class="b-btn-ghost" (click)="fecharModalNome()">Cancelar</button>
             <button class="b-btn-primary" (click)="confirmarAbertura()" [disabled]="abrindo()">
               @if (abrindo()) {
-                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                 Abrindo...
               } @else {
                 Abrir comanda

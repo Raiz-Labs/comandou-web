@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 import { masterAuthState } from '../../../core/master/master-auth.signal';
 import { ThemeToggleComponent } from '../theme-toggle/theme-toggle.component';
@@ -9,7 +9,7 @@ import { MarcaComponent } from '../marca/marca.component';
 @Component({
   selector: 'app-master-shell',
   standalone: true,
-  imports: [RouterOutlet, LucideAngularModule, ThemeToggleComponent, MarcaComponent],
+  imports: [RouterOutlet, LucideDynamicIcon, ThemeToggleComponent, MarcaComponent],
   template: `
     <div class="master-layout">
       <header class="master-header">
@@ -21,7 +21,7 @@ import { MarcaComponent } from '../marca/marca.component';
           <span class="master-header__email">{{ master()?.email }}</span>
           <app-theme-toggle />
           <button class="master-header__logout" (click)="logout()" aria-label="Sair">
-            <lucide-icon name="log-out" [size]="15" />
+            <svg lucideIcon="log-out" [size]="15" />
             Sair
           </button>
         </div>

@@ -2,24 +2,23 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { Router } from '@angular/router';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Check,
-  CheckCircle2,
-  ChevronLeft,
-  ChevronRight,
-  Eye,
-  EyeOff,
-  Loader2,
-  Pencil,
-  Search,
-  UserPlus,
-  Users,
-  WifiOff,
-  X,
-  XCircle,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCheck,
+  LucideCheckCircle2,
+  LucideChevronLeft,
+  LucideChevronRight,
+  LucideEye,
+  LucideEyeOff,
+  LucideLoader2,
+  LucidePencil,
+  LucideSearch,
+  LucideUserPlus,
+  LucideUsers,
+  LucideWifiOff,
+  LucideX,
+  LucideXCircle,
+} from '@lucide/angular';
 import { UsuariosComponent } from './usuarios.component';
 import { AdminService } from '../admin.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
@@ -43,13 +42,7 @@ describe('UsuariosComponent — paginação, busca e filtros (#19)', () => {
         { provide: AdminService, useValue: adminServiceMock },
         { provide: Router, useValue: { navigateByUrl: vi.fn() } },
         { provide: ToastService, useValue: { success: vi.fn(), danger: vi.fn(), warning: vi.fn(), info: vi.fn() } },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ArrowLeft, Check, CheckCircle2, ChevronLeft, ChevronRight, Eye, EyeOff, Loader2, Pencil, Search, UserPlus, Users, WifiOff, X, XCircle,
-          }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCheck, LucideCheckCircle2, LucideChevronLeft, LucideChevronRight, LucideEye, LucideEyeOff, LucideLoader2, LucidePencil, LucideSearch, LucideUserPlus, LucideUsers, LucideWifiOff, LucideX, LucideXCircle),
       ],
     });
   });

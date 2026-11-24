@@ -5,19 +5,18 @@ import { signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Calculator,
-  CheckCircle2,
-  Loader2,
-  Minus,
-  Package,
-  Plus,
-  User,
-  Users,
-  WifiOff,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCalculator,
+  LucideCheckCircle2,
+  LucideLoader2,
+  LucideMinus,
+  LucidePackage,
+  LucidePlus,
+  LucideUser,
+  LucideUsers,
+  LucideWifiOff,
+} from '@lucide/angular';
 import { ComandaDetalheCaixaComponent } from './comanda-detalhe-caixa.component';
 import { CaixaService } from '../caixa.service';
 import { SocketService } from '../../../core/socket/socket.service';
@@ -81,22 +80,7 @@ describe('ComandaDetalheCaixaComponent — revalidação de divisão de conta', 
           provide: SocketService,
           useValue: { on: () => of(null), connectionStatus: signal('connected' as const) },
         },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ArrowLeft,
-            Calculator,
-            CheckCircle2,
-            Loader2,
-            Minus,
-            Package,
-            Plus,
-            User,
-            Users,
-            WifiOff,
-          }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCalculator, LucideCheckCircle2, LucideLoader2, LucideMinus, LucidePackage, LucidePlus, LucideUser, LucideUsers, LucideWifiOff),
       ],
     });
   });

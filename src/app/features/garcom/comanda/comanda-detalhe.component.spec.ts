@@ -5,23 +5,22 @@ import { signal } from '@angular/core';
 import { Router, ActivatedRoute } from '@angular/router';
 import { NEVER } from 'rxjs';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Check,
-  Loader2,
-  Lock,
-  MessageSquare,
-  Minus,
-  Pencil,
-  Plus,
-  RefreshCw,
-  Search,
-  ShoppingBag,
-  WifiOff,
-  X,
-  XCircle,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCheck,
+  LucideLoader2,
+  LucideLock,
+  LucideMessageSquare,
+  LucideMinus,
+  LucidePencil,
+  LucidePlus,
+  LucideRefreshCw,
+  LucideSearch,
+  LucideShoppingBag,
+  LucideWifiOff,
+  LucideX,
+  LucideXCircle,
+} from '@lucide/angular';
 import { ComandaDetalheComponent } from './comanda-detalhe.component';
 import { GarcomService } from '../garcom.service';
 import { SocketService } from '../../../core/socket/socket.service';
@@ -91,26 +90,7 @@ describe('ComandaDetalheComponent — recuperação de estado da UI', () => {
           provide: SocketService,
           useValue: { on: () => NEVER, connectionStatus: signal('connected' as const) },
         },
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({
-            ArrowLeft,
-            Check,
-            Loader2,
-            Lock,
-            MessageSquare,
-            Minus,
-            Pencil,
-            Plus,
-            RefreshCw,
-            Search,
-            ShoppingBag,
-            WifiOff,
-            X,
-            XCircle,
-          }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCheck, LucideLoader2, LucideLock, LucideMessageSquare, LucideMinus, LucidePencil, LucidePlus, LucideRefreshCw, LucideSearch, LucideShoppingBag, LucideWifiOff, LucideX, LucideXCircle),
       ],
     });
   });

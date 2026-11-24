@@ -15,7 +15,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Usuario, Perfil } from '../../../shared/types';
 import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface UsuarioModel {
@@ -43,17 +43,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 @Component({
   selector: 'app-usuarios',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideDynamicIcon],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="18" />
+          <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Usuários</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <lucide-icon name="user-plus" [size]="16" />
+          <svg lucideIcon="user-plus" [size]="16" />
           Novo usuário
         </button>
       </header>
@@ -61,12 +61,12 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome ou e-mail..."
             [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <lucide-icon name="x" [size]="13" />
+              <svg lucideIcon="x" [size]="13" />
             </button>
           }
         </div>
@@ -104,17 +104,17 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
           </div>
         } @else if (usuarios.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar usuários</p>
             <button class="b-btn-secondary" (click)="usuarios.reload()">Tentar novamente</button>
           </div>
         } @else if (itens().length === 0) {
           <div class="empty-state">
-            <lucide-icon name="users" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="users" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhum usuário encontrado</p>
             @if (!busca() && filtroPerfil() === null) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <lucide-icon name="user-plus" [size]="16" />
+                <svg lucideIcon="user-plus" [size]="16" />
                 Criar primeiro usuário
               </button>
             }
@@ -142,16 +142,16 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                       <button class="status-toggle" [class.status-toggle--ativo]="u.ativo" [class.status-toggle--inativo]="!u.ativo"
                         (click)="toggleAtivo(u)" [disabled]="toggling() === u.id" aria-label="Alternar status">
                         @if (toggling() === u.id) {
-                          <lucide-icon name="loader-2" [size]="12" class="b-spin" />
+                          <svg lucideIcon="loader-2" [size]="12" class="b-spin" />
                         } @else {
-                          <lucide-icon [name]="u.ativo ? 'check-circle-2' : 'x-circle'" [size]="13" />
+                          <svg [lucideIcon]="u.ativo ? 'check-circle-2' : 'x-circle'" [size]="13" />
                         }
                         {{ u.ativo ? 'ativo' : 'inativo' }}
                       </button>
                     </td>
                     <td class="tabela__acoes">
                       <button class="acao-btn acao-btn--edit" (click)="abrirEditar(u)" aria-label="Editar">
-                        <lucide-icon name="pencil" [size]="15" />
+                        <svg lucideIcon="pencil" [size]="15" />
                       </button>
                     </td>
                   </tr>
@@ -173,7 +173,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar usuário' : 'Novo usuário' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <lucide-icon name="x" [size]="20" />
+            <svg lucideIcon="x" [size]="20" />
           </button>
         </div>
 
@@ -216,7 +216,7 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
                 (blur)="tocou('senha')"
                 placeholder="{{ editandoId() ? '••••••••' : 'Mín. 6 caracteres' }}" />
               <button type="button" class="btn-olho" (click)="mostrarSenha.set(!mostrarSenha())" aria-label="Mostrar/ocultar senha">
-                <lucide-icon [name]="mostrarSenha() ? 'eye-off' : 'eye'" [size]="16" />
+                <svg [lucideIcon]="mostrarSenha() ? 'eye-off' : 'eye'" [size]="16" />
               </button>
             </div>
             @if (erroVisivel('senha')) { <span class="b-error-message">{{ erroVisivel('senha') }}</span> }
@@ -242,10 +242,10 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                 Salvando...
               } @else {
-                <lucide-icon name="check" [size]="16" />
+                <svg lucideIcon="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar usuário' }}
               }
             </button>

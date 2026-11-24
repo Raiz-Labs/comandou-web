@@ -9,7 +9,7 @@ import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 type Periodo = 'hoje' | '7dias' | '30dias';
 
@@ -24,13 +24,13 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
 @Component({
   selector: 'app-relatorios',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="18" />
+          <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <div class="topbar__info">
           <h1 class="topbar__title">Relatório de vendas</h1>
@@ -39,7 +39,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           }
         </div>
         <button class="btn-refresh" (click)="relatorio.reload()" [disabled]="relatorio.isLoading()" aria-label="Atualizar">
-          <lucide-icon name="refresh-cw" [size]="16" [class.b-spin]="relatorio.isLoading()" />
+          <svg lucideIcon="refresh-cw" [size]="16" [class]="relatorio.isLoading() ? 'b-spin' : ''" />
         </button>
       </header>
 
@@ -84,7 +84,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           </div>
         } @else if (relatorio.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar o relatório</p>
             <button class="b-btn-secondary" (click)="relatorio.reload()">Tentar novamente</button>
           </div>
@@ -93,7 +93,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           <div class="kpi-grid">
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <lucide-icon name="trending-up" [size]="14" />
+                <svg lucideIcon="trending-up" [size]="14" />
                 Total em vendas
               </div>
               <div class="kpi-card__valor kpi-card__valor--primary">{{ relatorio.value()!.resumo.totalVendas | currencyBr }}</div>
@@ -101,7 +101,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             </div>
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <lucide-icon name="receipt" [size]="14" />
+                <svg lucideIcon="receipt" [size]="14" />
                 Comandas fechadas
               </div>
               <div class="kpi-card__valor">{{ relatorio.value()!.resumo.totalComandas }}</div>
@@ -109,7 +109,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             </div>
             <div class="kpi-card">
               <div class="kpi-card__label">
-                <lucide-icon name="divide-circle" [size]="14" />
+                <svg lucideIcon="divide-circle" [size]="14" />
                 Ticket médio
               </div>
               <div class="kpi-card__valor">{{ relatorio.value()!.resumo.ticketMedio | currencyBr }}</div>
@@ -171,7 +171,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           <!-- Sem dados -->
           @if (relatorio.value()!.resumo.totalComandas === 0) {
             <div class="sem-dados">
-              <lucide-icon name="bar-chart-2" [size]="48" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="bar-chart-2" [size]="48" color="var(--b-fg-subtle)" />
               <p class="sem-dados__title">Sem dados para este período</p>
               <p class="sem-dados__sub">Nenhuma comanda foi fechada em "{{ periodoLabel(periodo()) }}".</p>
             </div>

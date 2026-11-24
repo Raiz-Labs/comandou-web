@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import { LUCIDE_ICONS, LucideIconProvider, Minus, Plus, Users } from 'lucide-angular';
+import { provideLucideIcons, LucideMinus, LucidePlus, LucideUsers } from '@lucide/angular';
 import { DivisaoContaComponent } from './divisao-conta.component';
 
 describe('DivisaoContaComponent — divisão por N pessoas', () => {
@@ -8,7 +8,7 @@ describe('DivisaoContaComponent — divisão por N pessoas', () => {
     TestBed.configureTestingModule({
       imports: [DivisaoContaComponent],
       providers: [
-        { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ Minus, Plus, Users }) },
+        provideLucideIcons(LucideMinus, LucidePlus, LucideUsers),
       ],
     });
   });

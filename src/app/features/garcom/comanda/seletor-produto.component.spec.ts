@@ -1,11 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
-import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  Search,
-  X,
-} from 'lucide-angular';
+import { provideLucideIcons, LucideSearch, LucideX } from '@lucide/angular';
 import { SeletorProdutoComponent } from './seletor-produto.component';
 import { Categoria, Produto } from '../../../shared/types';
 
@@ -24,7 +19,7 @@ describe('SeletorProdutoComponent — filtro de produtos', () => {
     TestBed.configureTestingModule({
       imports: [SeletorProdutoComponent],
       providers: [
-        { provide: LUCIDE_ICONS, multi: true, useValue: new LucideIconProvider({ Search, X }) },
+        provideLucideIcons(LucideSearch, LucideX),
       ],
     });
   });

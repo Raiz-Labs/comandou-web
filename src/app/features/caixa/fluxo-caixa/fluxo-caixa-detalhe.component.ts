@@ -7,7 +7,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-fluxo-caixa-detalhe',
@@ -17,7 +17,7 @@ import { LucideAngularModule } from 'lucide-angular';
     ConnectionBannerComponent,
     ConfirmDialogComponent,
     CurrencyBrPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
   ],
   template: `
     <div class="layout">
@@ -25,7 +25,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
       <header class="header">
         <button class="b-btn-back" (click)="voltar()" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="20" />
+          <svg lucideIcon="arrow-left" [size]="20" />
         </button>
         <h1 class="header__title">Detalhe da movimentação</h1>
       </header>
@@ -37,7 +37,7 @@ import { LucideAngularModule } from 'lucide-angular';
           <app-skeleton height="8rem" width="100%" />
         } @else if (movimentacao.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar movimentação</p>
             <button class="b-btn-secondary" (click)="movimentacao.reload()">Tentar novamente</button>
           </div>
@@ -74,7 +74,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
             @if (movimentacao.value()!.comanda) {
               <div class="comanda-vinculo">
-                <lucide-icon name="receipt" [size]="16" color="var(--b-primary-500)" />
+                <svg lucideIcon="receipt" [size]="16" color="var(--b-primary-500)" />
                 <span>
                   Mesa {{ movimentacao.value()!.comanda!.mesa.numero }} ·
                   Total da comanda {{ movimentacao.value()!.comanda!.total | currencyBr }}
@@ -84,7 +84,7 @@ import { LucideAngularModule } from 'lucide-angular';
 
             @if (podeEstornar()) {
               <button class="b-btn-danger" (click)="confirmandoEstorno.set(true)">
-                <lucide-icon name="undo-2" [size]="16" />
+                <svg lucideIcon="undo-2" [size]="16" />
                 Estornar movimentação
               </button>
             }

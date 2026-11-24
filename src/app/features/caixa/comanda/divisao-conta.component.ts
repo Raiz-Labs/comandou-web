@@ -1,15 +1,15 @@
 import { Component, computed, input, output, signal } from '@angular/core';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-divisao-conta',
   standalone: true,
-  imports: [CurrencyBrPipe, LucideAngularModule],
+  imports: [CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="divisao-card">
       <div class="divisao-card__header">
-        <lucide-icon name="users" [size]="16" color="var(--b-primary-500)" />
+        <svg lucideIcon="users" [size]="16" color="var(--b-primary-500)" />
         <span class="divisao-card__titulo">Dividir conta</span>
       </div>
 
@@ -20,14 +20,14 @@ import { LucideAngularModule } from 'lucide-angular';
           [disabled]="divisoes() <= 1"
           aria-label="Diminuir"
         >
-          <lucide-icon name="minus" [size]="16" />
+          <svg lucideIcon="minus" [size]="16" />
         </button>
         <div class="divisao-display">
           <span class="divisao-num">{{ divisoes() }}</span>
           <span class="divisao-label">{{ divisoes() === 1 ? 'pessoa' : 'pessoas' }}</span>
         </div>
         <button class="divisao-btn" (click)="incrementar()" aria-label="Aumentar">
-          <lucide-icon name="plus" [size]="16" />
+          <svg lucideIcon="plus" [size]="16" />
         </button>
       </div>
 

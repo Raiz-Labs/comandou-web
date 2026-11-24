@@ -1,7 +1,7 @@
 import { Component, inject, signal, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { environment } from '../../../../environments/environment';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 
@@ -18,7 +18,7 @@ interface TenantInfo {
 @Component({
   selector: 'app-tenants',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <div class="page">
       <!-- Header -->
@@ -28,7 +28,7 @@ interface TenantInfo {
           <p class="page__sub">{{ tenants.hasValue() ? tenants.value().length : 0 }} restaurante(s) cadastrado(s)</p>
         </div>
         <button class="b-btn-primary" (click)="abrirModalCriar()">
-          <lucide-icon name="plus" [size]="16" />
+          <svg lucideIcon="plus" [size]="16" />
           Novo tenant
         </button>
       </div>
@@ -36,17 +36,17 @@ interface TenantInfo {
       <!-- Lista -->
       @if (tenants.isLoading()) {
         <div class="loading">
-          <lucide-icon name="loader-2" [size]="24" class="b-spin" />
+          <svg lucideIcon="loader-2" [size]="24" class="b-spin" />
         </div>
       } @else if (tenants.error()) {
         <div class="estado-vazio">
-          <lucide-icon name="x-circle" [size]="32" color="var(--b-danger-400)" />
+          <svg lucideIcon="x-circle" [size]="32" color="var(--b-danger-400)" />
           <p>Erro ao carregar tenants</p>
           <button class="b-btn-ghost" (click)="tenants.reload()">Tentar novamente</button>
         </div>
       } @else if (!tenants.value()?.length) {
         <div class="estado-vazio">
-          <lucide-icon name="users" [size]="32" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="users" [size]="32" color="var(--b-fg-subtle)" />
           <p>Nenhum tenant cadastrado ainda</p>
           <button class="b-btn-primary" (click)="abrirModalCriar()">Criar primeiro tenant</button>
         </div>
@@ -71,15 +71,15 @@ interface TenantInfo {
 
               <div class="tenant-card__stats">
                 <div class="stat">
-                  <lucide-icon name="users" [size]="13" />
+                  <svg lucideIcon="users" [size]="13" />
                   {{ tenant._count.usuarios }} usuário(s)
                 </div>
                 <div class="stat">
-                  <lucide-icon name="receipt" [size]="13" />
+                  <svg lucideIcon="receipt" [size]="13" />
                   {{ tenant._count.comandas }} comanda(s)
                 </div>
                 <div class="stat">
-                  <lucide-icon name="clock" [size]="13" />
+                  <svg lucideIcon="clock" [size]="13" />
                   {{ formatarData(tenant.criadoEm) }}
                 </div>
               </div>
@@ -91,15 +91,15 @@ interface TenantInfo {
                   [disabled]="!tenant.ativo || acessandoId() === tenant.id"
                 >
                   @if (acessandoId() === tenant.id) {
-                    <lucide-icon name="loader-2" [size]="14" class="b-spin" />
+                    <svg lucideIcon="loader-2" [size]="14" class="b-spin" />
                     Acessando...
                   } @else {
-                    <lucide-icon name="log-in" [size]="14" />
+                    <svg lucideIcon="log-in" [size]="14" />
                     Acessar
                   }
                 </button>
                 <button class="b-btn-ghost btn-editar" (click)="abrirModalEditar(tenant)">
-                  <lucide-icon name="pencil" [size]="14" />
+                  <svg lucideIcon="pencil" [size]="14" />
                   Editar
                 </button>
               </div>
@@ -116,7 +116,7 @@ interface TenantInfo {
           <div class="modal__header">
             <h2 class="modal__title">Novo tenant</h2>
             <button class="modal__close" (click)="fecharModalCriar()">
-              <lucide-icon name="x" [size]="18" />
+              <svg lucideIcon="x" [size]="18" />
             </button>
           </div>
 
@@ -172,7 +172,7 @@ interface TenantInfo {
               <button type="button" class="b-btn-ghost" (click)="fecharModalCriar()">Cancelar</button>
               <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
-                  <lucide-icon name="loader-2" [size]="14" class="b-spin" />
+                  <svg lucideIcon="loader-2" [size]="14" class="b-spin" />
                   Criando...
                 } @else {
                   Criar tenant
@@ -191,7 +191,7 @@ interface TenantInfo {
           <div class="modal__header">
             <h2 class="modal__title">Editar tenant</h2>
             <button class="modal__close" (click)="fecharModalEditar()">
-              <lucide-icon name="x" [size]="18" />
+              <svg lucideIcon="x" [size]="18" />
             </button>
           </div>
 
@@ -238,7 +238,7 @@ interface TenantInfo {
               <button type="button" class="b-btn-ghost" (click)="fecharModalEditar()">Cancelar</button>
               <button type="submit" class="b-btn-primary" [disabled]="salvando()">
                 @if (salvando()) {
-                  <lucide-icon name="loader-2" [size]="14" class="b-spin" />
+                  <svg lucideIcon="loader-2" [size]="14" class="b-spin" />
                   Salvando...
                 } @else {
                   Salvar

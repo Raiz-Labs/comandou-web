@@ -16,7 +16,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
 import { Produto } from '../../../shared/types';
 import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface ProdutoModel {
@@ -37,17 +37,17 @@ type Campo = keyof ProdutoModel;
 @Component({
   selector: 'app-produtos',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="18" />
+          <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Produtos</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <lucide-icon name="plus" [size]="16" />
+          <svg lucideIcon="plus" [size]="16" />
           Novo produto
         </button>
       </header>
@@ -55,12 +55,12 @@ type Campo = keyof ProdutoModel;
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por nome..."
             [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <lucide-icon name="x" [size]="13" />
+              <svg lucideIcon="x" [size]="13" />
             </button>
           }
         </div>
@@ -93,17 +93,17 @@ type Campo = keyof ProdutoModel;
           </div>
         } @else if (produtos.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar produtos</p>
             <button class="b-btn-secondary" (click)="produtos.reload()">Tentar novamente</button>
           </div>
         } @else if (itens().length === 0) {
           <div class="empty-state">
-            <lucide-icon name="package-x" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="package-x" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhum produto encontrado</p>
             @if (!busca()) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <lucide-icon name="plus" [size]="16" />
+                <svg lucideIcon="plus" [size]="16" />
                 Criar primeiro produto
               </button>
             }
@@ -131,10 +131,10 @@ type Campo = keyof ProdutoModel;
                     </td>
                     <td class="tabela__acoes">
                       <button class="acao-btn acao-btn--edit" (click)="abrirEditar(p)" aria-label="Editar">
-                        <lucide-icon name="pencil" [size]="15" />
+                        <svg lucideIcon="pencil" [size]="15" />
                       </button>
                       <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(p)" aria-label="Excluir">
-                        <lucide-icon name="trash-2" [size]="15" />
+                        <svg lucideIcon="trash-2" [size]="15" />
                       </button>
                     </td>
                   </tr>
@@ -156,7 +156,7 @@ type Campo = keyof ProdutoModel;
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar produto' : 'Novo produto' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <lucide-icon name="x" [size]="20" />
+            <svg lucideIcon="x" [size]="20" />
           </button>
         </div>
 
@@ -238,10 +238,10 @@ type Campo = keyof ProdutoModel;
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando() || !!categorias.error()" (click)="salvar()">
               @if (salvando()) {
-                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                 Salvando...
               } @else {
-                <lucide-icon name="check" [size]="16" />
+                <svg lucideIcon="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar produto' }}
               }
             </button>

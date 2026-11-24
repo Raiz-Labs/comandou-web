@@ -1,18 +1,18 @@
 import { Component, inject } from '@angular/core';
 import { ToastService } from './toast.service';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <div class="toast-container">
       @for (toast of toastService.toasts(); track toast.id) {
         <div class="toast toast--{{ toast.variant }}" role="alert">
           <span class="toast__message">{{ toast.message }}</span>
           <button class="toast__close" (click)="toastService.dismiss(toast.id)" aria-label="Fechar">
-            <lucide-icon name="x" [size]="16" />
+            <svg lucideIcon="x" [size]="16" />
           </button>
         </div>
       }

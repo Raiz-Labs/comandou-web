@@ -9,12 +9,12 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.component';
 import { ToastService } from '../../../shared/components/toast/toast.service';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, NotificacaoBannerComponent, LucideDynamicIcon],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -25,7 +25,7 @@ import { LucideAngularModule } from 'lucide-angular';
           <h1 class="header__title">Mesas</h1>
           @if (currentUser()) {
             <span class="header__user">
-              <lucide-icon name="user" [size]="14" />
+              <svg lucideIcon="user" [size]="14" />
               <span class="header__user-name">{{ currentUser()!.nome }}</span>
             </span>
           }
@@ -55,17 +55,17 @@ import { LucideAngularModule } from 'lucide-angular';
           </div>
         } @else if (mesas.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar mesas</p>
             <p class="empty-state__sub">Verifique a conexão e tente novamente</p>
             <button class="b-btn-secondary" (click)="recarregar()">
-              <lucide-icon name="refresh-cw" [size]="16" />
+              <svg lucideIcon="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (!mesas.value()?.length) {
           <div class="empty-state">
-            <lucide-icon name="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma mesa cadastrada</p>
             <p class="empty-state__sub">Peça ao administrador para cadastrar as mesas</p>
           </div>
@@ -85,7 +85,7 @@ import { LucideAngularModule } from 'lucide-angular';
                   <div class="card__desc">{{ mesa.descricao }}</div>
                 }
                 <div class="card__status">
-                  <lucide-icon [name]="statusIcon(mesa.status)" [size]="16" />
+                  <svg [lucideIcon]="statusIcon(mesa.status)" [size]="16" />
                   <span>{{ statusLabel(mesa.status) }}</span>
                 </div>
               </button>

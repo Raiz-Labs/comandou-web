@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed } from '@angular/core';
 import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MarcaComponent } from '../marca/marca.component';
 import { AuthService } from '../../../core/auth/auth.service';
 import { currentUser, userPerfil } from '../../../core/auth/auth.signal';
@@ -45,7 +45,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
 @Component({
   selector: 'app-shell',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideAngularModule, ThemeToggleComponent, MarcaComponent],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideDynamicIcon, ThemeToggleComponent, MarcaComponent],
   template: `
     <div class="shell">
 
@@ -69,7 +69,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
           (click)="drawerOpen.set(false)"
           aria-label="Fechar menu"
         >
-          <lucide-icon name="x" [size]="20" />
+          <svg lucideIcon="x" [size]="20" />
         </button>
 
         <ul class="sidebar__nav" role="list">
@@ -84,7 +84,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
                   class="sidebar__link"
                   (click)="drawerOpen.set(false)"
                 >
-                  <lucide-icon [name]="link.icon!" [size]="18" />
+                  <svg [lucideIcon]="link.icon!" [size]="18" />
                   {{ link.label }}
                 </a>
               </li>
@@ -106,7 +106,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
           }
           <div class="sidebar__footer-row">
             <button class="sidebar__logout" (click)="logout()" aria-label="Sair">
-              <lucide-icon name="log-out" [size]="16" />
+              <svg lucideIcon="log-out" [size]="16" />
               Sair
             </button>
             <app-theme-toggle />
@@ -120,10 +120,10 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
         <!-- Banner de impersonação (admin master acessando tenant) -->
         @if (impersonating()) {
           <div class="impersonation-banner">
-            <lucide-icon name="zap" [size]="13" />
+            <svg lucideIcon="zap" [size]="13" />
             Você está acessando o tenant <strong>{{ impersonating()!.tenantNome }}</strong> como admin
             <button class="impersonation-banner__exit" (click)="exitImpersonation()">
-              <lucide-icon name="log-out" [size]="13" />
+              <svg lucideIcon="log-out" [size]="13" />
               Sair do tenant
             </button>
           </div>
@@ -136,7 +136,7 @@ const NAV_CONFIG: Record<Perfil, NavLink[]> = {
             (click)="drawerOpen.set(true)"
             aria-label="Abrir menu"
           >
-            <lucide-icon name="menu" [size]="22" />
+            <svg lucideIcon="menu" [size]="22" />
           </button>
           <div class="topbar__brand">
             <app-marca variante="horizontal" [tamanho]="22" />

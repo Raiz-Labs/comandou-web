@@ -3,24 +3,23 @@ import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { Router } from '@angular/router';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  BarChart2,
-  Calculator,
-  CheckCircle2,
-  FileText,
-  LayoutGrid,
-  Package,
-  Receipt,
-  RefreshCw,
-  Star,
-  Table2,
-  Tag,
-  TrendingUp,
-  Users,
-  WifiOff,
-  Zap,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideBarChart2,
+  LucideCalculator,
+  LucideCheckCircle2,
+  LucideFileText,
+  LucideLayoutGrid,
+  LucidePackage,
+  LucideReceipt,
+  LucideRefreshCw,
+  LucideStar,
+  LucideTable2,
+  LucideTag,
+  LucideTrendingUp,
+  LucideUsers,
+  LucideWifiOff,
+  LucideZap,
+} from '@lucide/angular';
 import { DashboardComponent } from './dashboard.component';
 import { AdminService, DashboardResumo } from '../admin.service';
 import { RelatorioVendas } from '../../../shared/types';
@@ -40,27 +39,7 @@ const makeDashboard = (overrides: Partial<DashboardResumo> = {}): DashboardResum
 });
 
 const LUCIDE_PROVIDERS = [
-  {
-    provide: LUCIDE_ICONS,
-    multi: true,
-    useValue: new LucideIconProvider({
-      BarChart2,
-      Calculator,
-      CheckCircle2,
-      FileText,
-      LayoutGrid,
-      Package,
-      Receipt,
-      RefreshCw,
-      Star,
-      Table2,
-      Tag,
-      TrendingUp,
-      Users,
-      WifiOff,
-      Zap,
-    }),
-  },
+  provideLucideIcons(LucideBarChart2, LucideCalculator, LucideCheckCircle2, LucideFileText, LucideLayoutGrid, LucidePackage, LucideReceipt, LucideRefreshCw, LucideStar, LucideTable2, LucideTag, LucideTrendingUp, LucideUsers, LucideWifiOff, LucideZap),
 ];
 
 describe('DashboardComponent', () => {
