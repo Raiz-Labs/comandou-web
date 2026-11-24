@@ -73,6 +73,48 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+          fetch-depth: 0 # o gitleaks varre o histórico inteiro, não só o último commit
+      # Segredos commitados em todo o histórico (spec 69). A imagem é pinada por digest, sem a
+      # action oficial, que exige licença para orgs. O Dependabot não atualiza este digest, então
+      # ele é atualizado à mão. As exceções ficam no .gitleaksignore, com motivo.
+      - name: Segredos no histórico (gitleaks)
+        run: |
+          # --exit-code 2 separa "segredo encontrado" (2) de erro do próprio gitleaks (1).
+          status=0
+          docker run --rm -v "$PWD:/repo" \
+            zricethezav/gitleaks:v8.30.1@sha256:c00b6bd0aeb3071cbcb79009cb16a60dd9e0a7c60e2be9ab65d25e6bc8abbb7f \
+            git /repo --redact --no-banner --exit-code 2 \
+            --report-format json --report-path /repo/gitleaks.json || status=$?
+          if [ "$status" -eq 0 ]; then
+            echo "### gitleaks ✅ nenhum segredo no histórico" >> "$GITHUB_STEP_SUMMARY"
+            exit 0
+          fi
+          if [ "$status" -ne 2 ]; then
+            echo "### gitleaks ⚠️ erro ao executar (código $status), veja o log do step" >> "$GITHUB_STEP_SUMMARY"
+            exit 1
+          fi
+          {
+            echo "### gitleaks ❌ segredo encontrado (valor oculto)"
+            jq -r '.[] | "- `\(.RuleID)` em `\(.File):\(.StartLine)` (commit `\(.Commit[0:7])`)"' gitleaks.json
+            echo
+            echo "Remova o segredo do histórico e revogue-o. Se for falso positivo, adicione o fingerprint ao \`.gitleaksignore\` com o motivo."
+          } >> "$GITHUB_STEP_SUMMARY"
+          exit 1
+      # Workflows e Dependabot (spec 69): o actionlint valida sintaxe, expressões e shell; o
+      # zizmor procura problemas de segurança de Actions (injeção, permissões, credenciais
+      # persistidas, actions vulneráveis). Imagens pinadas por digest, atualizadas à mão.
+      # Exceções do zizmor em .github/zizmor.yml, com motivo.
+      - name: Segurança dos workflows (actionlint + zizmor)
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          docker run --rm -v "$PWD:/repo" -w /repo \
+            rhysd/actionlint:1.7.12@sha256:b1934ee5f1c509618f2508e6eb47ee0d3520686341fec936f3b79331f9315667 \
+            -no-color
+          docker run --rm -e GH_TOKEN -v "$PWD:/repo" -w /repo \
+            ghcr.io/zizmorcore/zizmor:1.33.1@sha256:ecd3ffe6158de1322e05a044ed43749bee12b1dccb7e1a7859bc6ac4b2a1c516 \
+            --no-progress --format github .github
+          echo "### actionlint + zizmor ✅ workflows sem achados" >> "$GITHUB_STEP_SUMMARY"
       - uses: ./.github/actions/setup
       # Sem --omit=dev: no Angular quase tudo é build-time e acaba no bundle.
       - name: Auditoria de vulnerabilidades
@@ -144,6 +186,8 @@ jobs:
           resumo=artifacts/coverage/comandou-web/coverage-summary.json
           cobertura=""
           if [ -f "$resumo" ]; then
+            # ${...} é template literal do JavaScript, não variável do shell
+            # shellcheck disable=SC2016
             cobertura=$(node -e 'const t=require("./'"$resumo"'").total; console.log(`linhas ${t.lines.pct}% · statements ${t.statements.pct}% · funções ${t.functions.pct}% · branches ${t.branches.pct}%`)')
           fi
           {
