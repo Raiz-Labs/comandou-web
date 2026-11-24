@@ -1,4 +1,11 @@
-import { Component, inject, signal, resource, effect } from '@angular/core';
+import {
+  Component,
+  inject,
+  signal,
+  resource,
+  effect,
+  ChangeDetectionStrategy,
+} from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpErrorResponse } from '@angular/common/http';
 import { form, FormField, submit, required, min } from '@angular/forms/signals';
@@ -27,7 +34,11 @@ import { LucideDynamicIcon } from '@lucide/angular';
       <app-connection-banner />
 
       <header class="header">
-        <button class="b-btn-back" (click)="router.navigateByUrl('/caixa/comandas')" aria-label="Voltar">
+        <button
+          class="b-btn-back"
+          (click)="router.navigateByUrl('/caixa/comandas')"
+          aria-label="Voltar"
+        >
           <svg lucideIcon="arrow-left" [size]="20" />
         </button>
         <div class="header__info">
@@ -86,8 +97,18 @@ import { LucideDynamicIcon } from '@lucide/angular';
 
         <!-- Filtros -->
         <div class="filtros-bar">
-          <input class="b-input" type="date" (change)="onFiltroImediato('dataInicial', $event)" aria-label="Data inicial" />
-          <input class="b-input" type="date" (change)="onFiltroImediato('dataFinal', $event)" aria-label="Data final" />
+          <input
+            class="b-input"
+            type="date"
+            (change)="onFiltroImediato('dataInicial', $event)"
+            aria-label="Data inicial"
+          />
+          <input
+            class="b-input"
+            type="date"
+            (change)="onFiltroImediato('dataFinal', $event)"
+            aria-label="Data final"
+          />
           <select class="b-input" (change)="onFiltroImediato('tipo', $event)" aria-label="Tipo">
             <option value="">Tipo</option>
             <option value="entrada">Entrada</option>
@@ -98,9 +119,23 @@ import { LucideDynamicIcon } from '@lucide/angular';
             <option value="manual">Manual</option>
             <option value="automatica">Automática</option>
           </select>
-          <input class="b-input" type="text" placeholder="Categoria" (input)="onFiltroTexto('categoria', $event)" />
-          <input class="b-input" type="text" placeholder="Forma de pagamento" (input)="onFiltroTexto('formaPagamento', $event)" />
-          <select class="b-input" (change)="onFiltroImediato('usuarioId', $event)" aria-label="Usuário">
+          <input
+            class="b-input"
+            type="text"
+            placeholder="Categoria"
+            (input)="onFiltroTexto('categoria', $event)"
+          />
+          <input
+            class="b-input"
+            type="text"
+            placeholder="Forma de pagamento"
+            (input)="onFiltroTexto('formaPagamento', $event)"
+          />
+          <select
+            class="b-input"
+            (change)="onFiltroImediato('usuarioId', $event)"
+            aria-label="Usuário"
+          >
             <option value="">Usuário</option>
             @for (u of usuarios.hasValue() ? usuarios.value().items : []; track u.id) {
               <option [value]="u.id">{{ u.nome }}</option>
@@ -121,7 +156,9 @@ import { LucideDynamicIcon } from '@lucide/angular';
           <div class="empty-state">
             <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar movimentações</p>
-            <button class="b-btn-secondary" (click)="movimentacoes.reload()">Tentar novamente</button>
+            <button class="b-btn-secondary" (click)="movimentacoes.reload()">
+              Tentar novamente
+            </button>
           </div>
         } @else if ((movimentacoes.value() ?? []).length === 0) {
           <div class="empty-state">
@@ -134,7 +171,8 @@ import { LucideDynamicIcon } from '@lucide/angular';
               <div class="mov-row__info">
                 <span class="mov-row__categoria">{{ mov.categoria }}</span>
                 <span class="mov-row__meta">
-                  {{ formatarData(mov.ocorridaEm) }} · {{ mov.origem === 'automatica' ? 'Automática' : 'Manual' }}
+                  {{ formatarData(mov.ocorridaEm) }} ·
+                  {{ mov.origem === 'automatica' ? 'Automática' : 'Manual' }}
                   @if (mov.status === 'estornada') {
                     · <span class="mov-row__estornada">estornada</span>
                   }
@@ -160,25 +198,44 @@ import { LucideDynamicIcon } from '@lucide/angular';
         <form (submit)="onSubmitMovimentacao(); $event.preventDefault()">
           <label class="b-label">
             Valor
-            <input class="b-input" type="number" step="0.01" [formField]="novaMovimentacaoForm.valor" />
-            @if (novaMovimentacaoForm.valor().touched() && novaMovimentacaoForm.valor().errors().length) {
-              <span class="b-error-message">{{ novaMovimentacaoForm.valor().errors()[0].message }}</span>
+            <input
+              class="b-input"
+              type="number"
+              step="0.01"
+              [formField]="novaMovimentacaoForm.valor"
+            />
+            @if (
+              novaMovimentacaoForm.valor().touched() && novaMovimentacaoForm.valor().errors().length
+            ) {
+              <span class="b-error-message">{{
+                novaMovimentacaoForm.valor().errors()[0].message
+              }}</span>
             }
           </label>
 
           <label class="b-label">
             Categoria
             <input class="b-input" type="text" [formField]="novaMovimentacaoForm.categoria" />
-            @if (novaMovimentacaoForm.categoria().touched() && novaMovimentacaoForm.categoria().errors().length) {
-              <span class="b-error-message">{{ novaMovimentacaoForm.categoria().errors()[0].message }}</span>
+            @if (
+              novaMovimentacaoForm.categoria().touched() &&
+              novaMovimentacaoForm.categoria().errors().length
+            ) {
+              <span class="b-error-message">{{
+                novaMovimentacaoForm.categoria().errors()[0].message
+              }}</span>
             }
           </label>
 
           <label class="b-label">
             Descrição
             <input class="b-input" type="text" [formField]="novaMovimentacaoForm.descricao" />
-            @if (novaMovimentacaoForm.descricao().touched() && novaMovimentacaoForm.descricao().errors().length) {
-              <span class="b-error-message">{{ novaMovimentacaoForm.descricao().errors()[0].message }}</span>
+            @if (
+              novaMovimentacaoForm.descricao().touched() &&
+              novaMovimentacaoForm.descricao().errors().length
+            ) {
+              <span class="b-error-message">{{
+                novaMovimentacaoForm.descricao().errors()[0].message
+              }}</span>
             }
           </label>
 
@@ -188,8 +245,14 @@ import { LucideDynamicIcon } from '@lucide/angular';
           </label>
 
           <div class="modal__actions">
-            <button type="button" class="b-btn-secondary" (click)="fecharFormulario()">Cancelar</button>
-            <button type="submit" class="b-btn-primary" [disabled]="novaMovimentacaoForm().invalid() || salvando()">
+            <button type="button" class="b-btn-secondary" (click)="fecharFormulario()">
+              Cancelar
+            </button>
+            <button
+              type="submit"
+              class="b-btn-primary"
+              [disabled]="novaMovimentacaoForm().invalid() || salvando()"
+            >
               @if (salvando()) {
                 <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
               }
@@ -200,46 +263,206 @@ import { LucideDynamicIcon } from '@lucide/angular';
       </div>
     }
   `,
-  styles: [`
-    .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+      }
 
-    .header { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-4) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); }
-    .header__info { flex: 1; }
-    .header__title { display: flex; align-items: center; gap: var(--b-space-2); font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
-    .header__actions { display: flex; gap: var(--b-space-2); }
+      .header {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-4) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+      }
+      .header__info {
+        flex: 1;
+      }
+      .header__title {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .header__actions {
+        display: flex;
+        gap: var(--b-space-2);
+      }
 
-    .content { flex: 1; padding: var(--b-space-4); display: flex; flex-direction: column; gap: var(--b-space-4); }
-    @media (min-width: 768px) { .content { padding: var(--b-space-6); } }
+      .content {
+        flex: 1;
+        padding: var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      @media (min-width: 768px) {
+        .content {
+          padding: var(--b-space-6);
+        }
+      }
 
-    .kpi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--b-space-3); }
-    @media (min-width: 768px) { .kpi-grid { grid-template-columns: repeat(4, 1fr); } }
-    .kpi-card { display: flex; flex-direction: column; gap: var(--b-space-1); padding: var(--b-space-4); background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-200); box-shadow: var(--b-shadow-1); }
-    .kpi-card__label { font-size: var(--b-font-size-sm); color: var(--b-fg-muted); }
-    .kpi-card__valor { font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); }
-    .kpi-card__valor--primary { color: var(--b-primary-600); }
-    .kpi-card__valor--success { color: var(--b-success-600); }
-    .kpi-card__valor--danger { color: var(--b-danger-600); }
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--b-space-3);
+      }
+      @media (min-width: 768px) {
+        .kpi-grid {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
+      .kpi-card {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-1);
+        padding: var(--b-space-4);
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-200);
+        box-shadow: var(--b-shadow-1);
+      }
+      .kpi-card__label {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+      }
+      .kpi-card__valor {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+      }
+      .kpi-card__valor--primary {
+        color: var(--b-primary-600);
+      }
+      .kpi-card__valor--success {
+        color: var(--b-success-600);
+      }
+      .kpi-card__valor--danger {
+        color: var(--b-danger-600);
+      }
 
-    .filtros-bar { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--b-space-2); }
-    @media (min-width: 1024px) { .filtros-bar { grid-template-columns: repeat(7, 1fr); } }
+      .filtros-bar {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--b-space-2);
+      }
+      @media (min-width: 1024px) {
+        .filtros-bar {
+          grid-template-columns: repeat(7, 1fr);
+        }
+      }
 
-    .mov-row { display: flex; align-items: center; justify-content: space-between; gap: var(--b-space-3); padding: var(--b-space-3) var(--b-space-4); background-color: var(--b-bg-elevated); border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); cursor: pointer; text-align: left; font-family: var(--b-font-sans); width: 100%; min-height: 44px; }
-    .mov-row--skeleton { cursor: default; flex-direction: column; align-items: flex-start; gap: var(--b-space-2); }
-    .mov-row__info { display: flex; flex-direction: column; gap: 2px; }
-    .mov-row__categoria { font-weight: var(--b-font-weight-semibold); color: var(--b-fg); }
-    .mov-row__meta { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); }
-    .mov-row__estornada { color: var(--b-danger-600); font-weight: var(--b-font-weight-semibold); }
-    .mov-row__valor { font-weight: var(--b-font-weight-bold); color: var(--b-success-600); white-space: nowrap; }
-    .mov-row__valor--saida { color: var(--b-danger-600); }
+      .mov-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--b-space-3);
+        padding: var(--b-space-3) var(--b-space-4);
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        cursor: pointer;
+        text-align: left;
+        font-family: var(--b-font-sans);
+        width: 100%;
+        min-height: 44px;
+      }
+      .mov-row--skeleton {
+        cursor: default;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--b-space-2);
+      }
+      .mov-row__info {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+      .mov-row__categoria {
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+      }
+      .mov-row__meta {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
+      .mov-row__estornada {
+        color: var(--b-danger-600);
+        font-weight: var(--b-font-weight-semibold);
+      }
+      .mov-row__valor {
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-success-600);
+        white-space: nowrap;
+      }
+      .mov-row__valor--saida {
+        color: var(--b-danger-600);
+      }
 
-    .empty-state { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--b-space-3); padding: var(--b-space-16) var(--b-space-4); text-align: center; color: var(--b-fg-muted); }
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+        color: var(--b-fg-muted);
+      }
 
-    .backdrop { position: fixed; inset: 0; background-color: rgba(44, 26, 14, 0.5); backdrop-filter: blur(2px); z-index: var(--b-z-modal); }
-    .modal { position: fixed; inset: 0; margin: auto; z-index: var(--b-z-modal); background-color: var(--b-bg-elevated); border-radius: var(--b-radius-lg); box-shadow: var(--b-shadow-4); padding: var(--b-space-6); width: 100%; max-width: 420px; max-height: fit-content; display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .modal__title { font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; }
-    .modal form { display: flex; flex-direction: column; gap: var(--b-space-3); }
-    .modal__actions { display: flex; justify-content: flex-end; gap: var(--b-space-3); margin-top: var(--b-space-2); }
-  `],
+      .backdrop {
+        position: fixed;
+        inset: 0;
+        background-color: rgba(44, 26, 14, 0.5);
+        backdrop-filter: blur(2px);
+        z-index: var(--b-z-modal);
+      }
+      .modal {
+        position: fixed;
+        inset: 0;
+        margin: auto;
+        z-index: var(--b-z-modal);
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-lg);
+        box-shadow: var(--b-shadow-4);
+        padding: var(--b-space-6);
+        width: 100%;
+        max-width: 420px;
+        max-height: fit-content;
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .modal__title {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .modal form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-3);
+      }
+      .modal__actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: var(--b-space-3);
+        margin-top: var(--b-space-2);
+      }
+    `,
+  ],
 })
 export class FluxoCaixaListaComponent {
   protected readonly router = inject(Router);

@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, inject, signal, ChangeDetectionStrategy } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { AuthService } from '../../core/auth/auth.service';
 import { environment } from '../../../environments/environment';
@@ -53,11 +53,7 @@ import { MarcaComponent } from '../../shared/components/marca/marca.component';
             <p class="login-form__error">{{ errorMessage() }}</p>
           }
 
-          <button
-            type="submit"
-            class="b-btn-primary b-w-full"
-            [disabled]="loading()"
-          >
+          <button type="submit" class="b-btn-primary b-w-full" [disabled]="loading()">
             @if (loading()) {
               Entrando...
             } @else {
@@ -68,65 +64,68 @@ import { MarcaComponent } from '../../shared/components/marca/marca.component';
       </div>
     </div>
   `,
-  styles: [`
-    .login-page {
-      position: relative;
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: var(--b-space-4);
-      background-color: var(--b-bg);
-    }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .login-page {
+        position: relative;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--b-space-4);
+        background-color: var(--b-bg);
+      }
 
-    .login-page__theme-toggle {
-      position: absolute;
-      top: var(--b-space-4);
-      right: var(--b-space-4);
-    }
+      .login-page__theme-toggle {
+        position: absolute;
+        top: var(--b-space-4);
+        right: var(--b-space-4);
+      }
 
-    .login-card {
-      width: 100%;
-      max-width: 400px;
-    }
+      .login-card {
+        width: 100%;
+        max-width: 400px;
+      }
 
-    .login-card__header {
-      text-align: center;
-      margin-bottom: var(--b-space-6);
-    }
+      .login-card__header {
+        text-align: center;
+        margin-bottom: var(--b-space-6);
+      }
 
-    .login-card__title {
-      display: flex;
-      justify-content: center;
-      margin-bottom: var(--b-space-2);
-    }
+      .login-card__title {
+        display: flex;
+        justify-content: center;
+        margin-bottom: var(--b-space-2);
+      }
 
-    .login-card__subtitle {
-      font-size: var(--b-font-size-sm);
-      text-transform: capitalize;
-      margin-top: var(--b-space-1);
-    }
+      .login-card__subtitle {
+        font-size: var(--b-font-size-sm);
+        text-transform: capitalize;
+        margin-top: var(--b-space-1);
+      }
 
-    .login-form {
-      display: flex;
-      flex-direction: column;
-      gap: var(--b-space-4);
-    }
+      .login-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
 
-    .b-form-group {
-      display: flex;
-      flex-direction: column;
-    }
+      .b-form-group {
+        display: flex;
+        flex-direction: column;
+      }
 
-    .login-form__error {
-      font-size: var(--b-font-size-sm);
-      color: var(--b-danger-600);
-      padding: var(--b-space-2) var(--b-space-3);
-      background-color: var(--b-danger-50);
-      border-radius: var(--b-radius-sm);
-      border: 1px solid var(--b-danger-100);
-    }
-  `],
+      .login-form__error {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-danger-600);
+        padding: var(--b-space-2) var(--b-space-3);
+        background-color: var(--b-danger-50);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-danger-100);
+      }
+    `,
+  ],
 })
 export class LoginComponent {
   private readonly authService = inject(AuthService);

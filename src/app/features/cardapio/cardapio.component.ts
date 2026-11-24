@@ -4,6 +4,7 @@ import {
   signal,
   computed,
   resource,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
@@ -54,9 +55,14 @@ interface CardapioResponse {
         <!-- Busca -->
         <div class="search-box">
           <svg lucideIcon="search" [size]="16" color="var(--b-fg-subtle)" />
-          <input class="search-input" type="search" placeholder="Buscar no cardápio..."
-            [value]="busca()" (input)="onBuscaInput($event)"
-            autocomplete="off" />
+          <input
+            class="search-input"
+            type="search"
+            placeholder="Buscar no cardápio..."
+            [value]="busca()"
+            (input)="onBuscaInput($event)"
+            autocomplete="off"
+          />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
               <svg lucideIcon="x" [size]="14" />
@@ -68,13 +74,19 @@ interface CardapioResponse {
       <!-- Tabs de categoria (sticky) -->
       @if (!dados.isLoading() && !dados.error() && !busca()) {
         <nav class="cat-tabs" aria-label="Categorias">
-          <button class="cat-tab" [class.cat-tab--active]="catAtiva() === null"
-            (click)="catAtiva.set(null)">
+          <button
+            class="cat-tab"
+            [class.cat-tab--active]="catAtiva() === null"
+            (click)="catAtiva.set(null)"
+          >
             Todos
           </button>
           @for (cat of categoriasComItens(); track cat.id) {
-            <button class="cat-tab" [class.cat-tab--active]="catAtiva() === cat.id"
-              (click)="scrollParaCategoria(cat.id)">
+            <button
+              class="cat-tab"
+              [class.cat-tab--active]="catAtiva() === cat.id"
+              (click)="scrollParaCategoria(cat.id)"
+            >
               {{ cat.nome }}
             </button>
           }
@@ -92,7 +104,9 @@ interface CardapioResponse {
                 @for (j of [1, 2, 3, 4]; track j) {
                   <div class="card-skeleton">
                     <app-skeleton height="120px" width="100%" />
-                    <div style="padding: var(--b-space-3); display:flex;flex-direction:column;gap:var(--b-space-2)">
+                    <div
+                      style="padding: var(--b-space-3); display:flex;flex-direction:column;gap:var(--b-space-2)"
+                    >
                       <app-skeleton height="1rem" width="80%" />
                       <app-skeleton height="0.75rem" width="60%" />
                       <app-skeleton height="1.25rem" width="70px" />
@@ -122,7 +136,10 @@ interface CardapioResponse {
             <div class="secao">
               <h2 class="secao__titulo">
                 <svg lucideIcon="search" [size]="16" />
-                {{ resultadoBusca().length }} resultado{{ resultadoBusca().length !== 1 ? 's' : '' }} para "{{ busca() }}"
+                {{ resultadoBusca().length }} resultado{{
+                  resultadoBusca().length !== 1 ? 's' : ''
+                }}
+                para "{{ busca() }}"
               </h2>
               <div class="produtos-grid">
                 @for (p of resultadoBusca(); track p.id) {
@@ -134,7 +151,9 @@ interface CardapioResponse {
                     </div>
                     <div class="produto-card__info">
                       <h3 class="produto-card__nome">{{ p.nome }}</h3>
-                      @if (p.descricao) { <p class="produto-card__desc">{{ p.descricao }}</p> }
+                      @if (p.descricao) {
+                        <p class="produto-card__desc">{{ p.descricao }}</p>
+                      }
                       <span class="produto-card__preco">{{ p.preco | currencyBr }}</span>
                     </div>
                   </article>
@@ -179,64 +198,278 @@ interface CardapioResponse {
 
       <!-- Footer -->
       <footer class="footer">
-        <p class="footer__assinatura">Cardápio digital · <app-marca variante="horizontal" [tamanho]="18" /></p>
+        <p class="footer__assinatura">
+          Cardápio digital · <app-marca variante="horizontal" [tamanho]="18" />
+        </p>
       </footer>
     </div>
   `,
-  styles: [`
-    .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+      }
 
-    /* Header */
-    .header { background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); padding: var(--b-space-5) var(--b-space-4); display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .header__brand { display: flex; align-items: center; gap: var(--b-space-3); }
-    .header__title { font-size: var(--b-font-size-2xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
-    .header__sub { font-size: var(--b-font-size-sm); color: var(--b-fg-muted); margin: 0; }
+      /* Header */
+      .header {
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-5) var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .header__brand {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+      }
+      .header__title {
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .header__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: 0;
+      }
 
-    /* Busca */
-    .search-box { display: flex; align-items: center; gap: var(--b-space-2); padding: var(--b-space-3) var(--b-space-3); background-color: var(--b-bg-sunken); border: 1px solid var(--b-neutral-200); border-radius: var(--b-radius-sm); }
-    .search-input { flex: 1; border: none; background: transparent; font-size: var(--b-font-size-sm); color: var(--b-fg); outline: none; font-family: var(--b-font-sans); &::placeholder { color: var(--b-fg-subtle); } }
-    .search-clear { display: flex; align-items: center; border: none; background: transparent; color: var(--b-fg-muted); cursor: pointer; padding: 2px; &:hover { color: var(--b-fg); } }
+      /* Busca */
+      .search-box {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        padding: var(--b-space-3) var(--b-space-3);
+        background-color: var(--b-bg-sunken);
+        border: 1px solid var(--b-neutral-200);
+        border-radius: var(--b-radius-sm);
+      }
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg);
+        outline: none;
+        font-family: var(--b-font-sans);
+        &::placeholder {
+          color: var(--b-fg-subtle);
+        }
+      }
+      .search-clear {
+        display: flex;
+        align-items: center;
+        border: none;
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        padding: 2px;
+        &:hover {
+          color: var(--b-fg);
+        }
+      }
 
-    /* Tabs de categoria */
-    .cat-tabs { position: sticky; top: 0; z-index: 10; display: flex; gap: var(--b-space-2); overflow-x: auto; padding: var(--b-space-3) var(--b-space-4); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); scrollbar-width: none; &::-webkit-scrollbar { display: none; } }
-    .cat-tab { flex-shrink: 0; padding: var(--b-space-2) var(--b-space-4); border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); background: transparent; font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-medium); color: var(--b-fg-muted); cursor: pointer; font-family: var(--b-font-sans); min-height: 36px; white-space: nowrap; transition: all 0.15s; &:hover { background-color: var(--b-bg-sunken); } &--active { background-color: var(--b-primary-500); border-color: var(--b-primary-500); color: var(--b-fg-inverted); font-weight: var(--b-font-weight-semibold); } }
+      /* Tabs de categoria */
+      .cat-tabs {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        gap: var(--b-space-2);
+        overflow-x: auto;
+        padding: var(--b-space-3) var(--b-space-4);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        scrollbar-width: none;
+        &::-webkit-scrollbar {
+          display: none;
+        }
+      }
+      .cat-tab {
+        flex-shrink: 0;
+        padding: var(--b-space-2) var(--b-space-4);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-medium);
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        font-family: var(--b-font-sans);
+        min-height: 36px;
+        white-space: nowrap;
+        transition: all 0.15s;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+        &--active {
+          background-color: var(--b-primary-500);
+          border-color: var(--b-primary-500);
+          color: var(--b-fg-inverted);
+          font-weight: var(--b-font-weight-semibold);
+        }
+      }
 
-    /* Content */
-    .content { flex: 1; padding: var(--b-space-5) var(--b-space-4); display: flex; flex-direction: column; gap: var(--b-space-8); }
+      /* Content */
+      .content {
+        flex: 1;
+        padding: var(--b-space-5) var(--b-space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-8);
+      }
 
-    /* Seção */
-    .secao { display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .secao-skeleton { display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .secao__titulo { display: flex; align-items: center; gap: var(--b-space-2); font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; padding-bottom: var(--b-space-2); border-bottom: 2px solid var(--b-primary-500); width: fit-content; }
+      /* Seção */
+      .secao {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .secao-skeleton {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .secao__titulo {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+        padding-bottom: var(--b-space-2);
+        border-bottom: 2px solid var(--b-primary-500);
+        width: fit-content;
+      }
 
-    /* Grid de produtos */
-    .produtos-grid { display: grid; grid-template-columns: 1fr; gap: var(--b-space-3);
-      @media (min-width: 480px) { grid-template-columns: repeat(2, 1fr); }
-      @media (min-width: 768px) { grid-template-columns: repeat(3, 1fr); }
-      @media (min-width: 1024px) { grid-template-columns: repeat(4, 1fr); }
-    }
+      /* Grid de produtos */
+      .produtos-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: var(--b-space-3);
+        @media (min-width: 480px) {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        @media (min-width: 768px) {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        @media (min-width: 1024px) {
+          grid-template-columns: repeat(4, 1fr);
+        }
+      }
 
-    /* Card de produto */
-    .produto-card { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); overflow: hidden; display: flex; flex-direction: column; transition: box-shadow 0.2s, transform 0.15s;
-      &:hover { box-shadow: var(--b-shadow-3); transform: translateY(-2px); }
-    }
-    .card-skeleton { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); overflow: hidden; }
-    .produto-card__img-wrap { position: relative; width: 100%; aspect-ratio: 16 / 9; overflow: hidden; background-color: var(--b-bg-sunken); }
-    .produto-card__img-placeholder { width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; }
-    .produto-card__info { padding: var(--b-space-3); display: flex; flex-direction: column; gap: var(--b-space-2); flex: 1; }
-    .produto-card__nome { font-size: var(--b-font-size-base); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; line-height: 1.3; }
-    .produto-card__desc { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); margin: 0; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-    .produto-card__preco { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-extrabold); color: var(--b-primary-500); margin-top: auto; }
+      /* Card de produto */
+      .produto-card {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        transition:
+          box-shadow 0.2s,
+          transform 0.15s;
+        &:hover {
+          box-shadow: var(--b-shadow-3);
+          transform: translateY(-2px);
+        }
+      }
+      .card-skeleton {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        overflow: hidden;
+      }
+      .produto-card__img-wrap {
+        position: relative;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        background-color: var(--b-bg-sunken);
+      }
+      .produto-card__img-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .produto-card__info {
+        padding: var(--b-space-3);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+        flex: 1;
+      }
+      .produto-card__nome {
+        font-size: var(--b-font-size-base);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+        line-height: 1.3;
+      }
+      .produto-card__desc {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+        margin: 0;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+      }
+      .produto-card__preco {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-primary-500);
+        margin-top: auto;
+      }
 
-    /* Empty / error */
-    .empty-state { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-3); padding: var(--b-space-16) var(--b-space-4); text-align: center; }
-    .empty-state__title { font-size: var(--b-font-size-xl); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; }
-    .empty-state__sub { font-size: var(--b-font-size-sm); color: var(--b-fg-muted); margin: 0; }
+      /* Empty / error */
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+      }
+      .empty-state__title {
+        font-size: var(--b-font-size-xl);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .empty-state__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: 0;
+      }
 
-    /* Footer */
-    .footer { padding: var(--b-space-6) var(--b-space-4); text-align: center; font-size: var(--b-font-size-xs); color: var(--b-fg-subtle); border-top: 1px solid var(--b-neutral-100); }
-    .footer__assinatura { display: inline-flex; align-items: center; gap: var(--b-space-1); }
-  `],
+      /* Footer */
+      .footer {
+        padding: var(--b-space-6) var(--b-space-4);
+        text-align: center;
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-subtle);
+        border-top: 1px solid var(--b-neutral-100);
+      }
+      .footer__assinatura {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--b-space-1);
+      }
+    `,
+  ],
 })
 export class CardapioComponent {
   private readonly api = inject(ApiService);
@@ -255,15 +488,17 @@ export class CardapioComponent {
   });
 
   protected readonly categoriasComItens = computed((): CardapioCategoriaItem[] =>
-    this.dados.hasValue() ? this.dados.value().categorias : []
+    this.dados.hasValue() ? this.dados.value().categorias : [],
   );
 
   protected readonly resultadoBusca = computed((): CardapioProdutoItem[] => {
     const q = this.busca().toLowerCase().trim();
     if (!q) return [];
     return this.categoriasComItens()
-      .flatMap(cat => cat.produtos)
-      .filter(p => p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q));
+      .flatMap((cat) => cat.produtos)
+      .filter(
+        (p) => p.nome.toLowerCase().includes(q) || (p.descricao ?? '').toLowerCase().includes(q),
+      );
   });
 
   protected scrollParaCategoria(catId: string): void {
@@ -273,5 +508,4 @@ export class CardapioComponent {
       el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   }
-
 }

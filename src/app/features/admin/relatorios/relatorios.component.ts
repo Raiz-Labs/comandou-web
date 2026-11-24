@@ -4,6 +4,7 @@ import {
   signal,
   resource,
   effect,
+  ChangeDetectionStrategy,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
@@ -29,7 +30,11 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
-        <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
+        <button
+          class="b-btn-back"
+          (click)="router.navigateByUrl('/admin/dashboard')"
+          aria-label="Voltar"
+        >
           <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <div class="topbar__info">
@@ -38,15 +43,28 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             <span class="topbar__sub">Atualizado agora</span>
           }
         </div>
-        <button class="btn-refresh" (click)="relatorio.reload()" [disabled]="relatorio.isLoading()" aria-label="Atualizar">
-          <svg lucideIcon="refresh-cw" [size]="16" [class]="relatorio.isLoading() ? 'b-spin' : ''" />
+        <button
+          class="btn-refresh"
+          (click)="relatorio.reload()"
+          [disabled]="relatorio.isLoading()"
+          aria-label="Atualizar"
+        >
+          <svg
+            lucideIcon="refresh-cw"
+            [size]="16"
+            [class]="relatorio.isLoading() ? 'b-spin' : ''"
+          />
         </button>
       </header>
 
       <!-- Período -->
       <div class="periodo-bar">
         @for (p of periodos; track p) {
-          <button class="periodo-btn" [class.periodo-btn--active]="periodo() === p" (click)="setPeriodo(p)">
+          <button
+            class="periodo-btn"
+            [class.periodo-btn--active]="periodo() === p"
+            (click)="setPeriodo(p)"
+          >
             {{ periodoLabel(p) }}
           </button>
         }
@@ -56,7 +74,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
         @if (relatorio.isLoading()) {
           <!-- KPI skeletons -->
           <div class="kpi-grid">
-            @for (i of [1,2,3]; track i) {
+            @for (i of [1, 2, 3]; track i) {
               <div class="kpi-card">
                 <app-skeleton height="0.875rem" width="120px" />
                 <app-skeleton height="2rem" width="100px" />
@@ -74,7 +92,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
           <!-- Top produtos skeleton -->
           <div class="section">
             <app-skeleton height="1.25rem" width="160px" />
-            @for (i of [1,2,3,4,5]; track i) {
+            @for (i of [1, 2, 3, 4, 5]; track i) {
               <div class="top-row-skeleton">
                 <app-skeleton height="1rem" width="40%" />
                 <app-skeleton height="1rem" width="60px" />
@@ -96,7 +114,9 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                 <svg lucideIcon="trending-up" [size]="14" />
                 Total em vendas
               </div>
-              <div class="kpi-card__valor kpi-card__valor--primary">{{ relatorio.value()!.resumo.totalVendas | currencyBr }}</div>
+              <div class="kpi-card__valor kpi-card__valor--primary">
+                {{ relatorio.value()!.resumo.totalVendas | currencyBr }}
+              </div>
               <div class="kpi-card__sub">{{ periodoLabel(periodo()) }}</div>
             </div>
             <div class="kpi-card">
@@ -112,7 +132,9 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                 <svg lucideIcon="divide-circle" [size]="14" />
                 Ticket médio
               </div>
-              <div class="kpi-card__valor">{{ relatorio.value()!.resumo.ticketMedio | currencyBr }}</div>
+              <div class="kpi-card__valor">
+                {{ relatorio.value()!.resumo.ticketMedio | currencyBr }}
+              </div>
               <div class="kpi-card__sub">por comanda</div>
             </div>
           </div>
@@ -127,9 +149,7 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                     <div class="bar-col">
                       <div class="bar-label-top">{{ dia.total | currencyBr }}</div>
                       <div class="bar-track">
-                        <div class="bar-fill"
-                          [style.height.%]="barAltura(dia.total)">
-                        </div>
+                        <div class="bar-fill" [style.height.%]="barAltura(dia.total)"></div>
                       </div>
                       <div class="bar-label-day">{{ formatarDia(dia.data) }}</div>
                     </div>
@@ -155,9 +175,10 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
                     <div class="top-row__info">
                       <div class="top-row__nome">{{ item.nome }}</div>
                       <div class="top-row__bar">
-                        <div class="top-row__bar-fill"
-                          [style.width.%]="barProduto(item.total)">
-                        </div>
+                        <div
+                          class="top-row__bar-fill"
+                          [style.width.%]="barProduto(item.total)"
+                        ></div>
                       </div>
                     </div>
                     <span class="top-row__qtd">{{ item.quantidade }}x</span>
@@ -173,76 +194,347 @@ const PERIODOS: Periodo[] = ['hoje', '7dias', '30dias'];
             <div class="sem-dados">
               <svg lucideIcon="bar-chart-2" [size]="48" color="var(--b-fg-subtle)" />
               <p class="sem-dados__title">Sem dados para este período</p>
-              <p class="sem-dados__sub">Nenhuma comanda foi fechada em "{{ periodoLabel(periodo()) }}".</p>
+              <p class="sem-dados__sub">
+                Nenhuma comanda foi fechada em "{{ periodoLabel(periodo()) }}".
+              </p>
             </div>
           }
         }
       </main>
     </div>
   `,
-  styles: [`
-    .layout { display: flex; flex-direction: column; min-height: 100dvh; background-color: var(--b-bg); font-family: var(--b-font-sans); }
+  changeDetection: ChangeDetectionStrategy.Eager,
+  styles: [
+    `
+      .layout {
+        display: flex;
+        flex-direction: column;
+        min-height: 100dvh;
+        background-color: var(--b-bg);
+        font-family: var(--b-font-sans);
+      }
 
-    /* Topbar */
-    .topbar { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-4) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); }
-    .topbar__info { flex: 1; }
-    .topbar__title { font-size: var(--b-font-size-2xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); margin: 0; }
-    .topbar__sub { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); }
-    .btn-refresh { display: flex; align-items: center; justify-content: center; min-width: 44px; min-height: 44px; border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); background: transparent; color: var(--b-fg-muted); cursor: pointer; &:hover:not(:disabled) { background-color: var(--b-bg-sunken); color: var(--b-fg); } &:disabled { opacity: 0.5; cursor: not-allowed; } }
+      /* Topbar */
+      .topbar {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-4) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+      }
+      .topbar__info {
+        flex: 1;
+      }
+      .topbar__title {
+        font-size: var(--b-font-size-2xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .topbar__sub {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
+      .btn-refresh {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 44px;
+        min-height: 44px;
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        background: transparent;
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        &:hover:not(:disabled) {
+          background-color: var(--b-bg-sunken);
+          color: var(--b-fg);
+        }
+        &:disabled {
+          opacity: 0.5;
+          cursor: not-allowed;
+        }
+      }
 
-    /* Período */
-    .periodo-bar { display: flex; gap: var(--b-space-2); padding: var(--b-space-3) var(--b-space-6); background-color: var(--b-bg-elevated); border-bottom: 1px solid var(--b-neutral-100); }
-    .periodo-btn { padding: var(--b-space-2) var(--b-space-4); border-radius: var(--b-radius-sm); border: 1px solid var(--b-neutral-200); background: transparent; font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-medium); color: var(--b-fg-muted); cursor: pointer; font-family: var(--b-font-sans); min-height: 40px; transition: all 0.15s; &:hover { background-color: var(--b-bg-sunken); } &--active { background-color: var(--b-primary-500); border-color: var(--b-primary-500); color: var(--b-fg-inverted); font-weight: var(--b-font-weight-semibold); } }
+      /* Período */
+      .periodo-bar {
+        display: flex;
+        gap: var(--b-space-2);
+        padding: var(--b-space-3) var(--b-space-6);
+        background-color: var(--b-bg-elevated);
+        border-bottom: 1px solid var(--b-neutral-100);
+      }
+      .periodo-btn {
+        padding: var(--b-space-2) var(--b-space-4);
+        border-radius: var(--b-radius-sm);
+        border: 1px solid var(--b-neutral-200);
+        background: transparent;
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-medium);
+        color: var(--b-fg-muted);
+        cursor: pointer;
+        font-family: var(--b-font-sans);
+        min-height: 40px;
+        transition: all 0.15s;
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+        &--active {
+          background-color: var(--b-primary-500);
+          border-color: var(--b-primary-500);
+          color: var(--b-fg-inverted);
+          font-weight: var(--b-font-weight-semibold);
+        }
+      }
 
-    /* Content */
-    .content { flex: 1; padding: var(--b-space-6); display: flex; flex-direction: column; gap: var(--b-space-6); }
-    @media (max-width: 767px) {
-      .periodo-bar { padding: var(--b-space-3) var(--b-space-4); flex-wrap: wrap; }
-      .content { padding: var(--b-space-4); gap: var(--b-space-4); }
-    }
+      /* Content */
+      .content {
+        flex: 1;
+        padding: var(--b-space-6);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-6);
+      }
+      @media (max-width: 767px) {
+        .periodo-bar {
+          padding: var(--b-space-3) var(--b-space-4);
+          flex-wrap: wrap;
+        }
+        .content {
+          padding: var(--b-space-4);
+          gap: var(--b-space-4);
+        }
+      }
 
-    /* KPIs */
-    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: var(--b-space-4); }
-    .kpi-card { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-2); }
-    .kpi-card__label { display: flex; align-items: center; gap: var(--b-space-2); font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-semibold); color: var(--b-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-    .kpi-card__valor { font-size: var(--b-font-size-3xl); font-weight: var(--b-font-weight-extrabold); color: var(--b-fg); line-height: 1; &--primary { color: var(--b-primary-500); } }
-    .kpi-card__sub { font-size: var(--b-font-size-xs); color: var(--b-fg-muted); }
+      /* KPIs */
+      .kpi-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: var(--b-space-4);
+      }
+      .kpi-card {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-2);
+      }
+      .kpi-card__label {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-2);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .kpi-card__valor {
+        font-size: var(--b-font-size-3xl);
+        font-weight: var(--b-font-weight-extrabold);
+        color: var(--b-fg);
+        line-height: 1;
+        &--primary {
+          color: var(--b-primary-500);
+        }
+      }
+      .kpi-card__sub {
+        font-size: var(--b-font-size-xs);
+        color: var(--b-fg-muted);
+      }
 
-    /* Seções */
-    .section { background-color: var(--b-bg-elevated); border-radius: var(--b-radius-md); border: 1px solid var(--b-neutral-100); box-shadow: var(--b-shadow-1); padding: var(--b-space-5); display: flex; flex-direction: column; gap: var(--b-space-4); }
-    .section__title { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-bold); color: var(--b-fg); margin: 0; }
+      /* Seções */
+      .section {
+        background-color: var(--b-bg-elevated);
+        border-radius: var(--b-radius-md);
+        border: 1px solid var(--b-neutral-100);
+        box-shadow: var(--b-shadow-1);
+        padding: var(--b-space-5);
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-4);
+      }
+      .section__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg);
+        margin: 0;
+      }
 
-    /* Gráfico de barras */
-    .chart-wrap { overflow-x: auto; }
-    .chart-area { display: flex; align-items: flex-end; gap: var(--b-space-2); min-height: 180px; padding-top: var(--b-space-4); padding-bottom: var(--b-space-1); }
-    .bar-col { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-1); flex: 1; min-width: 40px; }
-    .bar-label-top { font-size: 10px; color: var(--b-fg-muted); white-space: nowrap; font-weight: var(--b-font-weight-semibold); }
-    .bar-track { width: 100%; height: 140px; background-color: var(--b-bg-sunken); border-radius: var(--b-radius-sm); display: flex; align-items: flex-end; overflow: hidden; }
-    .bar-fill { width: 100%; background-color: var(--b-primary-500); border-radius: var(--b-radius-sm); transition: height 0.5s ease; min-height: 4px; }
-    .bar-label-day { font-size: 10px; color: var(--b-fg-muted); text-align: center; white-space: nowrap; }
+      /* Gráfico de barras */
+      .chart-wrap {
+        overflow-x: auto;
+      }
+      .chart-area {
+        display: flex;
+        align-items: flex-end;
+        gap: var(--b-space-2);
+        min-height: 180px;
+        padding-top: var(--b-space-4);
+        padding-bottom: var(--b-space-1);
+      }
+      .bar-col {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-1);
+        flex: 1;
+        min-width: 40px;
+      }
+      .bar-label-top {
+        font-size: 10px;
+        color: var(--b-fg-muted);
+        white-space: nowrap;
+        font-weight: var(--b-font-weight-semibold);
+      }
+      .bar-track {
+        width: 100%;
+        height: 140px;
+        background-color: var(--b-bg-sunken);
+        border-radius: var(--b-radius-sm);
+        display: flex;
+        align-items: flex-end;
+        overflow: hidden;
+      }
+      .bar-fill {
+        width: 100%;
+        background-color: var(--b-primary-500);
+        border-radius: var(--b-radius-sm);
+        transition: height 0.5s ease;
+        min-height: 4px;
+      }
+      .bar-label-day {
+        font-size: 10px;
+        color: var(--b-fg-muted);
+        text-align: center;
+        white-space: nowrap;
+      }
 
-    /* Top produtos */
-    .top-table { display: flex; flex-direction: column; gap: var(--b-space-1); }
-    .top-table__header { display: grid; grid-template-columns: 1fr 48px 96px; gap: var(--b-space-3); padding: var(--b-space-2) var(--b-space-3); font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-bold); color: var(--b-fg-muted); text-transform: uppercase; letter-spacing: 0.04em; }
-    .top-table__qtd, .top-table__total { text-align: right; }
-    .top-row { display: grid; grid-template-columns: 28px 1fr 48px 96px; gap: var(--b-space-3); align-items: center; padding: var(--b-space-2) var(--b-space-3); border-radius: var(--b-radius-sm); &:hover { background-color: var(--b-bg-sunken); } }
-    .top-row__rank { font-size: var(--b-font-size-xs); font-weight: var(--b-font-weight-bold); color: var(--b-fg-muted); width: 24px; height: 24px; border-radius: 50%; background-color: var(--b-bg-sunken); display: flex; align-items: center; justify-content: center; }
-    .top-row__info { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .top-row__nome { font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-semibold); color: var(--b-fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .top-row__bar { height: 4px; background-color: var(--b-bg-sunken); border-radius: 2px; overflow: hidden; }
-    .top-row__bar-fill { height: 100%; background-color: var(--b-primary-400); border-radius: 2px; }
-    .top-row__qtd { font-size: var(--b-font-size-sm); color: var(--b-fg-muted); text-align: right; }
-    .top-row__total { font-size: var(--b-font-size-sm); font-weight: var(--b-font-weight-bold); color: var(--b-primary-600); text-align: right; }
-    .top-row-skeleton { display: flex; align-items: center; gap: var(--b-space-3); padding: var(--b-space-2) 0; }
+      /* Top produtos */
+      .top-table {
+        display: flex;
+        flex-direction: column;
+        gap: var(--b-space-1);
+      }
+      .top-table__header {
+        display: grid;
+        grid-template-columns: 1fr 48px 96px;
+        gap: var(--b-space-3);
+        padding: var(--b-space-2) var(--b-space-3);
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg-muted);
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+      }
+      .top-table__qtd,
+      .top-table__total {
+        text-align: right;
+      }
+      .top-row {
+        display: grid;
+        grid-template-columns: 28px 1fr 48px 96px;
+        gap: var(--b-space-3);
+        align-items: center;
+        padding: var(--b-space-2) var(--b-space-3);
+        border-radius: var(--b-radius-sm);
+        &:hover {
+          background-color: var(--b-bg-sunken);
+        }
+      }
+      .top-row__rank {
+        font-size: var(--b-font-size-xs);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-fg-muted);
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        background-color: var(--b-bg-sunken);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .top-row__info {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+      .top-row__nome {
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .top-row__bar {
+        height: 4px;
+        background-color: var(--b-bg-sunken);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .top-row__bar-fill {
+        height: 100%;
+        background-color: var(--b-primary-400);
+        border-radius: 2px;
+      }
+      .top-row__qtd {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        text-align: right;
+      }
+      .top-row__total {
+        font-size: var(--b-font-size-sm);
+        font-weight: var(--b-font-weight-bold);
+        color: var(--b-primary-600);
+        text-align: right;
+      }
+      .top-row-skeleton {
+        display: flex;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-2) 0;
+      }
 
-    /* Sem dados */
-    .sem-dados { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-3); padding: var(--b-space-12) var(--b-space-4); text-align: center; }
-    .sem-dados__title { font-size: var(--b-font-size-lg); font-weight: var(--b-font-weight-semibold); color: var(--b-fg); margin: 0; }
-    .sem-dados__sub { font-size: var(--b-font-size-sm); color: var(--b-fg-muted); margin: 0; }
+      /* Sem dados */
+      .sem-dados {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-12) var(--b-space-4);
+        text-align: center;
+      }
+      .sem-dados__title {
+        font-size: var(--b-font-size-lg);
+        font-weight: var(--b-font-weight-semibold);
+        color: var(--b-fg);
+        margin: 0;
+      }
+      .sem-dados__sub {
+        font-size: var(--b-font-size-sm);
+        color: var(--b-fg-muted);
+        margin: 0;
+      }
 
-    .empty-state { display: flex; flex-direction: column; align-items: center; gap: var(--b-space-3); padding: var(--b-space-16) var(--b-space-4); text-align: center; color: var(--b-fg-muted); font-size: var(--b-font-size-sm); }
-
-  `],
+      .empty-state {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--b-space-3);
+        padding: var(--b-space-16) var(--b-space-4);
+        text-align: center;
+        color: var(--b-fg-muted);
+        font-size: var(--b-font-size-sm);
+      }
+    `,
+  ],
 })
 export class RelatoriosComponent {
   protected readonly router = inject(Router);
@@ -274,13 +566,13 @@ export class RelatoriosComponent {
 
   protected barAltura(total: number): number {
     const dias = this.relatorio.hasValue() ? this.relatorio.value().vendasPorDia : [];
-    const max = Math.max(...dias.map(d => d.total), 1);
+    const max = Math.max(...dias.map((d) => d.total), 1);
     return Math.round((total / max) * 100);
   }
 
   protected barProduto(total: number): number {
     const produtos = this.relatorio.hasValue() ? this.relatorio.value().topProdutos : [];
-    const max = Math.max(...produtos.map(p => p.total), 1);
+    const max = Math.max(...produtos.map((p) => p.total), 1);
     return Math.round((total / max) * 100);
   }
 
@@ -292,5 +584,4 @@ export class RelatoriosComponent {
       return data;
     }
   }
-
 }

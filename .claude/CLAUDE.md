@@ -22,9 +22,9 @@ Cada restaurante acessa pelo seu subdomínio (`restaurante.comandou.com.br`).
 
 | Camada | Tecnologia | Observação |
 |--------|-----------|------------|
-| Framework | Angular v21 | Standalone components obrigatório |
+| Framework | Angular v22 | Standalone components obrigatório |
 | Estado | Angular Signals | Nunca NgRx ou BehaviorSubject para estado global |
-| Formulários | Signal Forms (Angular v21) | Nunca ReactiveFormsModule legado |
+| Formulários | Signal Forms (Angular v22) | Nunca ReactiveFormsModule legado |
 | Dados async | `resource()` API | Para queries simples; Observable apenas se necessário |
 | HTTP | HttpClient + authInterceptor | Sempre via ApiService, nunca HttpClient direto nos components |
 | WebSocket | Socket.io-client | Sempre via SocketService singleton |
@@ -76,7 +76,7 @@ src/
 
 ---
 
-## 4. Padrões Angular v21 — Obrigatório Seguir
+## 4. Padrões Angular v22 — Obrigatório Seguir
 
 ### Componentes
 ```typescript
