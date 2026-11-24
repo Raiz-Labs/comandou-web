@@ -38,12 +38,12 @@
     "@playwright/test": "^1.65.0",
     "@typescript-eslint/eslint-plugin": "^8.59.0",
     "@typescript-eslint/parser": "^8.59.0",
-    "@vitest/coverage-v8": "^4.1.12",
+    "@vitest/coverage-v8": "^5.1.1",
     "eslint": "^10.2.1",
     "jsdom": "^31.0.1",
     "prettier": "^3.10.1",
     "typescript": "~6.0.3",
     "typescript-eslint": "^8.59.1",
-    "vitest": "^4.0.8"
+    "vitest": "^5.1.1"
   }
 }
