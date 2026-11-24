@@ -15,7 +15,7 @@ import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { Mesa } from '../../../shared/types';
 import { recarregarAoFocar } from '../../../shared/utils/recarregar-ao-focar';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { BUSCA_DEBOUNCE_MS } from '../admin-listagem.constants';
 
 interface MesaModel {
@@ -36,17 +36,17 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
 @Component({
   selector: 'app-admin-mesas',
   standalone: true,
-  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConfirmDialogComponent, PaginationComponent, LucideDynamicIcon],
   template: `
     <div class="layout">
       <!-- Topbar -->
       <header class="topbar">
         <button class="b-btn-back" (click)="router.navigateByUrl('/admin/dashboard')" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="18" />
+          <svg lucideIcon="arrow-left" [size]="18" />
         </button>
         <h1 class="topbar__title">Mesas</h1>
         <button class="b-btn-primary btn-novo" (click)="abrirCriar()">
-          <lucide-icon name="plus" [size]="16" />
+          <svg lucideIcon="plus" [size]="16" />
           Nova mesa
         </button>
       </header>
@@ -54,12 +54,12 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
       <!-- Toolbar -->
       <div class="toolbar">
         <div class="search-box">
-          <lucide-icon name="search" [size]="15" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="search" [size]="15" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar por número ou descrição..."
             [value]="busca()" (input)="onBuscaInput($event)" autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <lucide-icon name="x" [size]="13" />
+              <svg lucideIcon="x" [size]="13" />
             </button>
           }
         </div>
@@ -87,17 +87,17 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
           </div>
         } @else if (mesas.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p>Erro ao carregar mesas</p>
             <button class="b-btn-secondary" (click)="mesas.reload()">Tentar novamente</button>
           </div>
         } @else if (itens().length === 0) {
           <div class="empty-state">
-            <lucide-icon name="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="layout-grid" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Nenhuma mesa encontrada</p>
             @if (!busca() && filtroStatus() === null) {
               <button class="b-btn-primary" (click)="abrirCriar()">
-                <lucide-icon name="plus" [size]="16" />
+                <svg lucideIcon="plus" [size]="16" />
                 Criar primeira mesa
               </button>
             }
@@ -113,11 +113,11 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
                 <span class="status-pill status-pill--{{ mesa.status }}">{{ statusLabel(mesa.status) }}</span>
                 <div class="mesa-card__acoes">
                   <button class="acao-btn acao-btn--edit" (click)="abrirEditar(mesa)" aria-label="Editar">
-                    <lucide-icon name="pencil" [size]="14" />
+                    <svg lucideIcon="pencil" [size]="14" />
                   </button>
                   <button class="acao-btn acao-btn--delete" (click)="pedirExclusao(mesa)" aria-label="Excluir"
                     [disabled]="mesa.status !== 'livre'">
-                    <lucide-icon name="trash-2" [size]="14" />
+                    <svg lucideIcon="trash-2" [size]="14" />
                   </button>
                 </div>
               </div>
@@ -137,7 +137,7 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
         <div class="painel__header">
           <h2 class="painel__titulo">{{ editandoId() ? 'Editar mesa' : 'Nova mesa' }}</h2>
           <button class="painel__fechar" (click)="fecharPainel()" aria-label="Fechar">
-            <lucide-icon name="x" [size]="20" />
+            <svg lucideIcon="x" [size]="20" />
           </button>
         </div>
 
@@ -169,10 +169,10 @@ const STATUS_LABEL: Record<Mesa['status'], string> = {
             <button type="button" class="b-btn-secondary" (click)="fecharPainel()">Cancelar</button>
             <button type="button" class="b-btn-primary" [disabled]="salvando()" (click)="salvar()">
               @if (salvando()) {
-                <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                 Salvando...
               } @else {
-                <lucide-icon name="check" [size]="16" />
+                <svg lucideIcon="check" [size]="16" />
                 {{ editandoId() ? 'Salvar' : 'Criar mesa' }}
               }
             </button>

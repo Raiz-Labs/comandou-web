@@ -1,10 +1,10 @@
 import { Component, input, output, computed } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-pagination',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <nav class="paginacao" aria-label="Paginação">
       <button
@@ -13,7 +13,7 @@ import { LucideAngularModule } from 'lucide-angular';
         (click)="pageChange.emit(page() - 1)"
         aria-label="Página anterior"
       >
-        <lucide-icon name="chevron-left" [size]="16" />
+        <svg lucideIcon="chevron-left" [size]="16" />
       </button>
 
       @for (n of numeros(); track n) {
@@ -33,7 +33,7 @@ import { LucideAngularModule } from 'lucide-angular';
         (click)="pageChange.emit(page() + 1)"
         aria-label="Próxima página"
       >
-        <lucide-icon name="chevron-right" [size]="16" />
+        <svg lucideIcon="chevron-right" [size]="16" />
       </button>
     </nav>
   `,

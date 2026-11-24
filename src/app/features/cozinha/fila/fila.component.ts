@@ -14,19 +14,19 @@ import { RelogioService } from '../../../core/relogio/relogio.service';
 import { ToastService } from '../../../shared/components/toast/toast.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-fila',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, LucideAngularModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, LucideDynamicIcon],
   template: `
     <div class="layout">
       <app-connection-banner />
 
       <header class="header">
         <div class="header__left">
-          <lucide-icon name="chef-hat" [size]="24" color="var(--b-primary-500)" />
+          <svg lucideIcon="chef-hat" [size]="24" color="var(--b-primary-500)" />
           <h1 class="header__title">Fila da cozinha</h1>
         </div>
         <div class="header__right">
@@ -37,7 +37,7 @@ import { LucideAngularModule } from 'lucide-angular';
             [disabled]="fila.isLoading()"
             aria-label="Recarregar"
           >
-            <lucide-icon name="refresh-cw" [size]="16" [class.b-spin]="fila.isLoading()" />
+            <svg lucideIcon="refresh-cw" [size]="16" [class]="fila.isLoading() ? 'b-spin' : ''" />
           </button>
         </div>
       </header>
@@ -46,14 +46,14 @@ import { LucideAngularModule } from 'lucide-angular';
         <div class="counter counter--pendente">
           <span class="counter__num">{{ pendentes().length }}</span>
           <span class="counter__label">
-            <lucide-icon name="clock" [size]="13" />
+            <svg lucideIcon="clock" [size]="13" />
             pendente{{ pendentes().length !== 1 ? 's' : '' }}
           </span>
         </div>
         <div class="counter counter--preparo">
           <span class="counter__num">{{ emPreparo().length }}</span>
           <span class="counter__label">
-            <lucide-icon name="flame" [size]="13" />
+            <svg lucideIcon="flame" [size]="13" />
             em preparo
           </span>
         </div>
@@ -61,10 +61,10 @@ import { LucideAngularModule } from 'lucide-angular';
 
       @if (fila.error()) {
         <div class="b-empty-state">
-          <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
           <p class="b-empty-state__title">Erro ao carregar a fila</p>
           <button class="b-btn-secondary" (click)="fila.reload()">
-            <lucide-icon name="refresh-cw" [size]="16" />
+            <svg lucideIcon="refresh-cw" [size]="16" />
             Tentar novamente
           </button>
         </div>
@@ -73,7 +73,7 @@ import { LucideAngularModule } from 'lucide-angular';
         <!-- Coluna: Pendentes -->
         <section class="coluna">
           <h2 class="coluna__titulo coluna__titulo--pendente">
-            <lucide-icon name="clock" [size]="16" />
+            <svg lucideIcon="clock" [size]="16" />
             Pendentes
           </h2>
 
@@ -87,14 +87,14 @@ import { LucideAngularModule } from 'lucide-angular';
             }
           } @else if (pendentes().length === 0) {
             <div class="coluna__vazia">
-              <lucide-icon name="check-circle-2" [size]="32" color="var(--b-success-500)" />
+              <svg lucideIcon="check-circle-2" [size]="32" color="var(--b-success-500)" />
               <span>Tudo em dia!</span>
             </div>
           } @else {
             @for (item of pendentes(); track item.id) {
               <div class="item-card item-card--pendente">
                 <div class="item-card__mesa">
-                  <lucide-icon name="table-2" [size]="13" />
+                  <svg lucideIcon="table-2" [size]="13" />
                   Mesa {{ item.comanda.mesa?.numero ?? '—' }}
                   <span class="item-card__comanda">#{{ item.comandaId.slice(-4).toUpperCase() }}</span>
                 </div>
@@ -103,13 +103,13 @@ import { LucideAngularModule } from 'lucide-angular';
                   <span class="item-card__qtd">{{ item.quantidade }}x</span>
                   @if (item.observacao) {
                     <span class="item-card__obs">
-                      <lucide-icon name="message-square" [size]="12" />
+                      <svg lucideIcon="message-square" [size]="12" />
                       {{ item.observacao }}
                     </span>
                   }
                 </div>
                 <div class="item-card__tempo">
-                  <lucide-icon name="timer" [size]="12" />
+                  <svg lucideIcon="timer" [size]="12" />
                   {{ tempoEspera(item.criadoEm) }}
                 </div>
                 <button
@@ -118,9 +118,9 @@ import { LucideAngularModule } from 'lucide-angular';
                   (click)="iniciarPreparo(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                    <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                   } @else {
-                    <lucide-icon name="play" [size]="16" />
+                    <svg lucideIcon="play" [size]="16" />
                     Iniciar preparo
                   }
                 </button>
@@ -132,7 +132,7 @@ import { LucideAngularModule } from 'lucide-angular';
         <!-- Coluna: Em preparo -->
         <section class="coluna">
           <h2 class="coluna__titulo coluna__titulo--preparo">
-            <lucide-icon name="flame" [size]="16" />
+            <svg lucideIcon="flame" [size]="16" />
             Em preparo
           </h2>
 
@@ -152,7 +152,7 @@ import { LucideAngularModule } from 'lucide-angular';
             @for (item of emPreparo(); track item.id) {
               <div class="item-card item-card--preparo">
                 <div class="item-card__mesa">
-                  <lucide-icon name="table-2" [size]="13" />
+                  <svg lucideIcon="table-2" [size]="13" />
                   Mesa {{ item.comanda.mesa?.numero ?? '—' }}
                   <span class="item-card__comanda">#{{ item.comandaId.slice(-4).toUpperCase() }}</span>
                 </div>
@@ -161,13 +161,13 @@ import { LucideAngularModule } from 'lucide-angular';
                   <span class="item-card__qtd">{{ item.quantidade }}x</span>
                   @if (item.observacao) {
                     <span class="item-card__obs">
-                      <lucide-icon name="message-square" [size]="12" />
+                      <svg lucideIcon="message-square" [size]="12" />
                       {{ item.observacao }}
                     </span>
                   }
                 </div>
                 <div class="item-card__tempo item-card__tempo--preparo">
-                  <lucide-icon name="timer" [size]="12" />
+                  <svg lucideIcon="timer" [size]="12" />
                   {{ tempoEspera(item.criadoEm) }}
                 </div>
                 <button
@@ -176,9 +176,9 @@ import { LucideAngularModule } from 'lucide-angular';
                   (click)="marcarPronto(item)"
                 >
                   @if (processando().has(item.id)) {
-                    <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+                    <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
                   } @else {
-                    <lucide-icon name="check" [size]="16" />
+                    <svg lucideIcon="check" [size]="16" />
                     Marcar pronto
                   }
                 </button>

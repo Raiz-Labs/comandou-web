@@ -23,7 +23,7 @@ import { NotificacaoBannerComponent } from '../notificacao/notificacao-banner.co
 import { SeletorProdutoComponent } from './seletor-produto.component';
 import { ConfirmacaoItem, FormularioItemComponent } from './formulario-item.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 type UiStep = 'lista' | 'picker' | 'form' | 'edicao';
 
@@ -42,7 +42,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
     SeletorProdutoComponent,
     FormularioItemComponent,
     CurrencyBrPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
   ],
   template: `
     <div class="layout">
@@ -52,7 +52,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
       <!-- Header -->
       <header class="header">
         <button class="b-btn-back" (click)="voltar()" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="20" />
+          <svg lucideIcon="arrow-left" [size]="20" />
         </button>
         <div class="header__info">
           @if (comanda.isLoading()) {
@@ -95,16 +95,16 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
           }
         } @else if (comanda.error()) {
           <div class="b-empty-state">
-            <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
             <p class="b-empty-state__title">Erro ao carregar comanda</p>
             <button class="b-btn-secondary" (click)="comanda.reload()">
-              <lucide-icon name="refresh-cw" [size]="16" />
+              <svg lucideIcon="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (itensAtivos().length === 0 && itensCancelados().length === 0) {
           <div class="b-empty-state">
-            <lucide-icon name="shopping-bag" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="shopping-bag" [size]="48" color="var(--b-fg-subtle)" />
             <p class="b-empty-state__title">Comanda vazia</p>
             <p class="b-empty-state__sub">Toque em "Adicionar item" para começar o pedido</p>
           </div>
@@ -123,7 +123,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
                       (click)="abrirEdicao(item)"
                       aria-label="Editar item"
                     >
-                      <lucide-icon name="pencil" [size]="15" />
+                      <svg lucideIcon="pencil" [size]="15" />
                     </button>
                   }
                   @if (podeCancelar(item.status)) {
@@ -132,7 +132,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
                       (click)="pedirCancelamento(item)"
                       aria-label="Cancelar item"
                     >
-                      <lucide-icon name="x" [size]="15" />
+                      <svg lucideIcon="x" [size]="15" />
                     </button>
                   }
                   <app-status-badge [status]="item.status" />
@@ -140,7 +140,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
               </div>
               @if (item.observacao) {
                 <p class="item-card__obs">
-                  <lucide-icon name="message-square" [size]="12" />
+                  <svg lucideIcon="message-square" [size]="12" />
                   {{ item.observacao }}
                 </p>
               }
@@ -154,7 +154,7 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
           <!-- Itens cancelados -->
           @if (itensCancelados().length > 0) {
             <div class="cancelados-label">
-              <lucide-icon name="x-circle" [size]="13" />
+              <svg lucideIcon="x-circle" [size]="13" />
               Cancelados
             </div>
             @for (item of itensCancelados(); track item.id) {
@@ -180,12 +180,12 @@ const CANCELAVEL: StatusItem[] = ['pendente', 'em_preparo'];
         <div class="fab-area">
           @if (podeFechar()) {
             <button class="b-btn-ghost fab-fechar" (click)="pedirFechamento()">
-              <lucide-icon name="lock" [size]="18" />
+              <svg lucideIcon="lock" [size]="18" />
               Fechar comanda
             </button>
           }
           <button class="b-btn-primary fab" (click)="abrirPicker()">
-            <lucide-icon name="plus" [size]="20" />
+            <svg lucideIcon="plus" [size]="20" />
             Adicionar item
           </button>
         </div>

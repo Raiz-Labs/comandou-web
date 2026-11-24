@@ -1,11 +1,11 @@
 import { Component } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { theme, toggleTheme } from '../../../core/theme/theme.signal';
 
 @Component({
   selector: 'app-theme-toggle',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     <button
       class="theme-toggle"
@@ -13,7 +13,7 @@ import { theme, toggleTheme } from '../../../core/theme/theme.signal';
       (click)="toggleTheme()"
       [attr.aria-label]="theme() === 'dark' ? 'Ativar modo claro' : 'Ativar modo escuro'"
     >
-      <lucide-icon [name]="theme() === 'dark' ? 'sun' : 'moon'" [size]="18" />
+      <svg [lucideIcon]="theme() === 'dark' ? 'sun' : 'moon'" [size]="18" />
     </button>
   `,
   styles: [`

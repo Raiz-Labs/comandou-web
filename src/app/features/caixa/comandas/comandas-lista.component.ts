@@ -15,14 +15,14 @@ import { SocketService } from '../../../core/socket/socket.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { ConnectionBannerComponent } from '../../../shared/components/connection-banner/connection-banner.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 type Ordenacao = 'mesa' | 'tempo' | 'total';
 
 @Component({
   selector: 'app-comandas-lista',
   standalone: true,
-  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, ConnectionBannerComponent, CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="layout">
       <app-connection-banner />
@@ -31,7 +31,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
         <div class="header__top">
           <div class="header__info">
             <h1 class="header__title">
-              <lucide-icon name="receipt" [size]="22" color="var(--b-primary-500)" />
+              <svg lucideIcon="receipt" [size]="22" color="var(--b-primary-500)" />
               Caixa
             </h1>
             @if (!comandas.isLoading() && comandas.hasValue()) {
@@ -43,7 +43,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
 
           <!-- Busca por mesa -->
           <div class="search-box">
-            <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="search" [size]="16" color="var(--b-fg-subtle)" />
             <input
               class="search-input"
               type="search"
@@ -54,7 +54,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             />
             @if (busca()) {
               <button class="search-clear" (click)="busca.set('')" aria-label="Limpar busca">
-                <lucide-icon name="x" [size]="14" />
+                <svg lucideIcon="x" [size]="14" />
               </button>
             }
           </div>
@@ -67,7 +67,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'mesa'"
             (click)="ordenacao.set('mesa')"
           >
-            <lucide-icon name="layout-grid" [size]="13" />
+            <svg lucideIcon="layout-grid" [size]="13" />
             Mesa
           </button>
           <button
@@ -75,7 +75,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'tempo'"
             (click)="ordenacao.set('tempo')"
           >
-            <lucide-icon name="clock" [size]="13" />
+            <svg lucideIcon="clock" [size]="13" />
             Mais antiga
           </button>
           <button
@@ -83,7 +83,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
             [class.sort-tab--active]="ordenacao() === 'total'"
             (click)="ordenacao.set('total')"
           >
-            <lucide-icon name="trending-up" [size]="13" />
+            <svg lucideIcon="trending-up" [size]="13" />
             Maior total
           </button>
         </div>
@@ -103,21 +103,21 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
           </div>
         } @else if (comandas.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="48" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Erro ao carregar comandas</p>
             <button class="b-btn-secondary" (click)="comandas.reload()">
-              <lucide-icon name="refresh-cw" [size]="16" />
+              <svg lucideIcon="refresh-cw" [size]="16" />
               Tentar novamente
             </button>
           </div>
         } @else if (comandasFiltradas().length === 0) {
           <div class="empty-state">
             @if (busca()) {
-              <lucide-icon name="search-x" [size]="48" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="search-x" [size]="48" color="var(--b-fg-subtle)" />
               <p class="empty-state__title">Nenhuma comanda encontrada</p>
               <p class="empty-state__sub">Tente buscar por outro número de mesa</p>
             } @else {
-              <lucide-icon name="check-circle-2" [size]="48" color="var(--b-success-500)" />
+              <svg lucideIcon="check-circle-2" [size]="48" color="var(--b-success-500)" />
               <p class="empty-state__title">Nenhuma comanda aberta</p>
               <p class="empty-state__sub">Todas as mesas estão livres</p>
             }
@@ -132,18 +132,18 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
                 <div class="comanda-card__meta">
                   <span class="comanda-card__id">#{{ comanda.id.slice(-6).toUpperCase() }}</span>
                   <span class="comanda-card__tempo">
-                    <lucide-icon name="clock" [size]="12" />
+                    <svg lucideIcon="clock" [size]="12" />
                     {{ tempoAberta(comanda.criadoEm) }}
                   </span>
                 </div>
                 <div class="comanda-card__itens">
                   <span class="comanda-card__count">
-                    <lucide-icon name="package" [size]="13" />
+                    <svg lucideIcon="package" [size]="13" />
                     {{ itensAtivos(comanda) }} iten{{ itensAtivos(comanda) !== 1 ? 's' : '' }}
                   </span>
                   @if (temItemPronto(comanda)) {
                     <span class="comanda-card__pronto">
-                      <lucide-icon name="bell" [size]="12" />
+                      <svg lucideIcon="bell" [size]="12" />
                       item pronto
                     </span>
                   }
@@ -152,7 +152,7 @@ type Ordenacao = 'mesa' | 'tempo' | 'total';
                   {{ comanda.total | currencyBr }}
                 </div>
                 <div class="comanda-card__action">
-                  <lucide-icon name="chevron-right" [size]="18" color="var(--b-fg-subtle)" />
+                  <svg lucideIcon="chevron-right" [size]="18" color="var(--b-fg-subtle)" />
                 </div>
               </button>
             }

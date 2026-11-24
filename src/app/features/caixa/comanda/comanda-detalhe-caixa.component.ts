@@ -17,7 +17,7 @@ import { ConnectionBannerComponent } from '../../../shared/components/connection
 import { StatusBadgeComponent } from '../../../shared/components/status-badge/status-badge.component';
 import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { DivisaoContaComponent } from './divisao-conta.component';
 
 @Component({
@@ -30,7 +30,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
     ConfirmDialogComponent,
     DivisaoContaComponent,
     CurrencyBrPipe,
-    LucideAngularModule,
+    LucideDynamicIcon,
   ],
   template: `
     <div class="layout">
@@ -38,7 +38,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
 
       <header class="header">
         <button class="b-btn-back" (click)="voltar()" aria-label="Voltar">
-          <lucide-icon name="arrow-left" [size]="20" />
+          <svg lucideIcon="arrow-left" [size]="20" />
         </button>
 
         <div class="header__info">
@@ -52,7 +52,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
             </h1>
             <span class="header__sub">
               @if (comanda.value()!.nomeCliente) {
-                <lucide-icon name="user" [size]="13" />
+                <svg lucideIcon="user" [size]="13" />
                 {{ comanda.value()!.nomeCliente }} ·
               }
               Aberta {{ tempoAberta(comanda.value()!.criadoEm) }} atrás
@@ -72,7 +72,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
         <!-- Coluna esquerda: itens -->
         <section class="itens-section">
           <h2 class="section-title">
-            <lucide-icon name="package" [size]="16" />
+            <svg lucideIcon="package" [size]="16" />
             Itens do pedido
           </h2>
 
@@ -86,7 +86,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
             }
           } @else if (comanda.error()) {
             <div class="empty-state">
-              <lucide-icon name="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="wifi-off" [size]="40" color="var(--b-fg-subtle)" />
               <p>Erro ao carregar comanda</p>
               <button class="b-btn-secondary" (click)="comanda.reload()">Tentar novamente</button>
             </div>
@@ -151,7 +151,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
         @if (!comanda.isLoading() && comanda.hasValue() && comanda.value().aberta) {
           <aside class="fechamento-section">
             <h2 class="section-title">
-              <lucide-icon name="calculator" [size]="16" />
+              <svg lucideIcon="calculator" [size]="16" />
               Fechamento
             </h2>
 
@@ -179,13 +179,13 @@ import { DivisaoContaComponent } from './divisao-conta.component';
               (click)="pedirFechamento()"
             >
               @if (fechando()) {
-                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="18" class="b-spin" />
                 Fechando...
               } @else if (validandoDivisao()) {
-                <lucide-icon name="loader-2" [size]="18" class="b-spin" />
+                <svg lucideIcon="loader-2" [size]="18" class="b-spin" />
                 Validando divisão...
               } @else {
-                <lucide-icon name="check-circle-2" [size]="18" />
+                <svg lucideIcon="check-circle-2" [size]="18" />
                 Fechar comanda
               }
             </button>
@@ -195,7 +195,7 @@ import { DivisaoContaComponent } from './divisao-conta.component';
         @if (!comanda.isLoading() && comanda.hasValue() && !comanda.value().aberta) {
           <aside class="fechamento-section">
             <div class="comanda-fechada">
-              <lucide-icon name="check-circle-2" [size]="48" color="var(--b-success-500)" />
+              <svg lucideIcon="check-circle-2" [size]="48" color="var(--b-success-500)" />
               <p class="comanda-fechada__titulo">Comanda fechada</p>
               @if (comanda.value()!.fechadoEm) {
                 <p class="comanda-fechada__sub">

@@ -1,15 +1,14 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import {
-  LUCIDE_ICONS,
-  LucideIconProvider,
-  ArrowLeft,
-  Check,
-  Loader2,
-  Minus,
-  Plus,
-  X,
-} from 'lucide-angular';
+  provideLucideIcons,
+  LucideArrowLeft,
+  LucideCheck,
+  LucideLoader2,
+  LucideMinus,
+  LucidePlus,
+  LucideX,
+} from '@lucide/angular';
 import { ConfirmacaoItem, FormularioItemComponent } from './formulario-item.component';
 
 describe('FormularioItemComponent — quantidade e confirmação', () => {
@@ -17,11 +16,7 @@ describe('FormularioItemComponent — quantidade e confirmação', () => {
     TestBed.configureTestingModule({
       imports: [FormularioItemComponent],
       providers: [
-        {
-          provide: LUCIDE_ICONS,
-          multi: true,
-          useValue: new LucideIconProvider({ ArrowLeft, Check, Loader2, Minus, Plus, X }),
-        },
+        provideLucideIcons(LucideArrowLeft, LucideCheck, LucideLoader2, LucideMinus, LucidePlus, LucideX),
       ],
     });
   });

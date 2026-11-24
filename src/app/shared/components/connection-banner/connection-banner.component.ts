@@ -1,15 +1,15 @@
 import { Component, inject } from '@angular/core';
 import { SocketService } from '../../../core/socket/socket.service';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 @Component({
   selector: 'app-connection-banner',
   standalone: true,
-  imports: [LucideAngularModule],
+  imports: [LucideDynamicIcon],
   template: `
     @if (socketService.connectionStatus() !== 'connected') {
       <div class="banner" [class.banner--reconnecting]="socketService.connectionStatus() === 'reconnecting'">
-        <lucide-icon name="wifi-off" [size]="16" />
+        <svg lucideIcon="wifi-off" [size]="16" />
         <span>
           @if (socketService.connectionStatus() === 'reconnecting') {
             Reconectando em tempo real...

@@ -3,7 +3,7 @@ import { Router } from '@angular/router';
 import { AdminService } from '../admin.service';
 import { SkeletonComponent } from '../../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 interface NavLink {
   label: string;
@@ -22,7 +22,7 @@ const NAV_LINKS: NavLink[] = [
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <main class="main">
         <div class="main__header">
@@ -36,7 +36,7 @@ const NAV_LINKS: NavLink[] = [
             [disabled]="dados.isLoading()"
             aria-label="Atualizar"
           >
-            <lucide-icon name="refresh-cw" [size]="16" [class.b-spin]="dados.isLoading()" />
+            <svg lucideIcon="refresh-cw" [size]="16" [class]="dados.isLoading() ? 'b-spin' : ''" />
             Atualizar
           </button>
         </div>
@@ -53,14 +53,14 @@ const NAV_LINKS: NavLink[] = [
             }
           } @else if (dados.error()) {
             <div class="kpi-erro">
-              <lucide-icon name="wifi-off" [size]="24" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="wifi-off" [size]="24" color="var(--b-fg-subtle)" />
               <span>Erro ao carregar os indicadores</span>
               <button class="b-btn-secondary" (click)="dados.reload()">Tentar novamente</button>
             </div>
           } @else if (dados.hasValue()) {
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--primary">
-                <lucide-icon name="trending-up" [size]="20" />
+                <svg lucideIcon="trending-up" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Receita hoje</span>
@@ -70,7 +70,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--success">
-                <lucide-icon name="receipt" [size]="20" />
+                <svg lucideIcon="receipt" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Comandas fechadas</span>
@@ -80,7 +80,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--warning">
-                <lucide-icon name="calculator" [size]="20" />
+                <svg lucideIcon="calculator" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Ticket médio</span>
@@ -90,7 +90,7 @@ const NAV_LINKS: NavLink[] = [
 
             <div class="kpi-card">
               <div class="kpi-card__icon kpi-card__icon--info">
-                <lucide-icon name="table-2" [size]="20" />
+                <svg lucideIcon="table-2" [size]="20" />
               </div>
               <div class="kpi-card__body">
                 <span class="kpi-card__label">Mesas ocupadas</span>
@@ -108,7 +108,7 @@ const NAV_LINKS: NavLink[] = [
           <!-- Top produtos -->
           <section class="card">
             <h2 class="card__title">
-              <lucide-icon name="star" [size]="16" color="var(--b-warning-500)" />
+              <svg lucideIcon="star" [size]="16" color="var(--b-warning-500)" />
               Top produtos hoje
             </h2>
             @if (dados.isLoading()) {
@@ -146,7 +146,7 @@ const NAV_LINKS: NavLink[] = [
           <!-- Comandas abertas -->
           <section class="card">
             <h2 class="card__title">
-              <lucide-icon name="file-text" [size]="16" color="var(--b-primary-500)" />
+              <svg lucideIcon="file-text" [size]="16" color="var(--b-primary-500)" />
               Comandas abertas agora
               @if (!dados.isLoading() && dados.hasValue()) {
                 <span class="card__badge">{{ dados.value()!.comandasAbertas.length }}</span>
@@ -163,7 +163,7 @@ const NAV_LINKS: NavLink[] = [
               <div class="vazio">Erro ao carregar. <button class="b-btn-ghost" (click)="dados.reload()">Tentar novamente</button></div>
             } @else if (!(dados.hasValue() && dados.value().comandasAbertas.length)) {
               <div class="vazio">
-                <lucide-icon name="check-circle-2" [size]="24" color="var(--b-success-500)" />
+                <svg lucideIcon="check-circle-2" [size]="24" color="var(--b-success-500)" />
                 Nenhuma comanda aberta
               </div>
             } @else {
@@ -189,13 +189,13 @@ const NAV_LINKS: NavLink[] = [
           <!-- Atalhos -->
           <section class="card atalhos-card">
             <h2 class="card__title">
-              <lucide-icon name="zap" [size]="16" color="var(--b-warning-500)" />
+              <svg lucideIcon="zap" [size]="16" color="var(--b-warning-500)" />
               Acesso rápido
             </h2>
             <div class="atalhos-grid">
               @for (link of navLinks; track link.rota) {
                 <button class="atalho" (click)="navegar(link.rota)">
-                  <lucide-icon [name]="link.icon" [size]="22" />
+                  <svg [lucideIcon]="link.icon" [size]="22" />
                   <span>{{ link.label }}</span>
                 </button>
               }

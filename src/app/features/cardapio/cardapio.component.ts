@@ -9,7 +9,7 @@ import { firstValueFrom } from 'rxjs';
 import { ApiService } from '../../core/api/api.service';
 import { SkeletonComponent } from '../../shared/components/skeleton/skeleton.component';
 import { CurrencyBrPipe } from '../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MarcaComponent } from '../../shared/components/marca/marca.component';
 
 // GET /cardapio é um endpoint público dedicado (sem autenticação) — devolve só
@@ -38,13 +38,13 @@ interface CardapioResponse {
 @Component({
   selector: 'app-cardapio',
   standalone: true,
-  imports: [SkeletonComponent, CurrencyBrPipe, LucideAngularModule, MarcaComponent],
+  imports: [SkeletonComponent, CurrencyBrPipe, LucideDynamicIcon, MarcaComponent],
   template: `
     <div class="layout">
       <!-- Header -->
       <header class="header">
         <div class="header__brand">
-          <lucide-icon name="utensils-crossed" [size]="28" color="var(--b-primary-500)" />
+          <svg lucideIcon="utensils-crossed" [size]="28" color="var(--b-primary-500)" />
           <div>
             <h1 class="header__title">Cardápio</h1>
             <p class="header__sub">Veja nossos pratos e bebidas</p>
@@ -53,13 +53,13 @@ interface CardapioResponse {
 
         <!-- Busca -->
         <div class="search-box">
-          <lucide-icon name="search" [size]="16" color="var(--b-fg-subtle)" />
+          <svg lucideIcon="search" [size]="16" color="var(--b-fg-subtle)" />
           <input class="search-input" type="search" placeholder="Buscar no cardápio..."
             [value]="busca()" (input)="onBuscaInput($event)"
             autocomplete="off" />
           @if (busca()) {
             <button class="search-clear" (click)="busca.set('')" aria-label="Limpar">
-              <lucide-icon name="x" [size]="14" />
+              <svg lucideIcon="x" [size]="14" />
             </button>
           }
         </div>
@@ -104,7 +104,7 @@ interface CardapioResponse {
           }
         } @else if (dados.error()) {
           <div class="empty-state">
-            <lucide-icon name="wifi-off" [size]="44" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="wifi-off" [size]="44" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Cardápio indisponível</p>
             <p class="empty-state__sub">Não foi possível carregar o cardápio. Tente novamente.</p>
             <button class="b-btn-secondary" (click)="dados.reload()">Tentar novamente</button>
@@ -113,7 +113,7 @@ interface CardapioResponse {
           <!-- Resultado de busca -->
           @if (resultadoBusca().length === 0) {
             <div class="empty-state">
-              <lucide-icon name="search-x" [size]="44" color="var(--b-fg-subtle)" />
+              <svg lucideIcon="search-x" [size]="44" color="var(--b-fg-subtle)" />
               <p class="empty-state__title">Nenhum resultado</p>
               <p class="empty-state__sub">Nenhum item corresponde a "{{ busca() }}".</p>
               <button class="b-btn-ghost" (click)="busca.set('')">Limpar busca</button>
@@ -121,7 +121,7 @@ interface CardapioResponse {
           } @else {
             <div class="secao">
               <h2 class="secao__titulo">
-                <lucide-icon name="search" [size]="16" />
+                <svg lucideIcon="search" [size]="16" />
                 {{ resultadoBusca().length }} resultado{{ resultadoBusca().length !== 1 ? 's' : '' }} para "{{ busca() }}"
               </h2>
               <div class="produtos-grid">
@@ -129,7 +129,7 @@ interface CardapioResponse {
                   <article class="produto-card">
                     <div class="produto-card__img-wrap">
                       <div class="produto-card__img-placeholder">
-                        <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
+                        <svg lucideIcon="utensils" [size]="28" color="var(--b-fg-subtle)" />
                       </div>
                     </div>
                     <div class="produto-card__info">
@@ -144,7 +144,7 @@ interface CardapioResponse {
           }
         } @else if (categoriasComItens().length === 0) {
           <div class="empty-state">
-            <lucide-icon name="package-x" [size]="44" color="var(--b-fg-subtle)" />
+            <svg lucideIcon="package-x" [size]="44" color="var(--b-fg-subtle)" />
             <p class="empty-state__title">Cardápio vazio</p>
             <p class="empty-state__sub">Nenhum item disponível no momento.</p>
           </div>
@@ -158,7 +158,7 @@ interface CardapioResponse {
                     <!-- Imagem -->
                     <div class="produto-card__img-wrap">
                       <div class="produto-card__img-placeholder">
-                        <lucide-icon name="utensils" [size]="28" color="var(--b-fg-subtle)" />
+                        <svg lucideIcon="utensils" [size]="28" color="var(--b-fg-subtle)" />
                       </div>
                     </div>
                     <!-- Info -->

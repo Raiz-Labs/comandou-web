@@ -29,7 +29,7 @@ Cada restaurante acessa pelo seu subdomínio (`restaurante.comandou.com.br`).
 | HTTP | HttpClient + authInterceptor | Sempre via ApiService, nunca HttpClient direto nos components |
 | WebSocket | Socket.io-client | Sempre via SocketService singleton |
 | Estilo | b-system tokens + SCSS | Nunca bibliotecas externas (Material, PrimeNG, etc.) |
-| Ícones | Lucide (CDN) | `<i data-lucide="nome">` com width/height inline |
+| Ícones | @lucide/angular (`LucideDynamicIcon`) | `<svg lucideIcon="nome" [size]="16" />`; ícone novo deve ser registrado em `provideLucideIcons` no `app.config.ts` |
 | Tipografia | Nunito (Google Fonts) | Já carregada no index.html |
 | Deploy | Vercel | Build: `ng build --configuration production` |
 

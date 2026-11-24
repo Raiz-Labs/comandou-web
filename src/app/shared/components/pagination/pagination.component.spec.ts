@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { LUCIDE_ICONS, LucideIconProvider, ChevronLeft, ChevronRight } from 'lucide-angular';
+import { provideLucideIcons, LucideChevronLeft, LucideChevronRight } from '@lucide/angular';
 import { PaginationComponent } from './pagination.component';
 
 const setup = (page: number, totalPages: number) => {
@@ -9,11 +9,7 @@ const setup = (page: number, totalPages: number) => {
   TestBed.configureTestingModule({
     imports: [PaginationComponent],
     providers: [
-      {
-        provide: LUCIDE_ICONS,
-        multi: true,
-        useValue: new LucideIconProvider({ ChevronLeft, ChevronRight }),
-      },
+      provideLucideIcons(LucideChevronLeft, LucideChevronRight),
     ],
   });
   const fixture = TestBed.createComponent(PaginationComponent);

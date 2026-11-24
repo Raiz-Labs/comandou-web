@@ -1,6 +1,6 @@
 import { Component, OnInit, input, output, signal } from '@angular/core';
 import { CurrencyBrPipe } from '../../../shared/pipes/currency-br.pipe';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 
 export interface ConfirmacaoItem {
   quantidade: number;
@@ -10,19 +10,19 @@ export interface ConfirmacaoItem {
 @Component({
   selector: 'app-formulario-item',
   standalone: true,
-  imports: [CurrencyBrPipe, LucideAngularModule],
+  imports: [CurrencyBrPipe, LucideDynamicIcon],
   template: `
     <div class="b-backdrop" (click)="cancelado.emit()"></div>
     <div class="sheet" role="dialog" aria-modal="true" [attr.aria-label]="titulo()">
       <div class="sheet__header">
         @if (mostrarVoltar()) {
           <button class="b-btn-back" (click)="voltar.emit()" aria-label="Voltar">
-            <lucide-icon name="arrow-left" [size]="18" />
+            <svg lucideIcon="arrow-left" [size]="18" />
           </button>
         }
         <h2 class="sheet__title">{{ titulo() }}</h2>
         <button class="sheet__close" (click)="cancelado.emit()" aria-label="Fechar">
-          <lucide-icon name="x" [size]="20" />
+          <svg lucideIcon="x" [size]="20" />
         </button>
       </div>
 
@@ -37,11 +37,11 @@ export interface ConfirmacaoItem {
             [disabled]="quantidade() <= 1"
             aria-label="Diminuir quantidade"
           >
-            <lucide-icon name="minus" [size]="18" />
+            <svg lucideIcon="minus" [size]="18" />
           </button>
           <span class="qty-value">{{ quantidade() }}</span>
           <button class="qty-btn" (click)="incrementarQtd()" aria-label="Aumentar quantidade">
-            <lucide-icon name="plus" [size]="18" />
+            <svg lucideIcon="plus" [size]="18" />
           </button>
         </div>
 
@@ -72,10 +72,10 @@ export interface ConfirmacaoItem {
           (click)="confirmar()"
         >
           @if (salvando()) {
-            <lucide-icon name="loader-2" [size]="18" class="b-spin" />
+            <svg lucideIcon="loader-2" [size]="18" class="b-spin" />
             Salvando...
           } @else {
-            <lucide-icon name="check" [size]="18" />
+            <svg lucideIcon="check" [size]="18" />
             {{ textoConfirmar() }}
           }
         </button>

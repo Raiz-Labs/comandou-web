@@ -1,12 +1,12 @@
 import { Component, inject, signal } from '@angular/core';
-import { LucideAngularModule } from 'lucide-angular';
+import { LucideDynamicIcon } from '@lucide/angular';
 import { MasterAuthService } from '../../../core/master/master-auth.service';
 import { MarcaComponent } from '../../../shared/components/marca/marca.component';
 
 @Component({
   selector: 'app-master-login',
   standalone: true,
-  imports: [LucideAngularModule, MarcaComponent],
+  imports: [LucideDynamicIcon, MarcaComponent],
   template: `
     <div class="page">
       <div class="card">
@@ -50,7 +50,7 @@ import { MarcaComponent } from '../../../shared/components/marca/marca.component
                 (click)="senhaVisivel.set(!senhaVisivel())"
                 [attr.aria-label]="senhaVisivel() ? 'Ocultar senha' : 'Mostrar senha'"
               >
-                <lucide-icon [name]="senhaVisivel() ? 'eye-off' : 'eye'" [size]="16" />
+                <svg [lucideIcon]="senhaVisivel() ? 'eye-off' : 'eye'" [size]="16" />
               </button>
             </div>
           </div>
@@ -61,7 +61,7 @@ import { MarcaComponent } from '../../../shared/components/marca/marca.component
 
           <button type="submit" class="btn-submit" [disabled]="loading()">
             @if (loading()) {
-              <lucide-icon name="loader-2" [size]="16" class="b-spin" />
+              <svg lucideIcon="loader-2" [size]="16" class="b-spin" />
               Entrando...
             } @else {
               Entrar
